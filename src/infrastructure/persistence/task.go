@@ -1,0 +1,166 @@
+package persistence
+
+import (
+	"fmt"
+
+	"github.com/JneiraS/AMS/src/domain/models"
+	"gorm.io/gorm"
+)
+
+type Task struct {
+	gorm.Model
+	models.Task
+}
+type Subtask struct {
+	gorm.Model
+	models.Subtask
+}
+
+type TaskSubtasks struct {
+	SubtaskID uint `gorm:"primaryKey"`
+	TaskID    uint `gorm:"primaryKey"`
+}
+
+type Comment struct {
+	gorm.Model
+	models.Comment
+}
+
+type TaskComments struct {
+	CommentID uint `gorm:"primaryKey"`
+	TaskID    uint `gorm:"primaryKey"`
+}
+
+type Tag struct {
+	gorm.Model
+	models.Tag
+}
+type TaskTags struct {
+	TaskID uint `gorm:"primaryKey"`
+	TagID  uint `gorm:"primaryKey"`
+}
+
+type TaskTimeSpent struct {
+	gorm.Model
+	models.TimeSpent
+	TaskID uint `gorm:"primaryKey"`
+}
+
+//------CREATE------
+
+// Crée une nouvelle tâche dans la base de données.
+//
+// La fonction prend une connexion de base de données GORM et une structure de
+// tâche. Elle crée une nouvelle tâche dans la base de données avec les valeurs
+// présentes dans la structure de tâche.
+//
+// La fonction ne renvoie pas de valeur, mais provoquera une panique si l'opération
+// de création  choue.
+func CreateTask(db *gorm.DB, task Task) {
+	db.Create(&task)
+
+}
+
+// Crée une nouvelle sous-tâche dans la base de données.
+//
+// La fonction prend une connexion de base de données GORM et une structure de
+// sous-tâche. Elle crée une nouvelle sous-tâche dans la base de données avec les
+// valeurs présentes dans la structure de sous-tâche.
+//
+// La fonction ne renvoie pas de valeur, mais provoquera une panique si l'opération
+// de création  choue.
+func CreateSubtask(db *gorm.DB, subtask Subtask) {
+	db.Create(&subtask)
+}
+
+// Crée un nouveau commentaire dans la base de données.
+//
+// La fonction prend une connexion de base de données GORM et une structure de
+// commentaire. Elle crée un nouveau commentaire dans la base de données avec les
+// valeurs présentes dans la structure de commentaire.
+//
+// La fonction ne renvoie pas de valeur, mais provoquera une panique si l'opération
+// de création  choue.
+func CreateComment(db *gorm.DB, comment Comment) {
+	db.Create(&comment)
+}
+
+//------READ------
+
+// Récupère une tâche de la base de données.
+//
+// La fonction prend une connexion de base de données GORM et un identifiant de
+// tâche, et renvoie la structure de tâche correspondante, si elle existe.
+// Si la tâche n'existe pas, la structure renvoyée est vide.
+func GetTask(db *gorm.DB, id uint) (Task, error) {
+	var task Task
+	r := db.Find(&task, id)
+	if r.Error == gorm.ErrRecordNotFound {
+		return Task{}, fmt.Errorf("task not found")
+	}
+
+	return task, nil
+}
+
+// Récupère une sous-tâche de la base de données.
+//
+// La fonction prend une connexion de base de données GORM et un identifiant de
+// sous-tâche, et renvoie la structure de sous-tâche correspondante, si elle existe.
+// Si la sous-tâche n'existe pas, la structure renvoyée est vide.
+func GetSubtask(db *gorm.DB, id uint) Subtask {
+	var subtask Subtask
+	db.First(&subtask, id)
+	return subtask
+}
+
+// Récupère des commentaires de la base de données.
+//
+// La fonction prend une connexion de base de données GORM et un identifiant de
+// commentaire, et renvoie une liste de structures de commentaires correspondantes,
+// si elles existent. Si aucun commentaire n'existe pour l'identifiant donné, la
+// liste renvoyée est vide.
+
+func GetComment(db *gorm.DB, id uint) []Comment {
+	var comments []Comment
+	db.First(&comments, id)
+	return comments
+}
+
+//------UPDATE------
+
+// Mettre à jour une tâche dans la base de donn es.
+//
+// La fonction prend une connexion de base de donn es GORM et une structure de
+// tâche. Elle mettra à jour la tâche dans la base de données avec les valeurs
+// présentes dans la structure de tâche.
+//
+// La fonction ne renvoie pas de valeur, mais provoquera une panique si l'opération
+// de mise à jour  choue.
+func UpdateTask(db *gorm.DB, task Task) {
+	db.Model(&task).Updates(map[string]interface{}{
+		"Title":         task.Title,
+		"Description":   task.Description,
+		"DueDate":       task.DueDate,
+		"Status":        task.Status,
+		"Priority":      task.Priority,
+		"Assignee":      task.Assignee,
+		"Creator":       task.Creator,
+		"Project":       task.Project,
+		"Progress":      task.Progress,
+		"EstimatedTime": task.EstimatedTime,
+	})
+}
+
+//------DELETE------
+
+// Supprime une tâche de la base de données.
+//
+// La fonction prend une connexion de base de données GORM et un identifiant de
+// tâche, et supprime la tâche correspondante de la base de données.
+//
+// La fonction ne renvoie pas de valeur, mais provoquera une panique si l'opération
+// d'effacement  choue.
+func DeleteTask(db *gorm.DB, id uint) {
+	var task Task
+	db.Delete(&task, id)
+}
