@@ -151,6 +151,36 @@ func UpdateTask(db *gorm.DB, task Task) {
 	})
 }
 
+// Mettre à jour une sous-tâche dans la base de données.
+//
+// La fonction prend une connexion de base de données GORM et une structure de
+// sous-tâche. Elle mettra à jour la sous-tâche dans la base de données avec les
+// valeurs présentes dans la structure de sous-tâche.
+//
+// La fonction ne renvoie pas de valeur, mais provoquera une panique si l'opération
+// de mise à jour  choue.
+func UpdateSubtask(db *gorm.DB, subtask Subtask) {
+	db.Model(&subtask).Updates(map[string]interface{}{
+		"Title":  subtask.Title,
+		"Status": subtask.Status,
+	})
+}
+
+// Mettre à jour un commentaire dans la base de données.
+//
+// La fonction prend une connexion de base de données GORM et une structure de
+// commentaire. Elle mettra à jour le commentaire dans la base de données avec les
+// valeurs.presentes dans la structure de commentaire.
+//
+// La fonction ne renvoie pas de valeur, mais provoquera une panique si l'opération
+// de mise à jour  choue.
+func UpdateComment(db *gorm.DB, comment Comment) {
+	db.Model(&comment).Updates(map[string]interface{}{
+		"Author": comment.Author,
+		"Text":   comment.Text,
+	})
+}
+
 //------DELETE------
 
 // Supprime une tâche de la base de données.
@@ -163,4 +193,28 @@ func UpdateTask(db *gorm.DB, task Task) {
 func DeleteTask(db *gorm.DB, id uint) {
 	var task Task
 	db.Delete(&task, id)
+}
+
+// Supprime une sous-tâche de la base de données.
+//
+// La fonction prend une connexion de base de données GORM et un identifiant de
+// sous-tâche, et supprime la sous-tâche correspondante de la base de données.
+//
+// La fonction ne renvoie pas de valeur, mais provoquera une panique si l'opération
+// d'effacement  choue.
+func DeleteSubtask(db *gorm.DB, id uint) {
+	var subtask Subtask
+	db.Delete(&subtask, id)
+}
+
+// Supprime un commentaire de la base de données.
+//
+// La fonction prend une connexion de base de données GORM et un identifiant de
+// commentaire, et supprime le commentaire correspondant de la base de données.
+//
+// La fonction ne renvoie pas de valeur, mais provoquera une panique si l'opération
+// d'effacement  choue.
+func DeleteComment(db *gorm.DB, id uint) {
+	var comment Comment
+	db.Delete(&comment, id)
 }
