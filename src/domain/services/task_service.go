@@ -7,18 +7,17 @@ import (
 	"gorm.io/gorm"
 )
 
-// StartTask démarre une tâche et enregistre le temps de départ.
-//
-// La fonction prend une connexion de base de données GORM et une structure de
-// tâche. Elle met à jour la tâche dans la base de données en ajoutant le temps
-// de départ actuel.
-func StartTask(db *gorm.DB, task persistence.Task) {
+// Prend une connexion à la base de données GORM et un ID de tâche.
+// Récupère la tâche depuis la base de données et la met à jour en
+// ajoutant l'heure de début actuelle.
+func StartTask(db *gorm.DB, id uint) {
 	var taskSpent persistence.TaskTimeSpent
-	// Récupérer la tâche à partir de la base de données
-	db.First(&task)
-	// Ajouter le temps de début de tâche
+
+	// Récupère la tâche depuis la base de données
+	task, _ := persistence.GetTask(db, id)
+	// Crée une entrée TaskTimeSpent avec l'heure de début actuelle et l'ID de la tâche
 	taskSpent.StartTime = time.Now()
 	taskSpent.TaskID = uint(task.ID)
-	// Mettre à jour la tâche dans la base de données
+	// Insère l'enregistrement TaskTimeSpent dans la base de données
 	db.Create(&taskSpent)
 }
