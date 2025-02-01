@@ -4,6 +4,7 @@ import (
 	// "time"
 	"net/http"
 
+	"github.com/JneiraS/AMS/src/infrastructure/persistence"
 	"github.com/gin-gonic/gin"
 )
 
@@ -13,20 +14,24 @@ func Views() {
 	router.Static("/static", "src/infrastructure/web/static")
 
 	router.POST("/", func(c *gin.Context) {
-		name := c.PostForm("name")
-		email := c.PostForm("email")
+
+		db := persistence.CreateDB()
+		var allTasks []persistence.Task
+		db.Find(&allTasks)
+
+		// name := c.PostForm("name")
+		// email := c.PostForm("email")
 		c.HTML(http.StatusOK, "index.tmpl", gin.H{
-			"title": "Main website",
-			"name":  name,
-			"email": email,
+			"title": "Liste des taches",
+			"tasks": allTasks,
 		})
 	})
 
-	router.GET("/", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "index.tmpl", gin.H{
-			"title": "Main website",
-		})
-	})
+	// router.GET("/", func(c *gin.Context) {
+	// 	c.HTML(http.StatusOK, "index.tmpl", gin.H{
+	// 		"title": "Main websites",
+	// 	})
+	// })
 
 	router.GET("/indexx", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "indexx.tmpl", gin.H{
