@@ -1,0 +1,46 @@
+body {
+  background-color: rgb(58, 74, 89);
+}
+
+form {
+  background-color: rgb(58, 74, 89);
+  padding: 20px;
+  border-radius: 5px;
+  width: 400px;
+  margin: 0 auto;
+  position: absolute;
+  right: 0;
+}
+
+form label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: rgba(255, 255, 255, 0.859);
+}
+
+form input[type="text"],
+form input[type="datetime-local"],
+form select {
+  background-color: rgb(51, 65, 77);
+  color: rgba(255, 255, 255, 0.859);
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #cccccc7d;
+  border-radius: 3px;
+  box-sizing: border-box;
+}
+
+form input[type="submit"] {
+  background-color: #4caf50;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+form input[type="submit"]:hover {
+  background-color: #45a049;
+}
