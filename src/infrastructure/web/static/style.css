@@ -1,3 +1,9 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 body {
   background-color: rgb(58, 74, 89);
 }
@@ -6,10 +12,11 @@ form {
   background-color: rgb(58, 74, 89);
   padding: 20px;
   border-radius: 5px;
-  width: 400px;
+  width: 20%;
   margin: 0 auto;
   position: absolute;
   right: 0;
+  top: 0;
 }
 
 form label {
@@ -21,13 +28,14 @@ form label {
 
 form input[type="text"],
 form input[type="datetime-local"],
-form select {
+form select,
+form textarea {
   background-color: rgb(51, 65, 77);
   color: rgba(255, 255, 255, 0.859);
   width: 100%;
   padding: 10px;
   margin-bottom: 10px;
-  border: 1px solid #cccccc7d;
+  border: 1px solid #cccccc37;
   border-radius: 3px;
   box-sizing: border-box;
 }
@@ -43,4 +51,36 @@ form input[type="submit"] {
 
 form input[type="submit"]:hover {
   background-color: #45a049;
+}
+
+/* Les Tâches */
+.task-container {
+  width: 80%;
+  background-color: rgb(51, 65, 77);
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+li {
+  list-style-type: none;
+  margin: .25em;
+}
+
+.task-card {
+  width: fit-content;
+  background-color: salmon;
+  margin: 1em;
+}
+
+.task-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.task-card-header li {
+  background-color: rgba(255, 255, 255, 0.448);
+  padding: .15em;
+  border-radius: 3px;
 }
