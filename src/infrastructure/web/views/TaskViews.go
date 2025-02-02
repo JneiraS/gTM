@@ -42,7 +42,9 @@ func Views() {
 		}
 		db := persistence.CreateDB()
 		task := persistence.Task{}
-		db.Model(&task).Where("id = ?", id).Update("status", "done")
+		db.First(&task, id)
+		task.Status = "done"
+		persistence.UpdateTask(db, task)
 		c.Redirect(http.StatusFound, "/")
 	})
 
