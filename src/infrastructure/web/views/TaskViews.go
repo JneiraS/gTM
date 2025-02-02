@@ -3,7 +3,6 @@ package views
 import (
 	// "time"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/JneiraS/AMS/src/application/useCases"
@@ -34,21 +33,10 @@ func Views() {
 			"taskswithoutdue": taskWithoutDueDate,
 		})
 	})
-	router.GET("/done/:id", func(c *gin.Context) {
-		id, err := strconv.Atoi(c.Param("id"))
-		if err != nil {
-			c.Status(http.StatusBadRequest)
-			return
-		}
-		db := persistence.CreateDB()
-		task := persistence.Task{}
-		db.First(&task, id)
-		task.Status = "done"
-		persistence.UpdateTask(db, task)
-		c.Redirect(http.StatusFound, "/")
-	})
 
+	router.GET("/done/:id", useCases.UpdateTaskHandler(persistence.CreateDB()))
 	router.POST("/", useCases.CreateTaskHandler(persistence.CreateDB()))
 
 	router.Run(":8080")
+
 }

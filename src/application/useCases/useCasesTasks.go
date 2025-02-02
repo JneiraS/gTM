@@ -2,6 +2,7 @@ package useCases
 
 import (
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/JneiraS/AMS/src/domain/models"
@@ -28,6 +29,23 @@ func CreateTaskHandler(db *gorm.DB) gin.HandlerFunc {
 			},
 		}
 		persistence.CreateTask(db, task)
+		c.Redirect(http.StatusFound, "/")
+	}
+}
+
+// updateTaskHandler met à jour une tâche dans la base de données
+func UpdateTaskHandler(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			c.Status(http.StatusBadRequest)
+			return
+		}
+		db := persistence.CreateDB()
+		task := persistence.Task{}
+		db.First(&task, id)
+		task.Status = "done"
+		persistence.UpdateTask(db, task)
 		c.Redirect(http.StatusFound, "/")
 	}
 }
