@@ -3,53 +3,166 @@
 	<link rel="stylesheet" type="text/css" href="/static/style.css">
 </head>
 	<h1>
-		{{ .title }}
 	</h1>
 
 		<form action="/" method="post">
-			<label for="title">Title:</label><br>
-			<input type="text" id="title" name="title"><br>
-			<label for="description">Description:</label><br>
-			<textarea id="description" name="description" rows="4" cols="50"></textarea><br>
-			<label for="due_date">Due Date:</label><br>
-			<input type="datetime-local" id="due_date" name="due_date"><br>
-			<label for="status">Status:</label><br>
+			<label for="title">Title:</label>
+			<input type="text" id="title" name="title" required>
+			<label for="description">Description:</label>
+			<textarea id="description" name="description" rows="4" cols="50" required></textarea>
+			<label for="due_date">Due Date:</label>
+			<input type="datetime-local" id="due_date" name="due_date">
+			<label for="status">Status:</label>
 			<select id="status" name="status">
 				<option value="pending">Pending</option>
-				<option value="in_progress">In Progress</option>
+				<option value="in progress">In Progress</option>
 				<option value="done">Done</option>
-			</select><br>
-			<label for="priority">Priority:</label><br>
+			</select>
+			<label for="priority">Priority:</label>
 			<select id="priority" name="priority">
-				<option value="low">Low</option>
-				<option value="medium">Medium</option>
-				<option value="high">High</option>
-			</select><br>
-			<label for="assignee">Assignee:</label><br>
-			<input type="text" id="assignee" name="assignee"><br>
-			<label for="creator">Creator:</label><br>
-			<input type="text" id="creator" name="creator"><br>
-			<label for="project">Project:</label><br>
-			<input type="text" id="project" name="project"><br>
+				<option value="c">Low</option>
+				<option value="b">Medium</option>
+				<option value="a">High</option>
+			</select>
+			<label for="assignee">Assignee:</label>
+			<input type="text" id="assignee" name="assignee">
+			<label for="creator">Creator:</label>
+			<input type="text" id="creator" name="creator">
+			<label for="project">Project:</label>
+			<input type="text" id="project" name="project">
 			<input type="submit" value="Submit">
 		</form>
+
+		<section class="main-container">
+			<h2>Tâches à faire</h2>
 			<section class="task-container">
-			{{ range .tasks }}
+			{{ range .prioritytasks }}
 			<ul class="task-card">
-				<div class="task-card-header">
+				<div class="task-card-header-{{.Priority}}">
 					<li>{{ .Title }}</li>
-					<li>Crée le {{.CreatedAt.Format "02.01.2006 à 15:04:05"}}</li>
+					<li>C: {{.CreatedAt.Format "02.01.2006 à 15:04:05"}}</li>
 					
 					{{if .UpdatedAt.After .CreatedAt}}
-					<li>Modifié le {{.UpdatedAt.Format "02.01.2006 à 15:04:05"}}</li>
+					<li>U: {{.UpdatedAt.Format "02.01.2006 à 15:04:05"}}</li>
 					{{end}}
 				
-				</div>			
+				</div>	
+				<div class="description">		
 				<li>{{ .Description }}</li>
+				</div>	
+				<div class="task-card-bottom">
+					{{if .DueDate.IsZero }} 
+					{{else}}
+					<li>D: {{ .DueDate.Format "02.01.2006 à 15:04:05" }}</li>
+					{{end}}
+					<li> {{ .Status }}</li>
+					<li>
+						<a class="done-bottom" href="/done/{{.ID}}">
+							<button type="submit">Done</button>
+						</a>
+					</li>
+				</div>
+				
 			</ul>
 			{{ end }}
+			
+			</section>
+		
+		<section class="task-container">
+		{{ range .taskswithoutdue }}
+		<ul class="task-card">
+			<div class="task-card-header-{{.Priority}}">
+				<li>{{ .Title }}</li>
+				<li>C: {{.CreatedAt.Format "02.01.2006 à 15:04:05"}}</li>
+				
+				{{if .UpdatedAt.After .CreatedAt}}
+				<li>U: {{.UpdatedAt.Format "02.01.2006 à 15:04:05"}}</li>
+				{{end}}
+			
+			</div>	
+			<div class="description">		
+			<li>{{ .Description }}</li>
+			</div>	
+			<div class="task-card-bottom">
+				{{if .DueDate.IsZero }} 
+				{{else}}
+				<li>D: {{ .DueDate.Format "02.01.2006 à 15:04:05" }}</li>
+				{{end}}
+				<li> {{ .Status }}</li>
+				<li>
+					<a class="done-bottom" href="/done/{{.ID}}">
+						<button type="submit">Done</button>
+					</a>
+				</li>
+			</div>
+		</ul>
+		{{ end }}
 		</section>
 
-		
+		<h2>
+			Tâches en retard
+		</h2>
+		<section class="task-container">
+			{{ range .latetasks }}
+			<ul class="task-card">
+				<div class="task-card-header-{{.Priority}}">
+					<li>{{ .Title }}</li>
+					<li>C: {{.CreatedAt.Format "02.01.2006 à 15:04:05"}}</li>
+					
+					{{if .UpdatedAt.After .CreatedAt}}
+					<li>U: {{.UpdatedAt.Format "02.01.2006 à 15:04:05"}}</li>
+					{{end}}
+				
+				</div>	
+				<div class="description">		
+				<li>{{ .Description }}</li>
+				</div>	
+				<div class="task-card-bottom">
+					{{if .DueDate.IsZero }} 
+					{{else}}
+					<li>D: {{ .DueDate.Format "02.01.2006 à 15:04:05" }}</li>
+					{{end}}
+					<li> {{ .Status }}</li>
+					<li>
+					</li>
+				</div>
+			</ul>
+
+			{{end}}
+
+		</section>
+
+		<h2>Tâches terminées récemment</h2>
+		<section class="task-container">
+			{{ range .tasksdone }}
+			<ul class="task-card">
+				<div class="task-card-header-{{.Priority}}">
+					<li>{{ .Title }}</li>
+					<li>C: {{.CreatedAt.Format "02.01.2006 à 15:04:05"}}</li>
+					
+					{{if .UpdatedAt.After .CreatedAt}}
+					<li>U: {{.UpdatedAt.Format "02.01.2006 à 15:04:05"}}</li>
+					{{end}}
+				
+				</div>	
+				<div class="description">		
+				<li>{{ .Description }}</li>
+				</div>	
+				<div class="task-card-bottom">
+					{{if .DueDate.IsZero }} 
+					{{else}}
+					<li>D: {{ .DueDate.Format "02.01.2006 à 15:04:05" }}</li>
+					{{end}}
+					<li> {{ .Status }}</li>
+					<li>
+					</li>
+				</div>
+			</ul>
+
+			{{end}}
+			
+	
+		</section>
+	</section>
 
 </html>
