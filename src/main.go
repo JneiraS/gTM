@@ -1,53 +1,27 @@
 package main
 
-import (
-	// "time"
-	"github.com/JneiraS/AMS/src/domain/models"
-	// "github.com/JneiraS/AMS/src/domain/services"
-	"github.com/JneiraS/AMS/src/infrastructure/persistence"
-)
+import "github.com/JneiraS/AMS/src/infrastructure/web/views"
+
+//"github.com/JneiraS/AMS/src/domain/models"
+//"github.com/JneiraS/AMS/src/infrastructure/persistence"
+//"time"
 
 func main() {
-	//api.StartServer()
+	views.Views()
+	// db := persistence.CreateDB()
 
-	db := persistence.CreateDB()
-
-	persistence.CreateComment(db, persistence.Comment{Comment: models.Comment{
-		Author: "John Doe", Text: "Test Comment",
-	}})
-
-	// services.StartTask(db, tastk)
-
-	// fmt.Println(tastk.Title)
-
-	// metter a jour la tache
-	// var taskToUpdate persistence.Task
-	// db.First(&taskToUpdate, 1)
-
-	// taskToUpdate.Title = "Test update"
-
-	// persistence.UpdateTask(db, taskToUpdate)
-
-	// tastku := persistence.GetTask(db, 1)
-	// fmt.Println(tastku.Title)
-
-	// persistence.CreateTask(db, persistence.Task{Task: models.Task{
-	// 	Title:         "Test",
-	// 	Description:   "2y7v0@example.com",
-	// 	DueDate:       time.Now(),
-	// 	Status:        "En cours",
-	// 	Priority:      "Moyenne",
-	// 	Assignee:      "Jean",
-	// 	Creator:       "Jean",
-	// 	Project:       "Go",
-	// 	Progress:      50,
-	// 	EstimatedTime: 2,
-	// 	// TimeSpent:     1,
-	// }})
-
-	// persistence.CreateSubtask(db, persistence.Subtask{Subtask: models.Subtask{
-	// 	Title:  "Test",
-	// 	Status: "En cours",
-	// }})
-
+	// persistence.CreateTask(db, persistence.Task{
+	// 	Task: models.Task{
+	// 		Title:         "Test GORM",
+	// 		Description:   "Test Description",
+	// 		DueDate:       time.Now(),
+	// 		Status:        "pending",
+	// 		Priority:      "low",
+	// 		Assignee:      "test-user",
+	// 		Creator:       "admin",
+	// 		Project:       "test-project",
+	// 		Progress:      0,
+	// 		EstimatedTime: 2,
+	// 	},
+	// })
 }

@@ -40,10 +40,10 @@
 			<ul class="task-card">
 				<div class="task-card-header-{{.Priority}}">
 					<li>{{ .Title }}</li>
-					<li>C: {{.CreatedAt.Format "02.01.2006 à 15:04:05"}}</li>
+					<li>{{.CreatedAt.Format "02.01.2006 à 15:04"}}</li>
 					
 					{{if .UpdatedAt.After .CreatedAt}}
-					<li>U: {{.UpdatedAt.Format "02.01.2006 à 15:04:05"}}</li>
+					<li>U: {{.UpdatedAt.Format "02.01.2006 à 15:04"}}</li>
 					{{end}}
 				
 				</div>	
@@ -53,7 +53,7 @@
 				<div class="task-card-bottom">
 					{{if .DueDate.IsZero }} 
 					{{else}}
-					<li>D: {{ .DueDate.Format "02.01.2006 à 15:04:05" }}</li>
+					<li>D: {{ .DueDate.Format "02.01.2006 à 15:04" }}</li>
 					{{end}}
 					<li> {{ .Status }}</li>
 					<li>
@@ -73,10 +73,10 @@
 		<ul class="task-card">
 			<div class="task-card-header-{{.Priority}}">
 				<li>{{ .Title }}</li>
-				<li>C: {{.CreatedAt.Format "02.01.2006 à 15:04:05"}}</li>
+				<li>{{.CreatedAt.Format "02.01.2006 à 15:04"}}</li>
 				
 				{{if .UpdatedAt.After .CreatedAt}}
-				<li>U: {{.UpdatedAt.Format "02.01.2006 à 15:04:05"}}</li>
+				<li>U: {{.UpdatedAt.Format "02.01.2006 à 15:04"}}</li>
 				{{end}}
 			
 			</div>	
@@ -86,7 +86,7 @@
 			<div class="task-card-bottom">
 				{{if .DueDate.IsZero }} 
 				{{else}}
-				<li>D: {{ .DueDate.Format "02.01.2006 à 15:04:05" }}</li>
+				<li>D: {{ .DueDate.Format "02.01.2006 à 15:04" }}</li>
 				{{end}}
 				<li> {{ .Status }}</li>
 				<li>
@@ -107,10 +107,10 @@
 			<ul class="task-card">
 				<div class="task-card-header-{{.Priority}}">
 					<li>{{ .Title }}</li>
-					<li>C: {{.CreatedAt.Format "02.01.2006 à 15:04:05"}}</li>
+					<li>{{.CreatedAt.Format "02.01.2006 à 15:04"}}</li>
 					
 					{{if .UpdatedAt.After .CreatedAt}}
-					<li>U: {{.UpdatedAt.Format "02.01.2006 à 15:04:05"}}</li>
+					<li>U: {{.UpdatedAt.Format "02.01.2006 à 15:04"}}</li>
 					{{end}}
 				
 				</div>	
@@ -120,7 +120,7 @@
 				<div class="task-card-bottom">
 					{{if .DueDate.IsZero }} 
 					{{else}}
-					<li>D: {{ .DueDate.Format "02.01.2006 à 15:04:05" }}</li>
+					<li>D: {{ .DueDate.Format "02.01.2006 à 15:04" }}</li>
 					{{end}}
 					<li> {{ .Status }}</li>
 					<li>
@@ -138,10 +138,10 @@
 			<ul class="task-card">
 				<div class="task-card-header-{{.Priority}}">
 					<li>{{ .Title }}</li>
-					<li>C: {{.CreatedAt.Format "02.01.2006 à 15:04:05"}}</li>
+					<li>{{.CreatedAt.Format "02.01.2006 à 15:04"}}</li>
 					
 					{{if .UpdatedAt.After .CreatedAt}}
-					<li>U: {{.UpdatedAt.Format "02.01.2006 à 15:04:05"}}</li>
+					<li>U: {{.UpdatedAt.Format "02.01.2006 à 15:04"}}</li>
 					{{end}}
 				
 				</div>	
@@ -151,7 +151,7 @@
 				<div class="task-card-bottom">
 					{{if .DueDate.IsZero }} 
 					{{else}}
-					<li>D: {{ .DueDate.Format "02.01.2006 à 15:04:05" }}</li>
+					<li>D: {{ .DueDate.Format "02.01.2006 à 15:04" }}</li>
 					{{end}}
 					<li> {{ .Status }}</li>
 					<li>
@@ -161,7 +161,7 @@
 
 			{{end}}
 			
-	
+	Coder en GO !
 		</section>
 	</section>
 
