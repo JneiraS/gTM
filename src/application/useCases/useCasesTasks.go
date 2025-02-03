@@ -1,14 +1,13 @@
 package useCases
 
 import (
-	"net/http"
-	"strconv"
-	"time"
-
 	"github.com/JneiraS/AMS/src/domain/models"
 	"github.com/JneiraS/AMS/src/infrastructure/persistence"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
+	"net/http"
+	"strconv"
+	"time"
 )
 
 // createTaskHandler crée une nouvelle tâche à partir des données du formulaire
@@ -47,5 +46,31 @@ func UpdateTaskHandler(db *gorm.DB) gin.HandlerFunc {
 		task.Status = "done"
 		persistence.UpdateTask(db, task)
 		c.Redirect(http.StatusFound, "/")
+	}
+}
+
+func MainRender(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		db := persistence.CreateDB()
+		var priorityTass []persistence.Task
+		var taskWithoutDueDate []persistence.Task
+		var tasksDone []persistence.Task
+		var lateTasks []persistence.Task
+
+		db.Where("due_date > ? AND due_date < ? AND status != ?", time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC), time.Now(), "done").
+			Order("priority ASC, due_date ASC").
+			Find(&priorityTass)
+		db.Where("due_date < ? AND status != ?", time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC), "done").
+			Order("priority ASC").Find(&taskWithoutDueDate)
+		db.Where("status = ?", "done").Find(&tasksDone)
+		db.Where("due_date > ? AND due_date < ? AND status != ?", time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC), time.Now(), "done").Find(&lateTasks)
+
+		c.HTML(http.StatusOK, "index.tmpl", gin.H{
+			"title":           "Liste des taches",
+			"prioritytasks":   priorityTass,
+			"taskswithoutdue": taskWithoutDueDate,
+			"tasksdone":       tasksDone,
+			"latetasks":       lateTasks,
+		})
 	}
 }

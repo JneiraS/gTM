@@ -1,10 +1,6 @@
 package views
 
 import (
-	// "time"
-	"net/http"
-	"time"
-
 	"github.com/JneiraS/AMS/src/application/useCases"
 	"github.com/JneiraS/AMS/src/infrastructure/persistence"
 	"github.com/gin-gonic/gin"
@@ -22,30 +18,7 @@ func Views() {
 	router.LoadHTMLGlob("src/infrastructure/web/templates/*")
 	router.Static("/static", "src/infrastructure/web/static")
 
-	router.GET("/", func(c *gin.Context) {
-		db := persistence.CreateDB()
-		var priorityTass []persistence.Task
-		var taskWithoutDueDate []persistence.Task
-		var tasksDone []persistence.Task
-		var lateTasks []persistence.Task
-
-		db.Where("due_date > ? AND due_date < ? AND status != ?", time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC), time.Now(), "done").
-			Order("priority ASC, due_date ASC").
-			Find(&priorityTass)
-		db.Where("due_date < ? AND status != ?", time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC), "done").
-			Order("priority ASC").Find(&taskWithoutDueDate)
-		db.Where("status = ?", "done").Find(&tasksDone)
-		db.Where("due_date > ? AND due_date < ? AND status != ?", time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC), time.Now(), "done").Find(&lateTasks)
-
-		c.HTML(http.StatusOK, "index.tmpl", gin.H{
-			"title":           "Liste des taches",
-			"prioritytasks":   priorityTass,
-			"taskswithoutdue": taskWithoutDueDate,
-			"tasksdone":       tasksDone,
-			"latetasks":       lateTasks,
-		})
-	})
-
+	router.GET("/", useCases.MainRender(persistence.CreateDB()))
 	router.GET("/done/:id", useCases.UpdateTaskHandler(persistence.CreateDB()))
 	router.POST("/", useCases.CreateTaskHandler(persistence.CreateDB()))
 

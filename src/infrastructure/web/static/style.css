@@ -74,7 +74,7 @@ form input[type="submit"]:hover {
 
 /* Les Tâches */
 .main-container {
-  width: 80%;
+  width: 78%;
   display: flex;
   flex-direction: column;
   gap: 1em;
@@ -89,8 +89,7 @@ form input[type="submit"]:hover {
 
 .task-container {
   display: grid;
-  width: fit-content;
-  grid-template-columns: repeat(auto-fit, minmax(min(30%, 350px), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(40%, 450px), 1fr));
 }
 
 .task-container h2 {
@@ -105,7 +104,7 @@ li {
 
 .task-card {
   height: fit-content;
-  background-color: #c8c8c8ee;
+  background-color: hsla(0, 0%, 100%, 0.55);
   margin: .5em;
   border-radius: var(--radius);
 }
@@ -158,10 +157,12 @@ li {
 }
 
 .description {
-  background-color: rgba(0, 0, 0, 0.083);
+  min-height: 55px;
   color: rgba(255, 255, 255, 0.859);
-  margin: .25em;
-  padding: .25em;
+  margin: .25em .7em .7em .7em;
+  border: 1px solid rgba(255, 255, 255, 0.207);
+  border-radius: 3px;
+  padding: .35em;
 }
 
 .done-bottom {
