@@ -43,7 +43,7 @@
 					<li>{{.CreatedAt.Format "02.01.2006 à 15:04"}}</li>
 					
 					{{if .UpdatedAt.After .CreatedAt}}
-					<li>U: {{.UpdatedAt.Format "02.01.2006 à 15:04"}}</li>
+					<li> {{.UpdatedAt.Format "02.01.2006 à 15:04"}}</li>
 					{{end}}
 				
 				</div>	
@@ -76,7 +76,7 @@
 				<li>{{.CreatedAt.Format "02.01.2006 à 15:04"}}</li>
 				
 				{{if .UpdatedAt.After .CreatedAt}}
-				<li>U: {{.UpdatedAt.Format "02.01.2006 à 15:04"}}</li>
+				<li> {{.UpdatedAt.Format "02.01.2006 à 15:04"}}</li>
 				{{end}}
 			
 			</div>	
@@ -99,18 +99,19 @@
 		{{ end }}
 		</section>
 
-		<h2>
-			Tâches en retard
-		</h2>
+
 		<section class="task-container">
 			{{ range .latetasks }}
+			<h2>
+				Tâches en retard
+			</h2>
 			<ul class="task-card">
 				<div class="task-card-header-{{.Priority}}">
 					<li>{{ .Title }}</li>
 					<li>{{.CreatedAt.Format "02.01.2006 à 15:04"}}</li>
 					
 					{{if .UpdatedAt.After .CreatedAt}}
-					<li>U: {{.UpdatedAt.Format "02.01.2006 à 15:04"}}</li>
+					<li> {{.UpdatedAt.Format "02.01.2006 à 15:04"}}</li>
 					{{end}}
 				
 				</div>	
@@ -124,6 +125,9 @@
 					{{end}}
 					<li> {{ .Status }}</li>
 					<li>
+						<a class="done-bottom" href="/done/{{.ID}}">
+							<button type="submit">Done</button>
+						</a>
 					</li>
 				</div>
 			</ul>
@@ -141,7 +145,7 @@
 					<li>{{.CreatedAt.Format "02.01.2006 à 15:04"}}</li>
 					
 					{{if .UpdatedAt.After .CreatedAt}}
-					<li>U: {{.UpdatedAt.Format "02.01.2006 à 15:04"}}</li>
+					<li> {{.UpdatedAt.Format "02.01.2006 à 15:04"}}</li>
 					{{end}}
 				
 				</div>	
@@ -161,7 +165,6 @@
 
 			{{end}}
 			
-	Coder en GO !
 		</section>
 	</section>
 
