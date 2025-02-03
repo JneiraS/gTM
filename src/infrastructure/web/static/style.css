@@ -88,8 +88,10 @@ form input[type="submit"]:hover {
 }
 
 .task-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(40%, 450px), 1fr));
+  display: flex;
+  justify-content: start;
+  flex-wrap: wrap;
+  gap: 1em;
 }
 
 .task-container h2 {
@@ -107,6 +109,7 @@ li {
   background-color: hsla(0, 0%, 100%, 0.55);
   margin: .5em;
   border-radius: var(--radius);
+  max-width: 400px;
 }
 
 .task-card-header {
