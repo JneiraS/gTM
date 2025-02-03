@@ -57,12 +57,12 @@ func MainRender(db *gorm.DB) gin.HandlerFunc {
 		var tasksDone []persistence.Task
 		var lateTasks []persistence.Task
 
-		db.Where("due_date > ? AND due_date < ? AND status != ?", time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC), time.Now(), "done").
+		db.Where("due_date > ? AND due_date > ? AND status != ?", time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC), time.Now(), "done").
 			Order("priority ASC, due_date ASC").
 			Find(&priorityTass)
 		db.Where("due_date < ? AND status != ?", time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC), "done").
 			Order("priority ASC").Find(&taskWithoutDueDate)
-		db.Where("status = ?", "done").Find(&tasksDone)
+		db.Where("status = ? AND updated_at > ? AND updated_at < ?", "done", time.Now().AddDate(0, 0, -1), time.Now()).Order("updated_at ASC").Find(&tasksDone)
 		db.Where("due_date > ? AND due_date < ? AND status != ?", time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC), time.Now(), "done").Find(&lateTasks)
 
 		c.HTML(http.StatusOK, "index.tmpl", gin.H{
