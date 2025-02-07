@@ -30,6 +30,8 @@ func Views() {
 	router.GET("/done/:id", UpdateStatusHandler(persistence.CreateDB()))
 	router.POST("/", CreateTaskHandler(persistence.CreateDB()))
 	router.POST("/update-task", updateTaskHandler(persistence.CreateDB()))
+	router.POST("/update-task-title", updateTitleTaskHandler(persistence.CreateDB()))
+	//updateTitleTaskHandler
 
 	router.Run(":7263")
 
@@ -146,5 +148,43 @@ func updateTaskHandler(db *gorm.DB) gin.HandlerFunc {
 		}
 
 		c.Status(http.StatusOK)
+	}
+}
+
+// UpdateTitleTaskHandler updates a task's title and redirects to the main page.
+//
+// The task ID to update must be given as a parameter in the URL path.
+// The task is updated to have the given title.
+func updateTitleTaskHandler(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var update struct {
+			ID    string `json:"id"`
+			Title string `json:"title"`
+		}
+
+		if err := c.BindJSON(&update); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+			return
+		}
+
+		id, err := strconv.Atoi(update.ID)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid task ID"})
+			return
+		}
+
+		task := persistence.Task{}
+		if err := db.First(&task, id).Error; err != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Task not found"})
+			return
+		}
+
+		task.Title = update.Title
+		if err := db.Save(&task).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update task"})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{"status": "Task title updated successfully"})
 	}
 }
