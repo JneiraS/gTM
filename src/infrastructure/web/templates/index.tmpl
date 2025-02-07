@@ -39,7 +39,7 @@
 			{{ range .prioritytasks }}
 			<ul class="task-card">
 				<div class="task-card-header-{{.Priority}}">
-					<li>{{ .Title }}</li>
+					<li id="title-{{.ID}}">{{ .Title }}</li>
 					<li>{{.CreatedAt.Format "02.01.2006 à 15:04"}}</li>
 					
 					{{if .UpdatedAt.After .CreatedAt}}
@@ -47,8 +47,7 @@
 					{{end}}
 				
 				</div>	
-				<div class="description">		
-				<li>{{ .Description }}</li>
+				<div class="description" id="task-{{.ID}}">				<li>{{ .Description }}</li>
 				</div>	
 				<div class="task-card-bottom">
 					{{if .DueDate.IsZero }} 
@@ -72,7 +71,7 @@
 		{{ range .taskswithoutdue }}
 		<ul class="task-card">
 			<div class="task-card-header-{{.Priority}}">
-				<li>{{ .Title }}</li>
+				<li id="title-{{.ID}}">{{ .Title }}</li>
 				<li>{{.CreatedAt.Format "02.01.2006 à 15:04"}}</li>
 				
 				{{if .UpdatedAt.After .CreatedAt}}
@@ -80,7 +79,7 @@
 				{{end}}
 			
 			</div>	
-			<div class="description">		
+			<div class="description" id="task-{{.ID}}">		
 			<li>{{ .Description }}</li>
 			</div>	
 			<div class="task-card-bottom">
@@ -167,5 +166,7 @@
 			
 		</section>
 	</section>
+
+<script src="/static/js/script.js"></script>
 
 </html>

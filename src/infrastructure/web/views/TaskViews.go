@@ -157,7 +157,6 @@ func updateTaskHandler(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
-		fmt.Println(update.Description)
 		c.Status(http.StatusOK)
 	}
 }
