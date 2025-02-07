@@ -1,6 +1,7 @@
 package views
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -120,6 +121,15 @@ func MainRender(db *gorm.DB) gin.HandlerFunc {
 		})
 	}
 }
+
+// updateTaskHandler updates a task's description and returns a HTTP 200 OK status.
+//
+// The task ID to update must be given as a parameter in the URL path.
+// The task is updated to have the given description.
+//
+// The handler returns a HTTP 200 OK response if the update is successful.
+// The handler returns a HTTP 400 Bad Request response if the request is invalid.
+// The handler returns a HTTP 500 Internal Server Error response if the update fails.
 func updateTaskHandler(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var update struct {
@@ -147,6 +157,7 @@ func updateTaskHandler(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
+		fmt.Println(update.Description)
 		c.Status(http.StatusOK)
 	}
 }
