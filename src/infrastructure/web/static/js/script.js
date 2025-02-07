@@ -28,7 +28,7 @@ document.querySelectorAll(".description").forEach(function (el) {
 });
 
 
-document.querySelectorAll("[class^='task-card-header-'] li").forEach(function (li) {
+document.querySelectorAll("[id^='title-']").forEach(function (li) {
     li.addEventListener("click", function () {
         this.contentEditable = true;
         this.focus();
