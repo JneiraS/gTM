@@ -1,5 +1,5 @@
 document.querySelectorAll(".description").forEach(function (el) {
-    const id = el.id.split("-")[1];
+    const id = el.id ? el.id.split("-")[1] : null;
     el.querySelectorAll("li").forEach(function (li) {
         li.addEventListener("click", function () {
             this.contentEditable = true;
@@ -16,17 +16,30 @@ document.querySelectorAll(".description").forEach(function (el) {
                             id: id,
                             description: this.textContent
                         })
-                    });
-                    this.contentEditable = false;
-                    this.removeEventListener("keyup", save);
+                    })
+                        .then(response => {
+                            if (response.ok) {
+                                this.contentEditable = false;
+                                this.removeEventListener("keyup", save);
+                            } else {
+                                console.error("Failed to update task description");
+                            }
+                        })
+                        .catch(error => {
+                            console.error("Error updating task description:", error);
+                        });
                 }
             };
+
+            this.addEventListener("blur", () => {
+                this.contentEditable = false;
+                this.removeEventListener("keyup", save);
+            });
 
             this.addEventListener("keyup", save);
         });
     });
 });
-
 
 document.querySelectorAll("[id^='title-']").forEach(function (li) {
     li.addEventListener("click", function () {
