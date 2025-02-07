@@ -7,7 +7,6 @@
   --ecru: #C4AD6E;
   --old-rose: #C07972;
   --ash-gray: #fff8f099;
-
 }
 
 * {
@@ -22,15 +21,16 @@ body {
   background-color: var(--main-background-color);
 }
 
-form {
+.form-container {
   background-color: var(--main-background-color);
   padding: 20px;
   border-radius: 5px;
-  width: 20%;
-  margin: 0 auto;
+  width: 90%;
+  max-width: 400px;
+  margin: 20px auto;
   position: absolute;
-  right: 0;
   top: 50%;
+  right: 0;
   transform: translateY(-50%);
 }
 
@@ -39,7 +39,6 @@ form label {
   margin-bottom: 5px;
   font-weight: bold;
   color: #e6e6e6;
-
 }
 
 form input[type="text"],
@@ -65,7 +64,6 @@ form input[type="submit"] {
   border-radius: 3px;
   cursor: pointer;
   transition: background-color 0.3s ease;
-
 }
 
 form input[type="submit"]:hover {
@@ -74,23 +72,21 @@ form input[type="submit"]:hover {
 
 /* Les Tâches */
 .main-container {
-  width: 78%;
+  margin: 1.5em 400px 1.5em 2em;
   display: flex;
   flex-direction: column;
   gap: 1em;
-  margin: 1em 2em;
 }
 
 .main-container h2 {
   color: rgba(255, 255, 255, 0.859);
   margin: .5em 0 0 1.5em;
-  grid-column: 1 / -1;
   font-weight: 300;
 }
 
 .task-container {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   justify-content: start;
   gap: 1em;
   width: 100%;
@@ -111,7 +107,7 @@ li {
   background-color: hsla(32, 100%, 97%, 0.6);
   margin: .5em;
   border-radius: var(--radius);
-  max-width: 400px;
+  max-width: 100%;
 }
 
 .task-card-header {
@@ -188,4 +184,44 @@ li {
 
 .done-bottom button:hover {
   background-color: #45a049;
+}
+
+/* Responsive */
+@media (orientation: portrait) and (max-width: 1280px) {
+
+  * {
+    font-size: 1.1em;
+  }
+
+  h2 {
+    font-size: 2em;
+  }
+
+  .task-card-header li,
+  .task-card-bottom li,
+  .task-card-header-a li,
+  .task-card-header-b li,
+  .task-card-header-c li {
+    font-size: 1em;
+  }
+
+  .task-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1em;
+    padding: 1em;
+  }
+
+  .form-container {
+    background-color: var(--main-background-color);
+    padding: 1.5em;
+    border-radius: 5px;
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    position: relative;
+    top: 0;
+    transform: none;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
 }
