@@ -83,3 +83,25 @@ document.querySelectorAll("[id^='title-']").forEach(function (li) {
     });
 });
 
+function toggleForm() {
+    const formContainer = document.querySelector('.form-container');
+    formContainer.classList.toggle('is-shifted-left');
+}
+
+const styleElement = document.createElement('style');
+styleElement.innerHTML = `
+    .is-shifted-left {
+        right: .1%;
+    }
+`;
+document.head.appendChild(styleElement);
+
+// CSS for shifting the form
+const style = document.createElement('style');
+style.innerHTML = `
+    .shift-left {
+        right: .1%;
+    }
+`;
+document.head.appendChild(style);
+
