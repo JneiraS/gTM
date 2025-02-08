@@ -27,6 +27,7 @@ body {
     linear-gradient(135deg, var(--main-background-color), var(--color-card));
   background-size: 5px 5px, 5px 5px, 100% 100%;
   min-height: 100vh;
+  max-width: 100vw;
 
 }
 
@@ -37,12 +38,10 @@ body {
   width: 90%;
   max-width: 300px;
   margin: 20px auto;
-  position: absolute;
+  position: fixed;
   top: 50%;
-  right: -300px;
-  transform: translateY(-50%);
+  transform: translateY(-50%) translateX(100vw);
   backdrop-filter: blur(2px);
-
 }
 
 form label {
@@ -82,6 +81,16 @@ form input[type="submit"]:hover {
 .show-button {
   position: relative;
   right: 50px;
+  background-color: transparent;
+  color: var(--font-color);
+  border: none;
+  cursor: pointer;
+  width: 25px;
+  height: 25px;
+  justify-content: center;
+  align-items: center;
+  display: grid;
+  transition: 0.3s ease;
 }
 
 /* Les Tâches */

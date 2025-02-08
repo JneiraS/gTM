@@ -83,16 +83,29 @@ document.querySelectorAll("[id^='title-']").forEach(function (li) {
     });
 });
 
+const formContainer = document.querySelector('.form-container');
 function toggleForm() {
-    const formContainer = document.querySelector('.form-container');
-    formContainer.classList.toggle('is-shifted-left');
+    const formElement = document.querySelector('.form-container');
+    formElement.classList.toggle('is-shifted-left');
 }
 
 const styleElement = document.createElement('style');
 styleElement.innerHTML = `
     .is-shifted-left {
-        right: .1%;
+        left: -300px;
+        background-color: transparent;
+        transition:  1.3s ease;
     }
+
+    .show-button:active {
+        : rotate(180deg);
+      }
+      
+      .show-button::after {
+        content: "+";
+        font-size: 1.5em;
+        font-weight: bold;
+      }
 `;
 document.head.appendChild(styleElement);
 
@@ -100,8 +113,9 @@ document.head.appendChild(styleElement);
 const style = document.createElement('style');
 style.innerHTML = `
     .shift-left {
-        right: .1%;
+        transition:  4.3s ease;
     }
+
 `;
 document.head.appendChild(style);
 
