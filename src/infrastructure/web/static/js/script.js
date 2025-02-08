@@ -92,30 +92,26 @@ function toggleForm() {
 const styleElement = document.createElement('style');
 styleElement.innerHTML = `
     .is-shifted-left {
-        left: -300px;
-        background-color: transparent;
-        transition:  1.3s ease;
+        transition: .4s ease; 
     }
 
     .show-button:active {
-        : rotate(180deg);
-      }
+        transform: rotate(45deg);
+        transition: .4s ease;     }
       
-      .show-button::after {
+    .show-button::after {
         content: "+";
         font-size: 1.5em;
         font-weight: bold;
-      }
+    }
 `;
 document.head.appendChild(styleElement);
 
 // CSS for shifting the form
-const style = document.createElement('style');
-style.innerHTML = `
-    .shift-left {
-        transition:  4.3s ease;
-    }
-
-`;
-document.head.appendChild(style);
-
+// const style = document.createElement('style');
+// style.innerHTML = `
+//     .shift-left {
+//         transition: 8s ease; /* Slowed down transition */
+//     }
+// `;
+// document.head.appendChild(style);

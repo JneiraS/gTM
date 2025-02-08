@@ -32,7 +32,7 @@ body {
 }
 
 .form-container {
-  background-color: transparent;
+  background-color: rgba(255, 255, 255, 0.02);
   padding: 20px;
   border-radius: 5px;
   width: 90%;
@@ -40,8 +40,17 @@ body {
   margin: 20px auto;
   position: fixed;
   top: 50%;
-  transform: translateY(-50%) translateX(100vw);
+  transform: translateY(-50%);
+  right: -300px;
   backdrop-filter: blur(2px);
+  transition: right 0.4s ease;
+  box-shadow: #000000dc 0px 1px 3px 0px, #ffffffd7 0px 1px 1px 0px;
+
+}
+
+.is-shifted-left {
+  right: 0;
+  transition: right 0.4s ease;
 }
 
 form label {
