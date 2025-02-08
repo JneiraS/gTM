@@ -2,7 +2,7 @@
   --radius: 5px;
   --upper-radius: var(--radius) var(--radius) 0 0;
   --bottom-radius: 0 0 var(--radius) var(--radius);
-  --main-background-color: #4A5759;
+  --main-background-color: #3b4345;
   --mint: #61A875;
   --ecru: #C4AD6E;
   --old-rose: #C07972;
@@ -18,15 +18,22 @@
 }
 
 body {
-  background-color: var(--main-background-color);
+  background: var(--main-background-color);
+  background-image:
+    linear-gradient(var(--main-background-color) 2px, transparent 2px),
+    linear-gradient(90deg, var(--main-background-color) 2px, transparent 2px),
+    linear-gradient(135deg, var(--main-background-color), #2f3843);
+  background-size: 5px 5px, 5px 5px, 100% 100%;
+  min-height: 100vh;
+
 }
 
 .form-container {
-  background-color: var(--main-background-color);
+  background-color: transparent;
   padding: 20px;
   border-radius: 5px;
   width: 90%;
-  max-width: 400px;
+  max-width: 300px;
   margin: 20px auto;
   position: absolute;
   top: 50%;
@@ -45,12 +52,12 @@ form input[type="text"],
 form input[type="datetime-local"],
 form select,
 form textarea {
-  background-color: rgba(0, 0, 0, 0.156);
+  background-color: rgb(49, 57, 59);
   color: rgba(255, 255, 255, 0.859);
   width: 100%;
   padding: 10px;
   margin-bottom: 15px;
-  border: 1px solid #cccccc37;
+  border: 1px solid #cccccc1e;
   border-radius: 3px;
   box-sizing: border-box;
 }
@@ -86,7 +93,7 @@ form input[type="submit"]:hover {
 
 .task-container {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
   justify-content: start;
   gap: 1em;
   width: 100%;
@@ -187,7 +194,7 @@ li {
 }
 
 /* Responsive */
-@media (orientation: portrait) and (max-width: 1280px) {
+@media (orientation: portrait) and (max-width: 680px) {
 
   * {
     font-size: 1.1em;
