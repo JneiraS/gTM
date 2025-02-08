@@ -2,11 +2,13 @@
   --radius: 5px;
   --upper-radius: var(--radius) var(--radius) 0 0;
   --bottom-radius: 0 0 var(--radius) var(--radius);
-  --main-background-color: #3b4345;
+  --main-background-color: #393E41;
   --mint: #61A875;
   --ecru: #C4AD6E;
   --old-rose: #C07972;
   --ash-gray: #fff8f099;
+  --color-card: #404549;
+  --font-color: #C6C5B9;
 }
 
 * {
@@ -14,7 +16,7 @@
   padding: 0;
   box-sizing: border-box;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-  color: var(--main-background-color);
+  color: var(--font-color);
 }
 
 body {
@@ -22,7 +24,7 @@ body {
   background-image:
     linear-gradient(var(--main-background-color) 2px, transparent 2px),
     linear-gradient(90deg, var(--main-background-color) 2px, transparent 2px),
-    linear-gradient(135deg, var(--main-background-color), #2f3843);
+    linear-gradient(135deg, var(--main-background-color), var(--color-card));
   background-size: 5px 5px, 5px 5px, 100% 100%;
   min-height: 100vh;
 
@@ -37,23 +39,23 @@ body {
   margin: 20px auto;
   position: absolute;
   top: 50%;
-  right: 0;
+  right: -300px;
   transform: translateY(-50%);
+  backdrop-filter: blur(2px);
+
 }
 
 form label {
   display: block;
   margin-bottom: 5px;
   font-weight: bold;
-  color: #e6e6e6;
 }
 
 form input[type="text"],
 form input[type="datetime-local"],
 form select,
 form textarea {
-  background-color: rgb(49, 57, 59);
-  color: rgba(255, 255, 255, 0.859);
+  background-color: rgba(0, 0, 0, 0.207);
   width: 100%;
   padding: 10px;
   margin-bottom: 15px;
@@ -64,7 +66,7 @@ form textarea {
 
 form input[type="submit"] {
   width: 100%;
-  background-color: var(--ash-gray);
+  background-color: var(--font-color);
   color: var(--main-background-color);
   padding: 10px 15px;
   border: none;
@@ -77,6 +79,11 @@ form input[type="submit"]:hover {
   background-color: #ffffffb9;
 }
 
+.show-button {
+  position: relative;
+  right: 50px;
+}
+
 /* Les Tâches */
 .main-container {
   margin: 1.5em 400px 1.5em 2em;
@@ -85,10 +92,10 @@ form input[type="submit"]:hover {
   gap: 1em;
 }
 
-.main-container h2 {
-  color: rgba(255, 255, 255, 0.859);
+.main-container h2,
+.task-container h2 {
   margin: .5em 0 0 1.5em;
-  font-weight: 300;
+  font-weight: bold;
 }
 
 .task-container {
@@ -100,7 +107,6 @@ form input[type="submit"]:hover {
 }
 
 .task-container h2 {
-  color: rgba(255, 255, 255, 0.859);
   grid-column: 1 / -1;
 }
 
@@ -111,15 +117,11 @@ li {
 
 .task-card {
   height: fit-content;
-  background-color: hsla(32, 100%, 97%, 0.6);
+  background-color: var(--color-card);
   margin: .5em;
   border-radius: var(--radius);
   max-width: 100%;
-}
-
-.task-card-header {
-  background-color: rgba(255, 255, 255, 0.3);
-  border-radius: var(--upper-radius);
+  box-shadow: #000000dc 0px 1px 3px 0px, #ffffffd7 0px 1px 1px 0px;
 }
 
 .task-card-header-c {
@@ -138,11 +140,9 @@ li {
 }
 
 .task-card-bottom {
-  background-color: rgba(255, 255, 255, 0.15);
   border-radius: var(--bottom-radius);
 }
 
-.task-card-header,
 .task-card-bottom,
 .task-card-header-a,
 .task-card-header-b,
@@ -154,33 +154,45 @@ li {
 }
 
 .task-card-header li,
-.task-card-bottom li,
+.status,
+.deadline,
 .task-card-header-a li,
 .task-card-header-b li,
 .task-card-header-c li {
   background-color: rgba(255, 255, 255, 0.207);
+  font-weight: bold;
   font-size: smaller;
-  padding: .15em;
+  padding: .15em .3em;
   border-radius: 3px;
+  display: flex;
+  justify-items: center;
+  align-items: center;
+}
+
+
+.deadline {
+  background-color: var(--old-rose);
 }
 
 .description {
   min-height: 55px;
-  color: rgba(255, 255, 255, 0.859);
+  background-color: rgba(0, 0, 0, 0.207);
   margin: .25em .7em .7em .7em;
-  border: 1px solid rgba(255, 255, 255, 0.207);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 3px;
   padding: .35em;
 }
 
 .done-bottom {
+  font-size: smaller;
   text-decoration: none;
   display: inline-block;
 }
 
 .done-bottom button {
   background-color: var(--mint);
-  color: white;
+  color: rgba(255, 255, 255, 0.839);
+  font-weight: bold;
   padding: 5px 7px;
   border: none;
   border-radius: 4px;
