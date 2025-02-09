@@ -1,0 +1,9 @@
+{{define "footer"}}
+	<footer>
+		{{ range .projects}}
+		<a href="/project/{{.}}">
+		<button class="projets-button">{{.}}</button>
+		</a>
+		{{end}}
+	</footer>
+{{end}}
