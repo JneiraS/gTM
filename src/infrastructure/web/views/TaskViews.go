@@ -26,12 +26,12 @@ func Views() {
 	router.LoadHTMLGlob("src/infrastructure/web/templates/*")
 	router.Static("/static", "src/infrastructure/web/static")
 
-	router.GET("/", MainRender(persistence.CreateDB()))
+	router.GET("/", DisplayTasks(persistence.CreateDB()))
 	router.GET("/done/:id", UpdateStatusHandler(persistence.CreateDB()))
 	router.POST("/", CreateTaskHandler(persistence.CreateDB()))
 	router.POST("/update-task", updateTaskHandler(persistence.CreateDB()))
 	router.POST("/update-task-title", updateTitleTaskHandler(persistence.CreateDB()))
-	router.GET("/project/:project", DisplayTasksOfProject(persistence.CreateDB()))
+	router.GET("/project/:project", DisplayTasks(persistence.CreateDB()))
 	router.Run(":7263")
 
 }
@@ -81,76 +81,65 @@ func UpdateStatusHandler(db *gorm.DB) gin.HandlerFunc {
 	}
 }
 
-func DisplayTasksOfProject(db *gorm.DB) gin.HandlerFunc {
+// DisplayTasks returns a gin.HandlerFunc that displays the main page of the
+// application. The main page displays 4 lists of tasks: tasks with a deadline,
+// tasks without a deadline, tasks done in the last 24 hours and tasks that are
+// late.
+//
+// The tasks are ordered by priority and deadline.
+//
+// The function takes a gorm.DB as a parameter, which is used to query the
+// database.
+//
+// The function returns a gin.HandlerFunc that will be called when a request is
+// made to the main page. The gin.HandlerFunc will render the main page with the
+// tasks in the 4 lists.
+func DisplayTasks(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-
 		db := persistence.CreateDB()
-		var priorityTass []persistence.Task
+
+		var priorityTasks []persistence.Task
 		var taskWithoutDueDate []persistence.Task
 		var tasksDone []persistence.Task
 		var lateTasks []persistence.Task
 
-		// db.Where("project = ?", project).
 		project := c.Param("project")
 
-		db.Where("project = ?", project).
-			Where("due_date > ? AND due_date > ? AND status != ?", time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC), time.Now(), "done").
-			Order("priority ASC, due_date ASC").
-			Find(&priorityTass)
-		db.Where("project = ?", project).
-			Where("due_date < ? AND status != ?", time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC), "done").
-			Order("priority ASC").Find(&taskWithoutDueDate)
-		db.Where("project = ?", project).
-			Where("status = ? AND updated_at > ? AND updated_at < ?", "done", time.Now().AddDate(0, 0, -1), time.Now()).
-			Order("updated_at ASC").Find(&tasksDone)
-		db.Where("project = ?", project).
-			Where("due_date > ? AND due_date < ? AND status != ?", time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC), time.Now(), "done").
+		baseQuery := db.Where("due_date > ? AND due_date > ? AND status != ?",
+			time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC),
+			time.Now(),
+			"done")
+
+		baseNoDueDateQuery := db.Where("due_date < ? AND status != ?",
+			time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC),
+			"done")
+
+		if project != "" {
+			baseQuery = baseQuery.Where("project = ?", project)
+			baseNoDueDateQuery = baseNoDueDateQuery.Where("project = ?", project)
+		}
+
+		baseQuery.Order("priority ASC, due_date ASC").Find(&priorityTasks)
+		baseNoDueDateQuery.Order("priority ASC").Find(&taskWithoutDueDate)
+
+		db.Where("status = ? AND updated_at > ? AND updated_at < ?",
+			"done",
+			time.Now().AddDate(0, 0, -1),
+			time.Now()).
+			Order("updated_at ASC").
+			Find(&tasksDone)
+
+		db.Where("due_date > ? AND due_date < ? AND status != ?",
+			time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC),
+			time.Now(),
+			"done").
 			Find(&lateTasks)
 
+		// Affichage de la vue avec toutes les données
 		c.HTML(http.StatusOK, "index.tmpl", gin.H{
 			"title":           "Liste des taches",
 			"projects":        persistence.GetAllProjects(db),
-			"prioritytasks":   priorityTass,
-			"taskswithoutdue": taskWithoutDueDate,
-			"tasksdone":       tasksDone,
-			"latetasks":       lateTasks,
-		})
-	}
-}
-
-// MainRender renders the main page of the application.
-//
-// The handler renders the main page of the application. It queries the database
-// to get the list of tasks and passes it to the template.
-//
-// The tasks are ordered by priority and then by due date.
-// The tasks are divided into four categories:
-// - priorityTass: tasks that are not due yet and are not done.
-// - taskWithoutDueDate: tasks that are not due yet and do not have a due date.
-// - tasksDone: tasks that are done and were updated in the last 24 hours.
-// - lateTasks: tasks that are not done and are due.
-//
-// The handler returns a HTML response with the given template and data.
-func MainRender(db *gorm.DB) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		db := persistence.CreateDB()
-		var priorityTass []persistence.Task
-		var taskWithoutDueDate []persistence.Task
-		var tasksDone []persistence.Task
-		var lateTasks []persistence.Task
-
-		db.Where("due_date > ? AND due_date > ? AND status != ?", time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC), time.Now(), "done").
-			Order("priority ASC, due_date ASC").
-			Find(&priorityTass)
-		db.Where("due_date < ? AND status != ?", time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC), "done").
-			Order("priority ASC").Find(&taskWithoutDueDate)
-		db.Where("status = ? AND updated_at > ? AND updated_at < ?", "done", time.Now().AddDate(0, 0, -1), time.Now()).Order("updated_at ASC").Find(&tasksDone)
-		db.Where("due_date > ? AND due_date < ? AND status != ?", time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC), time.Now(), "done").Find(&lateTasks)
-
-		c.HTML(http.StatusOK, "index.tmpl", gin.H{
-			"title":           "Liste des taches",
-			"projects":        persistence.GetAllProjects(db),
-			"prioritytasks":   priorityTass,
+			"prioritytasks":   priorityTasks,
 			"taskswithoutdue": taskWithoutDueDate,
 			"tasksdone":       tasksDone,
 			"latetasks":       lateTasks,
