@@ -126,6 +126,19 @@ func GetComment(db *gorm.DB, id uint) []Comment {
 	return comments
 }
 
+// GetAllProjects renvoie une liste de tous les noms de projet dans la base de données.
+//
+// La fonction prend une connexion de base de données GORM et renvoie une liste de
+// chaînes de caractères correspondant aux noms de projet stockés dans la base de
+// données. Si la liste est vide, cela signifie qu'aucun projet n'a été créé.
+//
+// La fonction renvoie une erreur si la requête SQL échoue.
+func GetAllProjects(db *gorm.DB) []string {
+	var projects []string
+	db.Model(&Task{}).Distinct("project").Where("project != ?", "").Pluck("project", &projects)
+	return projects
+}
+
 //------UPDATE------
 
 // Mettre à jour une tâche dans la base de donn es.
