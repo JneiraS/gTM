@@ -31,8 +31,7 @@ func Views() {
 	router.POST("/", CreateTaskHandler(persistence.CreateDB()))
 	router.POST("/update-task", updateTaskHandler(persistence.CreateDB()))
 	router.POST("/update-task-title", updateTitleTaskHandler(persistence.CreateDB()))
-	//updateTitleTaskHandler
-
+	router.GET("/project/:project", DisplayTasksOfProject(persistence.CreateDB()))
 	router.Run(":7263")
 
 }
@@ -82,6 +81,43 @@ func UpdateStatusHandler(db *gorm.DB) gin.HandlerFunc {
 	}
 }
 
+func DisplayTasksOfProject(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+
+		db := persistence.CreateDB()
+		var priorityTass []persistence.Task
+		var taskWithoutDueDate []persistence.Task
+		var tasksDone []persistence.Task
+		var lateTasks []persistence.Task
+
+		// db.Where("project = ?", project).
+		project := c.Param("project")
+
+		db.Where("project = ?", project).
+			Where("due_date > ? AND due_date > ? AND status != ?", time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC), time.Now(), "done").
+			Order("priority ASC, due_date ASC").
+			Find(&priorityTass)
+		db.Where("project = ?", project).
+			Where("due_date < ? AND status != ?", time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC), "done").
+			Order("priority ASC").Find(&taskWithoutDueDate)
+		db.Where("project = ?", project).
+			Where("status = ? AND updated_at > ? AND updated_at < ?", "done", time.Now().AddDate(0, 0, -1), time.Now()).
+			Order("updated_at ASC").Find(&tasksDone)
+		db.Where("project = ?", project).
+			Where("due_date > ? AND due_date < ? AND status != ?", time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC), time.Now(), "done").
+			Find(&lateTasks)
+
+		c.HTML(http.StatusOK, "index.tmpl", gin.H{
+			"title":           "Liste des taches",
+			"projects":        persistence.GetAllProjects(db),
+			"prioritytasks":   priorityTass,
+			"taskswithoutdue": taskWithoutDueDate,
+			"tasksdone":       tasksDone,
+			"latetasks":       lateTasks,
+		})
+	}
+}
+
 // MainRender renders the main page of the application.
 //
 // The handler renders the main page of the application. It queries the database
@@ -113,6 +149,7 @@ func MainRender(db *gorm.DB) gin.HandlerFunc {
 
 		c.HTML(http.StatusOK, "index.tmpl", gin.H{
 			"title":           "Liste des taches",
+			"projects":        persistence.GetAllProjects(db),
 			"prioritytasks":   priorityTass,
 			"taskswithoutdue": taskWithoutDueDate,
 			"tasksdone":       tasksDone,
