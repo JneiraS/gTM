@@ -4,7 +4,8 @@
 </head>
 	<h1>
 	</h1>
-
+	<div class="form-container">
+		<button class="show-button" onclick="toggleForm()"></button>
 		<form action="/" method="post">
 			<label for="title">Title:</label>
 			<input type="text" id="title" name="title" required>
@@ -32,6 +33,7 @@
 			<input type="text" id="project" name="project">
 			<input type="submit" value="Submit">
 		</form>
+	</div>
 
 		<section class="main-container">
 			<h2>Tâches à faire</h2>
@@ -39,7 +41,7 @@
 			{{ range .prioritytasks }}
 			<ul class="task-card">
 				<div class="task-card-header-{{.Priority}}">
-					<li>{{ .Title }}</li>
+					<li id="title-{{.ID}}">{{ .Title }}</li>
 					<li>{{.CreatedAt.Format "02.01.2006 à 15:04"}}</li>
 					
 					{{if .UpdatedAt.After .CreatedAt}}
@@ -47,15 +49,14 @@
 					{{end}}
 				
 				</div>	
-				<div class="description">		
-				<li>{{ .Description }}</li>
+				<div class="description" id="task-{{.ID}}">				<li>{{ .Description }}</li>
 				</div>	
 				<div class="task-card-bottom">
 					{{if .DueDate.IsZero }} 
 					{{else}}
-					<li>D: {{ .DueDate.Format "02.01.2006 à 15:04" }}</li>
+					<li class="deadline"> {{ .DueDate.Format "02.01.2006 à 15:04" }}</li>
 					{{end}}
-					<li> {{ .Status }}</li>
+					<li class="status"> {{ .Status }}</li>
 					<li>
 						<a class="done-bottom" href="/done/{{.ID}}">
 							<button type="submit">Done</button>
@@ -72,7 +73,7 @@
 		{{ range .taskswithoutdue }}
 		<ul class="task-card">
 			<div class="task-card-header-{{.Priority}}">
-				<li>{{ .Title }}</li>
+				<li id="title-{{.ID}}">{{ .Title }}</li>
 				<li>{{.CreatedAt.Format "02.01.2006 à 15:04"}}</li>
 				
 				{{if .UpdatedAt.After .CreatedAt}}
@@ -80,15 +81,15 @@
 				{{end}}
 			
 			</div>	
-			<div class="description">		
+			<div class="description" id="task-{{.ID}}">		
 			<li>{{ .Description }}</li>
 			</div>	
 			<div class="task-card-bottom">
 				{{if .DueDate.IsZero }} 
 				{{else}}
-				<li>D: {{ .DueDate.Format "02.01.2006 à 15:04" }}</li>
+				<li class="deadline"> {{ .DueDate.Format "02.01.2006 à 15:04" }}</li>
 				{{end}}
-				<li> {{ .Status }}</li>
+				<li class="status"> {{ .Status }}</li>
 				<li>
 					<a class="done-bottom" href="/done/{{.ID}}">
 						<button type="submit">Done</button>
@@ -121,9 +122,9 @@
 				<div class="task-card-bottom">
 					{{if .DueDate.IsZero }} 
 					{{else}}
-					<li>D: {{ .DueDate.Format "02.01.2006 à 15:04" }}</li>
+					<li class="deadline"> {{ .DueDate.Format "02.01.2006 à 15:04" }}</li>
 					{{end}}
-					<li> {{ .Status }}</li>
+					<li class="status"> {{ .Status }}</li>
 					<li>
 						<a class="done-bottom" href="/done/{{.ID}}">
 							<button type="submit">Done</button>
@@ -155,9 +156,9 @@
 				<div class="task-card-bottom">
 					{{if .DueDate.IsZero }} 
 					{{else}}
-					<li>D: {{ .DueDate.Format "02.01.2006 à 15:04" }}</li>
+					<li class="deadline"> {{ .DueDate.Format "02.01.2006 à 15:04" }}</li>
 					{{end}}
-					<li> {{ .Status }}</li>
+					<li class="status"> {{ .Status }}</li>
 					<li>
 					</li>
 				</div>
@@ -167,5 +168,7 @@
 			
 		</section>
 	</section>
+
+<script src="/static/js/script.js"></script>
 
 </html>

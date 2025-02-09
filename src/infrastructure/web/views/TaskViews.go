@@ -1,13 +1,14 @@
 package views
 
 import (
+	"net/http"
+	"strconv"
+	"time"
+
 	"github.com/JneiraS/AMS/src/domain/models"
 	"github.com/JneiraS/AMS/src/infrastructure/persistence"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
-	"net/http"
-	"strconv"
-	"time"
 )
 
 // Views creates a web server that serves the web interface for the application.
@@ -19,12 +20,18 @@ import (
 // routed to the corresponding functions in the useCases package.
 func Views() {
 	router := gin.Default()
+
+	// Spécifier les adresses IP ou plages autorisées
+	router.SetTrustedProxies([]string{"192.168.1.2", "10.0.0.0/8"})
 	router.LoadHTMLGlob("src/infrastructure/web/templates/*")
 	router.Static("/static", "src/infrastructure/web/static")
 
 	router.GET("/", MainRender(persistence.CreateDB()))
-	router.GET("/done/:id", UpdateTaskHandler(persistence.CreateDB()))
+	router.GET("/done/:id", UpdateStatusHandler(persistence.CreateDB()))
 	router.POST("/", CreateTaskHandler(persistence.CreateDB()))
+	router.POST("/update-task", updateTaskHandler(persistence.CreateDB()))
+	router.POST("/update-task-title", updateTitleTaskHandler(persistence.CreateDB()))
+	//updateTitleTaskHandler
 
 	router.Run(":7263")
 
@@ -55,11 +62,11 @@ func CreateTaskHandler(db *gorm.DB) gin.HandlerFunc {
 	}
 }
 
-// UpdateTaskHandler updates a task to done and redirects to the main page.
+// UpdateStatusHandler updates a task to done and redirects to the main page.
 //
 // The task ID to update must be given as a parameter in the URL path.
 // The task is updated to have the status "done".
-func UpdateTaskHandler(db *gorm.DB) gin.HandlerFunc {
+func UpdateStatusHandler(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		id, err := strconv.Atoi(c.Param("id"))
 		if err != nil {
@@ -111,5 +118,82 @@ func MainRender(db *gorm.DB) gin.HandlerFunc {
 			"tasksdone":       tasksDone,
 			"latetasks":       lateTasks,
 		})
+	}
+}
+
+// updateTaskHandler updates a task's description and returns a HTTP 200 OK status.
+//
+// The task ID to update must be given as a parameter in the URL path.
+// The task is updated to have the given description.
+//
+// The handler returns a HTTP 200 OK response if the update is successful.
+// The handler returns a HTTP 400 Bad Request response if the request is invalid.
+// The handler returns a HTTP 500 Internal Server Error response if the update fails.
+func updateTaskHandler(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var update struct {
+			ID          string `json:"id"`
+			Description string `json:"description"`
+		}
+
+		if err := c.BindJSON(&update); err != nil {
+			c.Status(http.StatusBadRequest)
+			return
+		}
+
+		id, err := strconv.Atoi(update.ID)
+		if err != nil {
+			c.Status(http.StatusBadRequest)
+			return
+		}
+
+		task := persistence.Task{}
+		db.First(&task, id)
+
+		task.Description = update.Description
+		if err := db.Save(&task).Error; err != nil {
+			c.Status(http.StatusInternalServerError)
+			return
+		}
+
+		c.Status(http.StatusOK)
+	}
+}
+
+// UpdateTitleTaskHandler updates a task's title and redirects to the main page.
+//
+// The task ID to update must be given as a parameter in the URL path.
+// The task is updated to have the given title.
+func updateTitleTaskHandler(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var update struct {
+			ID    string `json:"id"`
+			Title string `json:"title"`
+		}
+
+		if err := c.BindJSON(&update); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+			return
+		}
+
+		id, err := strconv.Atoi(update.ID)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid task ID"})
+			return
+		}
+
+		task := persistence.Task{}
+		if err := db.First(&task, id).Error; err != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Task not found"})
+			return
+		}
+
+		task.Title = update.Title
+		if err := db.Save(&task).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update task"})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{"status": "Task title updated successfully"})
 	}
 }
