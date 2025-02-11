@@ -14,7 +14,7 @@ document.querySelectorAll(".description").forEach(function (el) {
                         },
                         body: JSON.stringify({
                             id: id,
-                            description: this.innerHTML.replace(/<div>/g, '\n').replace(/<\/div>/g, '').replace(/<br\s*\/?>/g, '\n').replace(/<pre>/g, '').replace(/<\/pre>/g, '')
+                            description: this.innerHTML.replace(/<div>/g, '\n').replace(/<\/div>/g, '').replace(/<br\s*\/?>/g, '\n').replace(/<pre>/g, '').replace(/<\/pre>/g, '').replace('&gt;', ">")
                         })
                     })
                         .then(response => {

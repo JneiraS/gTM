@@ -117,7 +117,8 @@ form input[type="submit"]:hover {
 }
 
 .task-container {
-  display: grid;
+  display: flex;
+  flex-wrap: wrap;
   grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
   justify-content: start;
   gap: 1em;
