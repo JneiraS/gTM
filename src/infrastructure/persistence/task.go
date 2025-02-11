@@ -2,6 +2,7 @@ package persistence
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/JneiraS/AMS/src/domain/models"
 	"gorm.io/gorm"
@@ -57,8 +58,11 @@ type TaskTimeSpent struct {
 // La fonction ne renvoie pas de valeur, mais provoquera une panique si l'opération
 // de création  choue.
 func CreateTask(db *gorm.DB, task Task) {
+	// Convert Windows style line endings (\r\n) to Unix style (\n)
+	task.Description = strings.ReplaceAll(task.Description, "\r\n", "\n")
+	// Convert single carriage returns to line breaks
+	task.Description = strings.ReplaceAll(task.Description, "\r", "\n")
 	db.Create(&task)
-
 }
 
 // Crée une nouvelle sous-tâche dans la base de données.

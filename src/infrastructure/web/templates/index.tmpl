@@ -1,5 +1,8 @@
 <html>
 <head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>AMS</title>
 	<link rel="stylesheet" type="text/css" href="/static/style.css">
 </head>
 	<h1>
@@ -49,7 +52,7 @@
 					{{end}}
 				
 				</div>	
-				<div class="description" id="task-{{.ID}}">				<li>{{ .Description }}</li>
+				<div class="description" id="task-{{.ID}}">				<li><pre>{{.Description}}</pre></li>
 				</div>	
 				<div class="task-card-bottom">
 					{{if .DueDate.IsZero }} 
@@ -82,7 +85,7 @@
 			
 			</div>	
 			<div class="description" id="task-{{.ID}}">		
-			<li>{{ .Description }}</li>
+			<li><pre>{{.Description}}</pre></li>
 			</div>	
 			<div class="task-card-bottom">
 				{{if .DueDate.IsZero }} 
@@ -117,7 +120,7 @@
 				
 				</div>	
 				<div class="description">		
-				<li>{{ .Description }}</li>
+				<li><pre>{{.Description}}</pre></li>
 				</div>	
 				<div class="task-card-bottom">
 					{{if .DueDate.IsZero }} 
@@ -151,7 +154,7 @@
 				
 				</div>	
 				<div class="description">		
-				<li>{{ .Description }}</li>
+				<li><pre>{{.Description}}</pre></li>
 				</div>	
 				<div class="task-card-bottom">
 					{{if .DueDate.IsZero }} 
