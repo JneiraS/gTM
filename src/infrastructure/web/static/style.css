@@ -142,7 +142,7 @@ li {
   background-color: var(--color-card);
   margin: .5em;
   border-radius: var(--radius);
-  max-width: fit-content;
+  max-width: 500px;
   box-shadow: #000000dc 0px 1px 3px 0px, #ffffffd7 0px 1px 1px 0px;
 }
 
@@ -208,13 +208,13 @@ li {
 .description {
   min-height: 55px;
   background-color: rgba(0, 0, 0, 0.207);
-  margin: .25em .7em .7em .7em;
+  margin: 0.25em 0.7em 0.7em;
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 3px;
-  padding: .35em;
-  word-wrap: break-word;
+  padding: 0.35em;
+  overflow-wrap: break-word;
   overflow-y: auto;
-  white-space: pre-wrap;
+  white-space: initial;
 }
 
 .done-bottom {
