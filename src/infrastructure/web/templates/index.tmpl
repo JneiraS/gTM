@@ -59,6 +59,9 @@
 					{{else}}
 					<li class="deadline"> {{ .DueDate.Format "02.01.2006 à 15:04" }}</li>
 					{{end}}
+					{{if .Assignee}}
+					<li class="assignee"> {{ .Assignee }}</li>
+					{{end}}
 					<li class="status"> {{ .Status }}</li>
 					<li>
 						<a class="done-bottom" href="/done/{{.ID}}">
@@ -78,7 +81,6 @@
 			<div class="task-card-header-{{.Priority}}">
 				<li id="title-{{.ID}}">{{ .Title }}</li>
 				<li>{{.CreatedAt.Format "02.01.2006 à 15:04"}}</li>
-				
 				{{if .UpdatedAt.After .CreatedAt}}
 				<li> {{.UpdatedAt.Format "02.01.2006 à 15:04"}}</li>
 				{{end}}
@@ -91,6 +93,9 @@
 				{{if .DueDate.IsZero }} 
 				{{else}}
 				<li class="deadline"> {{ .DueDate.Format "02.01.2006 à 15:04" }}</li>
+				{{end}}
+				{{if .Assignee}}
+				<li class="assignee"> {{ .Assignee }}</li>
 				{{end}}
 				<li class="status"> {{ .Status }}</li>
 				<li>
@@ -127,6 +132,9 @@
 					{{else}}
 					<li class="deadline"> {{ .DueDate.Format "02.01.2006 à 15:04" }}</li>
 					{{end}}
+					{{if .Assignee}}
+					<li class="assignee"> {{ .Assignee }}</li>
+					{{end}}
 					<li class="status"> {{ .Status }}</li>
 					<li>
 						<a class="done-bottom" href="/done/{{.ID}}">
@@ -160,6 +168,9 @@
 					{{if .DueDate.IsZero }} 
 					{{else}}
 					<li class="deadline"> {{ .DueDate.Format "02.01.2006 à 15:04" }}</li>
+					{{end}}
+					{{if .Assignee}}
+					<li class="assignee"> {{ .Assignee }}</li>
 					{{end}}
 					<li class="status"> {{ .Status }}</li>
 					<li>

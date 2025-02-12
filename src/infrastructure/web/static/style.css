@@ -32,7 +32,7 @@ body {
 }
 
 .form-container {
-  background-color: rgba(255, 255, 255, 0.02);
+  background-color: rgba(0, 0, 0, 0.05);
   padding: 20px;
   border-radius: 5px;
   width: 90%;
@@ -42,7 +42,7 @@ body {
   top: 50%;
   transform: translateY(-50%);
   right: -300px;
-  backdrop-filter: blur(2px);
+  backdrop-filter: blur(5px);
   transition: right 0.4s ease;
   box-shadow: #000000dc 0px 1px 3px 0px, #ffffffd7 0px 1px 1px 0px;
 
@@ -63,7 +63,7 @@ form input[type="text"],
 form input[type="datetime-local"],
 form select,
 form textarea {
-  background-color: rgba(0, 0, 0, 0.207);
+  background-color: rgba(50, 55, 60, 0.75);
   width: 100%;
   padding: 10px;
   margin-bottom: 15px;
@@ -104,8 +104,9 @@ form input[type="submit"]:hover {
 
 /* Les Tâches */
 .main-container {
-  margin: 1.5em 400px 1.5em 2em;
+  margin: 1.5em 2em;
   display: flex;
+  flex-wrap: wrap;
   flex-direction: column;
   gap: 1em;
 }
@@ -136,10 +137,12 @@ li {
 
 .task-card {
   height: fit-content;
+  flex-grow: 1;
+  flex-basis: 200;
   background-color: var(--color-card);
   margin: .5em;
   border-radius: var(--radius);
-  max-width: 100%;
+  max-width: fit-content;
   box-shadow: #000000dc 0px 1px 3px 0px, #ffffffd7 0px 1px 1px 0px;
 }
 
@@ -175,6 +178,7 @@ li {
 .task-card-header li,
 .status,
 .deadline,
+.assignee,
 .task-card-header-a li,
 .task-card-header-b li,
 .task-card-header-c li {
@@ -191,6 +195,14 @@ li {
 
 .deadline {
   background-color: var(--old-rose);
+  color: var(--main-background-color);
+
+}
+
+.assignee {
+  background-color: var(--ecru);
+  color: var(--main-background-color);
+
 }
 
 .description {
@@ -200,6 +212,9 @@ li {
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 3px;
   padding: .35em;
+  word-wrap: break-word;
+  overflow-y: auto;
+  white-space: pre-wrap;
 }
 
 .done-bottom {
