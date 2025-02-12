@@ -142,7 +142,7 @@ li {
   background-color: var(--color-card);
   margin: .5em;
   border-radius: var(--radius);
-  max-width: 500px;
+  max-width: fit-content;
   box-shadow: #000000dc 0px 1px 3px 0px, #ffffffd7 0px 1px 1px 0px;
 }
 
