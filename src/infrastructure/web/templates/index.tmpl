@@ -108,12 +108,9 @@
 		{{ end }}
 		</section>
 
-
+		<h2>Tâches en retard</h2>
 		<section class="task-container">
 			{{ range .latetasks }}
-			<h2>
-				Tâches en retard
-			</h2>
 			<ul class="task-card">
 				<div class="task-card-header-{{.Priority}}">
 					<li>{{ .Title }}</li>
