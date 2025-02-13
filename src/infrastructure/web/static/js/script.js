@@ -107,11 +107,51 @@ styleElement.innerHTML = `
 `;
 document.head.appendChild(styleElement);
 
-// CSS for shifting the form
-// const style = document.createElement('style');
-// style.innerHTML = `
-//     .shift-left {
-//         transition: 8s ease; /* Slowed down transition */
-//     }
-// `;
-// document.head.appendChild(style);
+
+
+document.querySelectorAll("[id^='due-date-']").forEach(function (li) {
+    li.addEventListener("click", function () {
+        this.contentEditable = true;
+        this.focus();
+
+        const saveDate = function (event) {
+            if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) {
+                const dateId = this.id.split("-")[2];
+                const newDate = this.textContent;
+                // Convert date from "DD.MM.YYYY à HH:mm" to "YYYY-MM-DD HH:mm"
+                const [datePart, timePart] = newDate.split(" à ");
+                const [day, month, year] = datePart.trim().split(".").map(part => part.trim());
+                const formattedDate = `${year}-${month}-${day} ${timePart}`;
+
+                fetch(`/update-task-due-date/`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        id: dateId,
+                        date: formattedDate
+                    })
+                })
+                    .then(function (res) {
+                        if (res.status === 200) {
+                            this.contentEditable = false;
+                            this.removeEventListener("keyup", saveDate);
+                        } else {
+                            console.log("Error updating task date");
+                        }
+                    })
+                    .catch(function (err) {
+                        console.log("Error updating task date", err);
+                    });
+            }
+        };
+
+        this.addEventListener("blur", () => {
+            this.contentEditable = false;
+            this.removeEventListener("keyup", saveDate);
+        });
+
+        this.addEventListener("keyup", saveDate);
+    });
+});

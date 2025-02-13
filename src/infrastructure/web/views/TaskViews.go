@@ -32,6 +32,7 @@ func Views() {
 	router.POST("/update-task", updateTaskHandler(persistence.CreateDB()))
 	router.POST("/update-task-title", updateTitleTaskHandler(persistence.CreateDB()))
 	router.GET("/project/:project", DisplayTasks(persistence.CreateDB()))
+	router.POST("/update-task-due-date", updateDueDateHandler(persistence.CreateDB()))
 	router.Run(":7263")
 
 }
@@ -221,5 +222,45 @@ func updateTitleTaskHandler(db *gorm.DB) gin.HandlerFunc {
 		}
 
 		c.JSON(http.StatusOK, gin.H{"status": "Task title updated successfully"})
+	}
+}
+
+func updateDueDateHandler(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var requestBody struct {
+			ID   string `json:"id"`
+			Date string `json:"date"`
+		}
+
+		if err := c.BindJSON(&requestBody); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+			return
+		}
+
+		id, err := strconv.Atoi(requestBody.ID)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid task ID"})
+			return
+		}
+
+		dueDate, err := time.Parse("2006-01-02 15:04", requestBody.Date)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid due date format. Expected format: YYYY-MM-DD HH:mm"})
+			return
+		}
+
+		task := persistence.Task{}
+		if err := db.First(&task, id).Error; err != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Task not found"})
+			return
+		}
+
+		task.DueDate = dueDate
+		if err := db.Save(&task).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update task"})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{"status": "Task due date updated successfully"})
 	}
 }

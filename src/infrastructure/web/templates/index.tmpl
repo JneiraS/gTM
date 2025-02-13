@@ -40,7 +40,8 @@
 
 		<section class="main-container">
 			<h2>Tâches à faire</h2>
-			<section class="task-container">
+			<section class="todo-container">
+			<section class="task-container avec-deadline">
 			{{ range .prioritytasks }}
 			<ul class="task-card">
 				<div class="task-card-header-{{.Priority}}">
@@ -52,12 +53,13 @@
 					{{end}}
 				
 				</div>	
-				<div class="description" id="task-{{.ID}}">				<li><pre>{{.Description}}</pre></li>
+				<div class="description" id="task-{{.ID}}">			
+						<li><pre>{{.Description}}</pre></li>
 				</div>	
 				<div class="task-card-bottom">
 					{{if .DueDate.IsZero }} 
 					{{else}}
-					<li class="deadline"> {{ .DueDate.Format "02.01.2006 à 15:04" }}</li>
+					<li class="deadline" id ="due-date-{{.ID}}"> {{ .DueDate.Format "02.01.2006 à 15:04" }}</li>
 					{{end}}
 					{{if .Assignee}}
 					<li class="assignee"> {{ .Assignee }}</li>
@@ -75,7 +77,7 @@
 			
 			</section>
 		
-		<section class="task-container">
+		<section class="task-container sans-deadline">
 		{{ range .taskswithoutdue }}
 		<ul class="task-card">
 			<div class="task-card-header-{{.Priority}}">
@@ -92,7 +94,7 @@
 			<div class="task-card-bottom">
 				{{if .DueDate.IsZero }} 
 				{{else}}
-				<li class="deadline"> {{ .DueDate.Format "02.01.2006 à 15:04" }}</li>
+				<li class="deadline" id ="due-date-{{.ID}}"> {{ .DueDate.Format "02.01.2006 à 15:04" }}</li>
 				{{end}}
 				{{if .Assignee}}
 				<li class="assignee"> {{ .Assignee }}</li>
@@ -107,7 +109,7 @@
 		</ul>
 		{{ end }}
 		</section>
-
+	</section>
 		{{if .latetasks}}
 		<h2>Tâches en retard</h2>
 		<section class="task-container">
@@ -128,7 +130,7 @@
 				<div class="task-card-bottom">
 					{{if .DueDate.IsZero }} 
 					{{else}}
-					<li class="deadline"> {{ .DueDate.Format "02.01.2006 à 15:04" }}</li>
+					<li class="deadline" id ="due-date-{{.ID}}"> {{ .DueDate.Format "02.01.2006 à 15:04" }}</li>
 					{{end}}
 					{{if .Assignee}}
 					<li class="assignee"> {{ .Assignee }}</li>

@@ -106,9 +106,13 @@ form input[type="submit"]:hover {
 .main-container {
   margin: 1.5em 2em;
   display: flex;
-  flex-wrap: wrap;
   flex-direction: column;
   gap: 1em;
+}
+
+.todo-container {
+  display: flex;
+  flex-direction: column;
 }
 
 .main-container h2,
@@ -119,12 +123,17 @@ form input[type="submit"]:hover {
 
 .task-container {
   display: flex;
+  width: fit-content;
   flex-wrap: wrap;
-  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  flex-basis: 200;
+  flex-grow: 1;
   justify-content: start;
+  align-items: center;
+  padding: .5em;
   gap: 1em;
-  width: 100%;
 }
+
+
 
 .task-container h2 {
   grid-column: 1 / -1;
