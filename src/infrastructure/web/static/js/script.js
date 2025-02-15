@@ -155,3 +155,41 @@ document.querySelectorAll("[id^='due-date-']").forEach(function (li) {
         this.addEventListener("keyup", saveDate);
     });
 });
+
+
+document.querySelectorAll("[id^='status-']").forEach(function (li) {
+    li.addEventListener("click", function () {
+        const statusText = this.textContent.trim();
+        const dateId = this.id.split("-")[1];
+
+        fetch(`/update-task-status/`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                id: dateId,
+                status: statusText === "Pending" ? "In progress" : "Pending"
+            })
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.status === 200) {
+                    this.textContent = statusText === "Pending" ? "In progress" : "Pending";
+                    this.classList.toggle('pending');
+                    this.classList.toggle('in-progress');
+                } else {
+                    throw new Error('Server returned error status');
+                }
+            })
+            .catch(function (err) {
+                console.error("Error updating task status:", err);
+                alert('Failed to update task status. Please try again.');
+            });
+    });
+});

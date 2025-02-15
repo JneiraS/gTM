@@ -11,6 +11,15 @@ import (
 	"gorm.io/gorm"
 )
 
+const (
+	Pending           = "Pending"
+	InProgress        = "In progress"
+	Done              = "Done"
+	invalidRequestMsg = "Invalid request"
+	invalidTaskIDMsg  = "Invalid task ID"
+	taskNotFoundMsg   = "Task not found"
+)
+
 // Views creates a web server that serves the web interface for the application.
 //
 // The web interface shows four lists of tasks: tasks with a due date, tasks without
@@ -26,13 +35,18 @@ func Views() {
 	router.LoadHTMLGlob("src/infrastructure/web/templates/*")
 	router.Static("/static", "src/infrastructure/web/static")
 
-	router.GET("/", DisplayTasks(persistence.CreateDB()))
-	router.GET("/done/:id", UpdateStatusHandler(persistence.CreateDB()))
-	router.POST("/", CreateTaskHandler(persistence.CreateDB()))
-	router.POST("/update-task", updateTaskHandler(persistence.CreateDB()))
-	router.POST("/update-task-title", updateTitleTaskHandler(persistence.CreateDB()))
-	router.GET("/project/:project", DisplayTasks(persistence.CreateDB()))
-	router.POST("/update-task-due-date", updateDueDateHandler(persistence.CreateDB()))
+	sqliteDB := persistence.CreateDB()
+
+	// Toutes les 5 minutes
+
+	router.GET("/", DisplayTasks(sqliteDB))
+	router.GET("/done/:id", UpdateStatusHandler(sqliteDB))
+	router.POST("/", CreateTaskHandler(sqliteDB))
+	router.POST("/update-task", updateTaskHandler(sqliteDB))
+	router.POST("/update-task-title", updateTitleTaskHandler(sqliteDB))
+	router.GET("/project/:project", DisplayTasks(sqliteDB))
+	router.POST("/update-task-due-date", updateDueDateHandler(sqliteDB))
+	router.POST("/update-task-status", updateStatusHandler(sqliteDB))
 	router.Run(":7263")
 
 }
@@ -76,7 +90,7 @@ func UpdateStatusHandler(db *gorm.DB) gin.HandlerFunc {
 		db := persistence.CreateDB()
 		task := persistence.Task{}
 		db.First(&task, id)
-		task.Status = "done"
+		task.Status = Done
 		persistence.UpdateTask(db, task)
 		c.Redirect(http.StatusFound, "/")
 	}
@@ -109,31 +123,34 @@ func DisplayTasks(db *gorm.DB) gin.HandlerFunc {
 		baseQuery := db.Where("due_date > ? AND due_date > ? AND status != ?",
 			time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC),
 			time.Now(),
-			"done")
+			Done)
 
 		baseNoDueDateQuery := db.Where("due_date < ? AND status != ?",
 			time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC),
-			"done")
+			Done)
 
 		if project != "" {
 			baseQuery = baseQuery.Where("project = ?", project)
 			baseNoDueDateQuery = baseNoDueDateQuery.Where("project = ?", project)
+			db.Where("status = ? AND project = ?", Done, project).
+				Order("updated_at ASC").
+				Find(&tasksDone)
+		} else {
+			db.Where("status = ? AND updated_at > ? AND updated_at < ?",
+				Done,
+				time.Now().AddDate(0, 0, -1),
+				time.Now()).
+				Order("updated_at ASC").
+				Find(&tasksDone)
 		}
 
 		baseQuery.Order("priority ASC, due_date ASC").Find(&priorityTasks)
 		baseNoDueDateQuery.Order("priority ASC").Find(&taskWithoutDueDate)
 
-		db.Where("status = ? AND updated_at > ? AND updated_at < ?",
-			"done",
-			time.Now().AddDate(0, 0, -1),
-			time.Now()).
-			Order("updated_at ASC").
-			Find(&tasksDone)
-
 		db.Where("due_date > ? AND due_date < ? AND status != ?",
 			time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC),
 			time.Now(),
-			"done").
+			Done).
 			Find(&lateTasks)
 
 		// Affichage de la vue avec toutes les données
@@ -144,6 +161,7 @@ func DisplayTasks(db *gorm.DB) gin.HandlerFunc {
 			"taskswithoutdue": taskWithoutDueDate,
 			"tasksdone":       tasksDone,
 			"latetasks":       lateTasks,
+			"project":         project,
 		})
 	}
 }
@@ -199,19 +217,19 @@ func updateTitleTaskHandler(db *gorm.DB) gin.HandlerFunc {
 		}
 
 		if err := c.BindJSON(&update); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": invalidRequestMsg})
 			return
 		}
 
 		id, err := strconv.Atoi(update.ID)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid task ID"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": invalidTaskIDMsg})
 			return
 		}
 
 		task := persistence.Task{}
 		if err := db.First(&task, id).Error; err != nil {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Task not found"})
+			c.JSON(http.StatusNotFound, gin.H{"error": taskNotFoundMsg})
 			return
 		}
 
@@ -225,6 +243,11 @@ func updateTitleTaskHandler(db *gorm.DB) gin.HandlerFunc {
 	}
 }
 
+// updateDueDateHandler updates a task's due date and redirects to the main page.
+//
+// The task ID to update must be given in the request body as a JSON object with the key
+// "id". The request body must also contain the new due date in the format
+// "YYYY-MM-DD HH:mm".
 func updateDueDateHandler(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var requestBody struct {
@@ -233,13 +256,13 @@ func updateDueDateHandler(db *gorm.DB) gin.HandlerFunc {
 		}
 
 		if err := c.BindJSON(&requestBody); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": invalidRequestMsg})
 			return
 		}
 
 		id, err := strconv.Atoi(requestBody.ID)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid task ID"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": invalidTaskIDMsg})
 			return
 		}
 
@@ -251,7 +274,7 @@ func updateDueDateHandler(db *gorm.DB) gin.HandlerFunc {
 
 		task := persistence.Task{}
 		if err := db.First(&task, id).Error; err != nil {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Task not found"})
+			c.JSON(http.StatusNotFound, gin.H{"error": taskNotFoundMsg})
 			return
 		}
 
@@ -262,5 +285,48 @@ func updateDueDateHandler(db *gorm.DB) gin.HandlerFunc {
 		}
 
 		c.JSON(http.StatusOK, gin.H{"status": "Task due date updated successfully"})
+	}
+}
+
+// updateStatusHandler updates a task's status to "In progress" if the task is currently
+// "Pending", or updates a task's status to "Pending" if the task is currently "In progress".
+//
+// The task ID to update must be given in the request body as a JSON object with the key
+// "id". The request body must also contain the current status of the task.
+func updateStatusHandler(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var requestBody struct {
+			ID string `json:"id"`
+		}
+
+		if err := c.BindJSON(&requestBody); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": invalidRequestMsg, "status": 400})
+			return
+		}
+
+		id, err := strconv.Atoi(requestBody.ID)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": invalidTaskIDMsg, "status": 400})
+			return
+		}
+
+		task := persistence.Task{}
+		if err := db.First(&task, id).Error; err != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": taskNotFoundMsg, "status": 404})
+			return
+		}
+
+		if task.Status == "Pending" {
+			task.Status = "In progress"
+		} else {
+			task.Status = "Pending"
+		}
+
+		if err := db.Save(&task).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update task status", "status": 500})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{"message": "Task status updated successfully", "status": 200})
 	}
 }
