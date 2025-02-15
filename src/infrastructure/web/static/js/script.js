@@ -159,8 +159,10 @@ document.querySelectorAll("[id^='due-date-']").forEach(function (li) {
 
 document.querySelectorAll("[id^='status-']").forEach(function (li) {
     li.addEventListener("click", function () {
+        const statusText = this.textContent;
         const dateId = this.id.split("-")[1];
         console.log(dateId);
+        console.log(statusText);
 
         fetch(`/update-task-status/`, {
             method: "POST",
@@ -171,9 +173,10 @@ document.querySelectorAll("[id^='status-']").forEach(function (li) {
                 id: dateId,
             })
         })
-            .then(function (res) {
-                if (res.status === 200) {
-                    this.contentEditable = false;
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 200) {
+                    this.textContent = statusText === "Pending" ? "In progress" : "Pending";
                 } else {
                     console.log("Error updating task date");
                 }
