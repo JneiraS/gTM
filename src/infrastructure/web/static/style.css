@@ -199,6 +199,7 @@ li {
   flex-basis: 200;
   justify-items: center;
   align-items: center;
+  text-align: center;
 }
 
 
@@ -280,11 +281,6 @@ li {
   transition: background-color 0.9s ease;
 }
 
-.change-status:active {
-  background-color: var(--color-card);
-  color: var(--font-color);
-  transition: background-color 0.1s ease;
-}
 
 
 /* FOOTER */

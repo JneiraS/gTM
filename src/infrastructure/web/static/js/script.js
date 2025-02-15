@@ -159,10 +159,8 @@ document.querySelectorAll("[id^='due-date-']").forEach(function (li) {
 
 document.querySelectorAll("[id^='status-']").forEach(function (li) {
     li.addEventListener("click", function () {
-        const statusText = this.textContent;
+        const statusText = this.textContent.trim();
         const dateId = this.id.split("-")[1];
-        console.log(dateId);
-        console.log(statusText);
 
         fetch(`/update-task-status/`, {
             method: "POST",
@@ -171,18 +169,27 @@ document.querySelectorAll("[id^='status-']").forEach(function (li) {
             },
             body: JSON.stringify({
                 id: dateId,
+                status: statusText === "Pending" ? "In progress" : "Pending"
             })
         })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
             .then(data => {
                 if (data.status === 200) {
                     this.textContent = statusText === "Pending" ? "In progress" : "Pending";
+                    this.classList.toggle('pending');
+                    this.classList.toggle('in-progress');
                 } else {
-                    console.log("Error updating task date");
+                    throw new Error('Server returned error status');
                 }
             })
             .catch(function (err) {
-                console.log("Error updating task date", err);
+                console.error("Error updating task status:", err);
+                alert('Failed to update task status. Please try again.');
             });
     });
 });

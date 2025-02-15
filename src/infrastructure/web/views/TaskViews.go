@@ -11,6 +11,12 @@ import (
 	"gorm.io/gorm"
 )
 
+const (
+	Pending    = "Pending"
+	InProgress = "In progress"
+	Done       = "Done"
+)
+
 // Views creates a web server that serves the web interface for the application.
 //
 // The web interface shows four lists of tasks: tasks with a due date, tasks without
@@ -81,7 +87,7 @@ func UpdateStatusHandler(db *gorm.DB) gin.HandlerFunc {
 		db := persistence.CreateDB()
 		task := persistence.Task{}
 		db.First(&task, id)
-		task.Status = "done"
+		task.Status = Done
 		persistence.UpdateTask(db, task)
 		c.Redirect(http.StatusFound, "/")
 	}
@@ -114,11 +120,11 @@ func DisplayTasks(db *gorm.DB) gin.HandlerFunc {
 		baseQuery := db.Where("due_date > ? AND due_date > ? AND status != ?",
 			time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC),
 			time.Now(),
-			"done")
+			Done)
 
 		baseNoDueDateQuery := db.Where("due_date < ? AND status != ?",
 			time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC),
-			"done")
+			Done)
 
 		if project != "" {
 			baseQuery = baseQuery.Where("project = ?", project)
@@ -129,7 +135,7 @@ func DisplayTasks(db *gorm.DB) gin.HandlerFunc {
 		baseNoDueDateQuery.Order("priority ASC").Find(&taskWithoutDueDate)
 
 		db.Where("status = ? AND updated_at > ? AND updated_at < ?",
-			"done",
+			Done,
 			time.Now().AddDate(0, 0, -1),
 			time.Now()).
 			Order("updated_at ASC").
@@ -138,7 +144,7 @@ func DisplayTasks(db *gorm.DB) gin.HandlerFunc {
 		db.Where("due_date > ? AND due_date < ? AND status != ?",
 			time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC),
 			time.Now(),
-			"done").
+			Done).
 			Find(&lateTasks)
 
 		// Affichage de la vue avec toutes les données
@@ -230,6 +236,11 @@ func updateTitleTaskHandler(db *gorm.DB) gin.HandlerFunc {
 	}
 }
 
+// updateDueDateHandler updates a task's due date and redirects to the main page.
+//
+// The task ID to update must be given in the request body as a JSON object with the key
+// "id". The request body must also contain the new due date in the format
+// "YYYY-MM-DD HH:mm".
 func updateDueDateHandler(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var requestBody struct {
@@ -270,6 +281,11 @@ func updateDueDateHandler(db *gorm.DB) gin.HandlerFunc {
 	}
 }
 
+// updateStatusHandler updates a task's status to "In progress" if the task is currently
+// "Pending", or updates a task's status to "Pending" if the task is currently "In progress".
+//
+// The task ID to update must be given in the request body as a JSON object with the key
+// "id". The request body must also contain the current status of the task.
 func updateStatusHandler(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var requestBody struct {
