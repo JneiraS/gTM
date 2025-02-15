@@ -37,6 +37,7 @@ func Views() {
 	router.POST("/update-task-title", updateTitleTaskHandler(sqliteDB))
 	router.GET("/project/:project", DisplayTasks(sqliteDB))
 	router.POST("/update-task-due-date", updateDueDateHandler(sqliteDB))
+	router.POST("/update-task-status", updateStatusHandler(sqliteDB))
 	router.Run(":7263")
 
 }
@@ -266,5 +267,43 @@ func updateDueDateHandler(db *gorm.DB) gin.HandlerFunc {
 		}
 
 		c.JSON(http.StatusOK, gin.H{"status": "Task due date updated successfully"})
+	}
+}
+
+func updateStatusHandler(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var requestBody struct {
+			ID string `json:"id"`
+		}
+
+		if err := c.BindJSON(&requestBody); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request", "status": 400})
+			return
+		}
+
+		id, err := strconv.Atoi(requestBody.ID)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid task ID", "status": 400})
+			return
+		}
+
+		task := persistence.Task{}
+		if err := db.First(&task, id).Error; err != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Task not found", "status": 404})
+			return
+		}
+
+		if task.Status == "Pending" {
+			task.Status = "In progress"
+		} else {
+			task.Status = "Pending"
+		}
+
+		if err := db.Save(&task).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update task status", "status": 500})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{"message": "Task status updated successfully", "status": 200})
 	}
 }

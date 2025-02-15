@@ -155,3 +155,31 @@ document.querySelectorAll("[id^='due-date-']").forEach(function (li) {
         this.addEventListener("keyup", saveDate);
     });
 });
+
+
+document.querySelectorAll("[id^='status-']").forEach(function (li) {
+    li.addEventListener("click", function () {
+        const dateId = this.id.split("-")[1];
+        console.log(dateId);
+
+        fetch(`/update-task-status/`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                id: dateId,
+            })
+        })
+            .then(function (res) {
+                if (res.status === 200) {
+                    this.contentEditable = false;
+                } else {
+                    console.log("Error updating task date");
+                }
+            })
+            .catch(function (err) {
+                console.log("Error updating task date", err);
+            });
+    });
+});

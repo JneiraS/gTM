@@ -64,7 +64,7 @@
 					{{if .Assignee}}
 					<li class="assignee"> {{ .Assignee }}</li>
 					{{end}}
-					<li class="status"> {{ .Status }}</li>
+					<a class="change-status" id ="status-{{.ID}}"> {{ .Status }}</a>
 					<li>
 						<a class="done-bottom" href="/done/{{.ID}}">
 							<button type="submit">Done</button>
@@ -99,7 +99,7 @@
 				{{if .Assignee}}
 				<li class="assignee"> {{ .Assignee }}</li>
 				{{end}}
-				<li class="status"> {{ .Status }}</li>
+				<a class="change-status"  id ="status-{{.ID}}">  {{ .Status }}</a>
 				<li>
 					<a class="done-bottom" href="/done/{{.ID}}">
 						<button type="submit">Done</button>
