@@ -26,13 +26,17 @@ func Views() {
 	router.LoadHTMLGlob("src/infrastructure/web/templates/*")
 	router.Static("/static", "src/infrastructure/web/static")
 
-	router.GET("/", DisplayTasks(persistence.CreateDB()))
-	router.GET("/done/:id", UpdateStatusHandler(persistence.CreateDB()))
-	router.POST("/", CreateTaskHandler(persistence.CreateDB()))
-	router.POST("/update-task", updateTaskHandler(persistence.CreateDB()))
-	router.POST("/update-task-title", updateTitleTaskHandler(persistence.CreateDB()))
-	router.GET("/project/:project", DisplayTasks(persistence.CreateDB()))
-	router.POST("/update-task-due-date", updateDueDateHandler(persistence.CreateDB()))
+	sqliteDB := persistence.CreateDB()
+
+	// Toutes les 5 minutes
+
+	router.GET("/", DisplayTasks(sqliteDB))
+	router.GET("/done/:id", UpdateStatusHandler(sqliteDB))
+	router.POST("/", CreateTaskHandler(sqliteDB))
+	router.POST("/update-task", updateTaskHandler(sqliteDB))
+	router.POST("/update-task-title", updateTitleTaskHandler(sqliteDB))
+	router.GET("/project/:project", DisplayTasks(sqliteDB))
+	router.POST("/update-task-due-date", updateDueDateHandler(sqliteDB))
 	router.Run(":7263")
 
 }
