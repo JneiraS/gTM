@@ -12,9 +12,12 @@ import (
 )
 
 const (
-	Pending    = "Pending"
-	InProgress = "In progress"
-	Done       = "Done"
+	Pending           = "Pending"
+	InProgress        = "In progress"
+	Done              = "Done"
+	invalidRequestMsg = "Invalid request"
+	invalidTaskIDMsg  = "Invalid task ID"
+	taskNotFoundMsg   = "Task not found"
 )
 
 // Views creates a web server that serves the web interface for the application.
@@ -210,19 +213,19 @@ func updateTitleTaskHandler(db *gorm.DB) gin.HandlerFunc {
 		}
 
 		if err := c.BindJSON(&update); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": invalidRequestMsg})
 			return
 		}
 
 		id, err := strconv.Atoi(update.ID)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid task ID"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": invalidTaskIDMsg})
 			return
 		}
 
 		task := persistence.Task{}
 		if err := db.First(&task, id).Error; err != nil {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Task not found"})
+			c.JSON(http.StatusNotFound, gin.H{"error": taskNotFoundMsg})
 			return
 		}
 
@@ -249,13 +252,13 @@ func updateDueDateHandler(db *gorm.DB) gin.HandlerFunc {
 		}
 
 		if err := c.BindJSON(&requestBody); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": invalidRequestMsg})
 			return
 		}
 
 		id, err := strconv.Atoi(requestBody.ID)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid task ID"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": invalidTaskIDMsg})
 			return
 		}
 
@@ -267,7 +270,7 @@ func updateDueDateHandler(db *gorm.DB) gin.HandlerFunc {
 
 		task := persistence.Task{}
 		if err := db.First(&task, id).Error; err != nil {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Task not found"})
+			c.JSON(http.StatusNotFound, gin.H{"error": taskNotFoundMsg})
 			return
 		}
 
@@ -293,19 +296,19 @@ func updateStatusHandler(db *gorm.DB) gin.HandlerFunc {
 		}
 
 		if err := c.BindJSON(&requestBody); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request", "status": 400})
+			c.JSON(http.StatusBadRequest, gin.H{"error": invalidRequestMsg, "status": 400})
 			return
 		}
 
 		id, err := strconv.Atoi(requestBody.ID)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid task ID", "status": 400})
+			c.JSON(http.StatusBadRequest, gin.H{"error": invalidTaskIDMsg, "status": 400})
 			return
 		}
 
 		task := persistence.Task{}
 		if err := db.First(&task, id).Error; err != nil {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Task not found", "status": 404})
+			c.JSON(http.StatusNotFound, gin.H{"error": taskNotFoundMsg, "status": 404})
 			return
 		}
 
