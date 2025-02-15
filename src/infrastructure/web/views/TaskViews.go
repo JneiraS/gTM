@@ -132,17 +132,20 @@ func DisplayTasks(db *gorm.DB) gin.HandlerFunc {
 		if project != "" {
 			baseQuery = baseQuery.Where("project = ?", project)
 			baseNoDueDateQuery = baseNoDueDateQuery.Where("project = ?", project)
+			db.Where("status = ? AND project = ?", Done, project).
+				Order("updated_at ASC").
+				Find(&tasksDone)
+		} else {
+			db.Where("status = ? AND updated_at > ? AND updated_at < ?",
+				Done,
+				time.Now().AddDate(0, 0, -1),
+				time.Now()).
+				Order("updated_at ASC").
+				Find(&tasksDone)
 		}
 
 		baseQuery.Order("priority ASC, due_date ASC").Find(&priorityTasks)
 		baseNoDueDateQuery.Order("priority ASC").Find(&taskWithoutDueDate)
-
-		db.Where("status = ? AND updated_at > ? AND updated_at < ?",
-			Done,
-			time.Now().AddDate(0, 0, -1),
-			time.Now()).
-			Order("updated_at ASC").
-			Find(&tasksDone)
 
 		db.Where("due_date > ? AND due_date < ? AND status != ?",
 			time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC),
@@ -158,6 +161,7 @@ func DisplayTasks(db *gorm.DB) gin.HandlerFunc {
 			"taskswithoutdue": taskWithoutDueDate,
 			"tasksdone":       tasksDone,
 			"latetasks":       lateTasks,
+			"project":         project,
 		})
 	}
 }
