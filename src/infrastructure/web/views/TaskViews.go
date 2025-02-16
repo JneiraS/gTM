@@ -41,7 +41,7 @@ func Views() {
 	// Toutes les 5 minutes
 
 	router.GET("/", DisplayTasks(sqliteDB))
-	router.GET("/done/:id", UpdateStatusHandler(sqliteDB))
+	router.GET("/done/:id", MarkTaskAsDoneHandler(sqliteDB))
 	router.POST("/", CreateTaskHandler(sqliteDB))
 	router.POST("/update-task", updateTaskHandler(sqliteDB))
 	router.POST("/update-task-title", updateTitleTaskHandler(sqliteDB))
@@ -81,7 +81,7 @@ func CreateTaskHandler(db *gorm.DB) gin.HandlerFunc {
 //
 // The task ID to update must be given as a parameter in the URL path.
 // The task is updated to have the status "done".
-func UpdateStatusHandler(db *gorm.DB) gin.HandlerFunc {
+func MarkTaskAsDoneHandler(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		id, err := strconv.Atoi(c.Param("id"))
 		if err != nil {

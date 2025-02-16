@@ -30,22 +30,21 @@ func EndTask(db *gorm.DB, taskID uint) {
 	}
 	task.Status = EndTaskStatus
 	task.Progress = ProgressComplete
-	task.TimeSpent = int(TimeSpent(db, taskID)) / millisecondesToMinutes
+	task.TimeSpent = int(TimeSpent(db, taskTimeSpent)) / millisecondesToMinutes
 	persistence.UpdateTask(db, task)
 }
 
 // TimeSpent prend une connexion à la base de données GORM et un ID de tâche.
 // Récupère la tâche depuis la base de données et renvoie la durée entre
 // l'heure de début et l'heure de fin.
-func TimeSpent(db *gorm.DB, taskID uint) time.Duration {
-	taskTimeSpent := persistence.GetTaskTimeSpent(db, taskID)
+func TimeSpent(db *gorm.DB, taskTimeSpent persistence.TaskTimeSpent) time.Duration {
 
-	if taskTimeSpent.StartTime.IsZero() {
-		task, err := persistence.GetTask(db, taskID)
-		if err == nil {
-			taskTimeSpent.StartTime = task.CreatedAt
-		}
-	}
+	// if taskTimeSpent.StartTime.IsZero() {
+	// 	task, err := persistence.GetTask(db, taskID)
+	// 	if err == nil {
+	// 		taskTimeSpent.StartTime = task.CreatedAt
+	// 	}
+	// }
 	return taskTimeSpent.EndTime.Sub(taskTimeSpent.StartTime)
 }
 
