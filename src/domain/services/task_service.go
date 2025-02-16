@@ -7,6 +7,12 @@ import (
 	"gorm.io/gorm"
 )
 
+const (
+	millisecondesToMinutes = 60000000000
+	EndTaskStatus          = "Done"
+	ProgressComplete       = 100
+)
+
 // EndTask met à jour une tâche en la définissant comme terminée.
 //
 // La fonction prend une connexion de base de données GORM et un identifiant de
@@ -19,10 +25,13 @@ func EndTask(db *gorm.DB, taskID uint) {
 
 	db.Save(&taskTimeSpent)
 
-	task, _ := persistence.GetTask(db, taskID)
-	task.Status = "Done"
-	task.Progress = 100
-	task.TimeSpent = int(TimeSpent(db, taskID)) / 60000000000
+	task, err := persistence.GetTask(db, taskID)
+	if err != nil {
+		return
+	}
+	task.Status = EndTaskStatus
+	task.Progress = ProgressComplete
+	task.TimeSpent = int(TimeSpent(db, taskID)) / millisecondesToMinutes
 	persistence.UpdateTask(db, task)
 }
 
