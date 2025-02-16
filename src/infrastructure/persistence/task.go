@@ -2,10 +2,10 @@ package persistence
 
 import (
 	"fmt"
-	"strings"
-
 	"github.com/JneiraS/AMS/src/domain/models"
 	"gorm.io/gorm"
+	"strings"
+	"time"
 )
 
 type Task struct {
@@ -63,6 +63,7 @@ func CreateTask(db *gorm.DB, task Task) {
 	// Convert single carriage returns to line breaks
 	task.Description = strings.ReplaceAll(task.Description, "\r", "\n")
 	db.Create(&task)
+	CreateTaskTimeSpent(db, task.ID)
 }
 
 // Crée une nouvelle sous-tâche dans la base de données.
@@ -87,6 +88,33 @@ func CreateSubtask(db *gorm.DB, subtask Subtask) {
 // de création  choue.
 func CreateComment(db *gorm.DB, comment Comment) {
 	db.Create(&comment)
+}
+
+func CreateTaskTimeSpent(db *gorm.DB, taskID uint) (TaskTimeSpent, error) {
+	taskTimeSpent := TaskTimeSpent{
+		TimeSpent: models.TimeSpent{
+			StartTime: time.Now(),
+			EndTime:   time.Time{},
+		},
+		TaskID: taskID,
+	}
+
+	result := db.Create(&taskTimeSpent)
+	if result.RowsAffected == 0 {
+		return TaskTimeSpent{}, fmt.Errorf("no record created for task ID: %d", taskID)
+	}
+
+	if result.Error != nil {
+		return TaskTimeSpent{}, result.Error
+	}
+
+	// Verify the record was created by retrieving it
+	var created TaskTimeSpent
+	if err := db.Where("task_id = ?", taskID).First(&created).Error; err != nil {
+		return TaskTimeSpent{}, fmt.Errorf("failed to verify created record: %v", err)
+	}
+
+	return created, nil
 }
 
 //------READ------
@@ -143,6 +171,12 @@ func GetAllProjects(db *gorm.DB) []string {
 	return projects
 }
 
+func GetTaskTimeSpent(db *gorm.DB, taskID uint) TaskTimeSpent {
+	var taskTimeSpent TaskTimeSpent
+	db.Where("task_id = ?", taskID).First(&taskTimeSpent)
+	return taskTimeSpent
+}
+
 //------UPDATE------
 
 // Mettre à jour une tâche dans la base de donn es.
@@ -165,6 +199,7 @@ func UpdateTask(db *gorm.DB, task Task) {
 		"Project":       task.Project,
 		"Progress":      task.Progress,
 		"EstimatedTime": task.EstimatedTime,
+		"TimeSpent":     task.TimeSpent,
 	})
 }
 

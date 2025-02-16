@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/JneiraS/AMS/src/domain/models"
+	"github.com/JneiraS/AMS/src/domain/services"
 	"github.com/JneiraS/AMS/src/infrastructure/persistence"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -88,10 +89,7 @@ func UpdateStatusHandler(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 		db := persistence.CreateDB()
-		task := persistence.Task{}
-		db.First(&task, id)
-		task.Status = Done
-		persistence.UpdateTask(db, task)
+		services.EndTask(db, uint(id))
 		c.Redirect(http.StatusFound, "/")
 	}
 }

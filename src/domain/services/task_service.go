@@ -7,17 +7,36 @@ import (
 	"gorm.io/gorm"
 )
 
-// Prend une connexion à la base de données GORM et un ID de tâche.
-// Récupère la tâche depuis la base de données et la met à jour en
-// ajoutant l'heure de début actuelle.
-func StartTask(db *gorm.DB, id uint) {
-	var taskSpent persistence.TaskTimeSpent
+// EndTask met à jour une tâche en la définissant comme terminée.
+//
+// La fonction prend une connexion de base de données GORM et un identifiant de
+// tâche. Elle mettra à jour la tâche dans la base de données en fixant son
+// statut à "Done", son pourcentage de progression à 100, et sa durée passée
+// en la calculant en prenant la durée entre l'heure de début et l'heure de fin.
+func EndTask(db *gorm.DB, taskID uint) {
+	taskTimeSpent := persistence.GetTaskTimeSpent(db, taskID)
+	taskTimeSpent.EndTime = time.Now()
 
-	// Récupère la tâche depuis la base de données
-	task, _ := persistence.GetTask(db, id)
-	// Crée une entrée TaskTimeSpent avec l'heure de début actuelle et l'ID de la tâche
-	taskSpent.StartTime = time.Now()
-	taskSpent.TaskID = uint(task.ID)
-	// Insère l'enregistrement TaskTimeSpent dans la base de données
-	db.Create(&taskSpent)
+	db.Save(&taskTimeSpent)
+
+	task, _ := persistence.GetTask(db, taskID)
+	task.Status = "Done"
+	task.Progress = 100
+	task.TimeSpent = int(TimeSpent(db, taskID)) / 60000000000
+	persistence.UpdateTask(db, task)
+}
+
+// TimeSpent prend une connexion à la base de données GORM et un ID de tâche.
+// Récupère la tâche depuis la base de données et renvoie la durée entre
+// l'heure de début et l'heure de fin.
+func TimeSpent(db *gorm.DB, taskID uint) time.Duration {
+	taskTimeSpent := persistence.GetTaskTimeSpent(db, taskID)
+
+	if taskTimeSpent.StartTime.IsZero() {
+		task, err := persistence.GetTask(db, taskID)
+		if err == nil {
+			taskTimeSpent.StartTime = task.CreatedAt
+		}
+	}
+	return taskTimeSpent.EndTime.Sub(taskTimeSpent.StartTime)
 }
