@@ -316,8 +316,10 @@ func updateStatusHandler(db *gorm.DB) gin.HandlerFunc {
 
 		if task.Status == "Pending" {
 			task.Status = "In progress"
+			services.UpdateStartTime(db, task.ID)
 		} else {
 			task.Status = "Pending"
+			task.TimeSpent = task.TimeSpent + services.IncrementTimeSpent(db, task.ID)
 		}
 
 		if err := db.Save(&task).Error; err != nil {

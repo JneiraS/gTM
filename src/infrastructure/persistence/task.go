@@ -233,6 +233,13 @@ func UpdateComment(db *gorm.DB, comment Comment) {
 	})
 }
 
+func UpdateTaskTimeSpent(db *gorm.DB, taskTimeSpent TaskTimeSpent) {
+	db.Model(&taskTimeSpent).Updates(map[string]interface{}{
+		"StartTime": taskTimeSpent.StartTime,
+		"EndTime":   taskTimeSpent.EndTime,
+	})
+}
+
 //------DELETE------
 
 // Supprime une tâche de la base de données.

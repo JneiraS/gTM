@@ -22,8 +22,7 @@ const (
 func EndTask(db *gorm.DB, taskID uint) {
 	taskTimeSpent := persistence.GetTaskTimeSpent(db, taskID)
 	taskTimeSpent.EndTime = time.Now()
-
-	db.Save(&taskTimeSpent)
+	persistence.UpdateTaskTimeSpent(db, taskTimeSpent)
 
 	task, err := persistence.GetTask(db, taskID)
 	if err != nil {
@@ -48,4 +47,16 @@ func TimeSpent(db *gorm.DB, taskID uint) time.Duration {
 		}
 	}
 	return taskTimeSpent.EndTime.Sub(taskTimeSpent.StartTime)
+}
+
+func UpdateStartTime(db *gorm.DB, taskID uint) {
+	taskTimeSpent := persistence.GetTaskTimeSpent(db, taskID)
+	taskTimeSpent.StartTime = time.Now()
+	persistence.UpdateTaskTimeSpent(db, taskTimeSpent)
+}
+
+func IncrementTimeSpent(db *gorm.DB, taskID uint) int {
+	taskTimeSpent := persistence.GetTaskTimeSpent(db, taskID)
+
+	return int(time.Now().Sub(taskTimeSpent.StartTime)) / millisecondesToMinutes
 }
