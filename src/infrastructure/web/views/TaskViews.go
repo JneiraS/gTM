@@ -314,14 +314,13 @@ func updateStatusHandler(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
-		if task.Status == "Pending" {
+		if task.Status == "Pending" || task.Status == "Stopped" {
 			task.Status = "In progress"
 			services.UpdateStartTime(db, task.ID)
-		} else {
-			task.Status = "Pending"
+		} else if task.Status == "In progress" {
+			task.Status = "Stopped"
 			task.TimeSpent = task.TimeSpent + services.IncrementTimeSpent(db, task.ID)
 		}
-
 		if err := db.Save(&task).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update task status", "status": 500})
 			return

@@ -28,9 +28,14 @@ func EndTask(db *gorm.DB, taskID uint) {
 	if err != nil {
 		return
 	}
+
+	if task.Status == "Pending" && task.TimeSpent != 0 {
+		task.Status = EndTaskStatus
+		task.Progress = ProgressComplete
+	}
 	task.Status = EndTaskStatus
 	task.Progress = ProgressComplete
-	task.TimeSpent = int(TimeSpent(db, taskTimeSpent)) / millisecondesToMinutes
+	task.TimeSpent = task.TimeSpent + int(TimeSpent(db, taskTimeSpent))/millisecondesToMinutes
 	persistence.UpdateTask(db, task)
 }
 
@@ -39,12 +44,6 @@ func EndTask(db *gorm.DB, taskID uint) {
 // l'heure de début et l'heure de fin.
 func TimeSpent(db *gorm.DB, taskTimeSpent persistence.TaskTimeSpent) time.Duration {
 
-	// if taskTimeSpent.StartTime.IsZero() {
-	// 	task, err := persistence.GetTask(db, taskID)
-	// 	if err == nil {
-	// 		taskTimeSpent.StartTime = task.CreatedAt
-	// 	}
-	// }
 	return taskTimeSpent.EndTime.Sub(taskTimeSpent.StartTime)
 }
 

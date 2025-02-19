@@ -169,7 +169,7 @@ document.querySelectorAll("[id^='status-']").forEach(function (li) {
             },
             body: JSON.stringify({
                 id: dateId,
-                status: statusText === "Pending" ? "In progress" : "Pending"
+                status: statusText === "Pending" || statusText === "Stopped" ? "In progress" : "Stopped"
             })
         })
             .then(response => {
@@ -180,8 +180,9 @@ document.querySelectorAll("[id^='status-']").forEach(function (li) {
             })
             .then(data => {
                 if (data.status === 200) {
-                    this.textContent = statusText === "Pending" ? "In progress" : "Pending";
+                    this.textContent = statusText === "Pending" || statusText === "Stopped" ? "In progress" : "Stopped";
                     this.classList.toggle('pending');
+                    this.classList.toggle('stopped');
                     this.classList.toggle('in-progress');
                 } else {
                     throw new Error('Server returned error status');
