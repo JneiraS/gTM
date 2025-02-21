@@ -182,13 +182,21 @@ func UpdateDueDateHandler(db *gorm.DB) gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, gin.H{"error": invalidTaskIDMsg})
 			return
 		}
-
 		dueDate, err := time.Parse("2006-01-02 15:04", requestBody.Date)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid due date format. Expected format: YYYY-MM-DD HH:mm"})
 			return
 		}
 
+		// Add validation for future dates
+		if dueDate.Before(time.Now().Add(-time.Minute)) {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error":  "Due date must be in the future",
+				"status": 400,
+			})
+			return
+
+		}
 		task := persistence.Task{}
 		if err := db.First(&task, id).Error; err != nil {
 			c.JSON(http.StatusNotFound, gin.H{"error": taskNotFoundMsg})
