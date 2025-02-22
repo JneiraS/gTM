@@ -191,6 +191,7 @@ document.querySelectorAll("[id^='status-']").forEach(function (li) {
                     this.classList.toggle('pending');
                     this.classList.toggle('stopped');
                     this.classList.toggle('in-progress');
+                    setStatusColors();
                 } else {
                     throw new Error('Server returned error status');
                 }
@@ -255,3 +256,24 @@ document.querySelectorAll(".done-bottom button").forEach((button) => {
     });
 });
 
+function setStatusColors() {
+    document.querySelectorAll(".change-status").forEach((element) => {
+        if (element.textContent === "In progress") {
+            element.style.backgroundColor = "#61A875";
+            element.style.color = "whitesmoke";
+            element.style.border = "1px solid rgba(255, 255, 255, 0.25)";
+        } else if (element.textContent === "Stopped") {
+            element.style.backgroundColor = "#C07972";
+            element.style.color = "whitesmoke";
+            element.style.border = "1px solid rgba(255, 255, 255, 0.25)";
+
+        } else if (element.textContent === "Pending") {
+            element.style.backgroundColor = "#737677";
+            element.style.color = "#C6C5B9";
+            element.style.border = "1px solid rgba(255, 255, 255, 0.25)";
+
+        }
+    });
+}
+
+setStatusColors()

@@ -208,7 +208,7 @@ li {
 
 .description {
   min-height: 55px;
-  background-color: rgba(0, 0, 0, 0.207);
+  background-color: #00000035;
   margin: 0.25em 0.7em 0.7em;
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 3px;
@@ -227,10 +227,10 @@ li {
 }
 
 .done-bottom button {
-  background-color: var(--mint);
-  color: rgba(255, 255, 255, 0.839);
+  background-color: var(--font-color);
+  color: var(--main-background-color);
   font-weight: bold;
-  padding: 5px 7px;
+  padding: 4px 7px;
   border: none;
   border-radius: 4px;
   cursor: pointer;
@@ -238,6 +238,10 @@ li {
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
+}
+
+.done-bottom button:hover {
+  background-color: #ffffffb9;
 }
 
 .done-bottom button::after {
@@ -249,7 +253,7 @@ li {
   bottom: 0;
   width: 0%;
   height: 100%;
-  background: rgba(204, 204, 204, 0.581);
+  background: hsla(35, 100%, 52%, 0.33);
   opacity: 0;
   transition: opacity 0.2s ease;
 }
