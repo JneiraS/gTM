@@ -1,6 +1,7 @@
 package views
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -17,6 +18,7 @@ const (
 	invalidRequestMsg = "Invalid request"
 	invalidTaskIDMsg  = "Invalid task ID"
 	taskNotFoundMsg   = "Task not found"
+	FIND_BY_PROJECT   = "project = ?"
 )
 
 // SetupRouter creates a web server that serves the web interface for the application.
@@ -42,6 +44,7 @@ func SetupRouter(db *gorm.DB) {
 	router.GET("/project/:project", DisplayTasks(db))
 	router.POST("/update-task-due-date", useCases.UpdateDueDateHandler(db))
 	router.POST("/update-task-status", useCases.ToggleTaskStatusHandler(db))
+
 	router.Run(":7263")
 
 }
@@ -71,8 +74,8 @@ func DisplayTasks(db *gorm.DB) gin.HandlerFunc {
 			Done)
 
 		if project != "" {
-			baseQuery = baseQuery.Where("project = ?", project)
-			baseNoDueDateQuery = baseNoDueDateQuery.Where("project = ?", project)
+			baseQuery = baseQuery.Where(FIND_BY_PROJECT, project)
+			baseNoDueDateQuery = baseNoDueDateQuery.Where(FIND_BY_PROJECT, project)
 			db.Where("status = ? AND project = ?", Done, project).
 				Order("updated_at ASC").
 				Find(&tasksDone)
@@ -88,11 +91,19 @@ func DisplayTasks(db *gorm.DB) gin.HandlerFunc {
 		baseQuery.Order("priority ASC, due_date ASC").Find(&priorityTasks)
 		baseNoDueDateQuery.Order("priority ASC").Find(&taskWithoutDueDate)
 
-		db.Where("due_date > ? AND due_date < ? AND status != ?",
-			time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC),
-			time.Now(),
-			Done).
-			Find(&lateTasks)
+		if project != "" {
+			baseQuery.Where("due_date > ? AND due_date < ? AND status != ?",
+				time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC),
+				time.Now(),
+				Done).
+				Find(&lateTasks)
+		} else {
+			db.Where("due_date > ? AND due_date < ? AND status != ?",
+				time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC),
+				time.Now(),
+				Done).
+				Find(&lateTasks)
+		}
 
 		// Affichage de la vue avec toutes les données
 		c.HTML(http.StatusOK, "index.tmpl", gin.H{
@@ -103,6 +114,30 @@ func DisplayTasks(db *gorm.DB) gin.HandlerFunc {
 			"tasksdone":       tasksDone,
 			"latetasks":       lateTasks,
 			"project":         project,
+			"statistics":      statistics(priorityTasks, taskWithoutDueDate, lateTasks),
 		})
 	}
+}
+
+func statistics(priorityTasks, taskWithoutDueDate, lateTasks []persistence.Task) []string {
+	taskCounts := map[string]int{
+		"Priority":         len(priorityTasks),
+		"Without Due Date": len(taskWithoutDueDate),
+		"Late":             len(lateTasks),
+	}
+
+	var totalTasks int
+	for _, count := range taskCounts {
+		totalTasks += count
+	}
+
+	statistics := []string{
+		fmt.Sprintf("Total number of tasks: %d", totalTasks),
+	}
+
+	for name, count := range taskCounts {
+		statistics = append(statistics, fmt.Sprintf("%s: %d", name, count))
+	}
+
+	return statistics
 }

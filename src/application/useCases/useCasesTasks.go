@@ -40,7 +40,12 @@ func CreateTaskHandler(db *gorm.DB) gin.HandlerFunc {
 			},
 		}
 		persistence.CreateTask(db, task)
-		c.Redirect(http.StatusFound, "/")
+		if task.Project != "" {
+			c.Redirect(http.StatusFound, "/project/"+task.Project)
+		} else {
+			c.Redirect(http.StatusFound, "/")
+
+		}
 	}
 }
 
