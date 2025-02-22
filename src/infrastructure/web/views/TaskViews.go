@@ -19,14 +19,14 @@ const (
 	taskNotFoundMsg   = "Task not found"
 )
 
-// Views creates a web server that serves the web interface for the application.
+// SetupRouter creates a web server that serves the web interface for the application.
 //
 // The web interface shows four lists of tasks: tasks with a due date, tasks without
 // a due date, tasks that are done, and tasks that are late.
 //
 // The functions to create a new task, mark a task as done and update a task are
 // routed to the corresponding functions in the useCases package.
-func Views() {
+func SetupRouter(db *gorm.DB) {
 	router := gin.Default()
 
 	// Spécifier les adresses IP ou plages autorisées
@@ -34,16 +34,14 @@ func Views() {
 	router.LoadHTMLGlob("src/infrastructure/web/templates/*")
 	router.Static("/static", "src/infrastructure/web/static")
 
-	sqliteDB := persistence.CreateDB()
-
-	router.GET("/", DisplayTasks(sqliteDB))
-	router.GET("/done/:id", useCases.MarkTaskAsCompletedHandler(sqliteDB))
-	router.POST("/", useCases.CreateTaskHandler(sqliteDB))
-	router.POST("/update-task", useCases.UpdateTaskDescriptionHandler(sqliteDB))
-	router.POST("/update-task-title", useCases.UpdateTitleTaskHandler(sqliteDB))
-	router.GET("/project/:project", DisplayTasks(sqliteDB))
-	router.POST("/update-task-due-date", useCases.UpdateDueDateHandler(sqliteDB))
-	router.POST("/update-task-status", useCases.ToggleTaskStatusHandler(sqliteDB))
+	router.GET("/", DisplayTasks(db))
+	router.GET("/done/:id", useCases.MarkTaskAsCompletedHandler(db))
+	router.POST("/", useCases.CreateTaskHandler(db))
+	router.POST("/update-task", useCases.UpdateTaskDescriptionHandler(db))
+	router.POST("/update-task-title", useCases.UpdateTitleTaskHandler(db))
+	router.GET("/project/:project", DisplayTasks(db))
+	router.POST("/update-task-due-date", useCases.UpdateDueDateHandler(db))
+	router.POST("/update-task-status", useCases.ToggleTaskStatusHandler(db))
 	router.Run(":7263")
 
 }
@@ -54,7 +52,7 @@ func Views() {
 // late.
 func DisplayTasks(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		db := persistence.CreateDB()
+		// db := persistence.CreateDB()
 
 		var priorityTasks []persistence.Task
 		var taskWithoutDueDate []persistence.Task
