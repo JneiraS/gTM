@@ -7,6 +7,9 @@
     <link rel="stylesheet" type="text/css" href="/static/style.css">
 </head>
 <body>
+   
+        {{template "header" .}}
+
 	<h1 id="projet-title">{{ if .project }}{{ .project }}{{ else }}All Tasks{{ end }}</h1>
     <div class="form-container">
         <button class="show-button" onclick="toggleForm()"></button>

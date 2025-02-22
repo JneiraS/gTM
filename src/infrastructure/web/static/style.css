@@ -19,6 +19,27 @@
   color: var(--font-color);
 }
 
+/* HEARDER */
+
+header {
+  background-color: hsla(0, 0%, 0%, 0.2);
+  padding: .5em;
+}
+
+.badge {
+  background-color: var(--main-background-color);
+  border-radius: 3px;
+  padding: 0.25em;
+  margin: 0 0.25em;
+  font-size: 0.8em;
+  font-weight: bold;
+  color: var(--font-color);
+  position: sticky;
+  top: 300px;
+  left: 1em;
+}
+
+/* BODY */
 body {
   background: var(--main-background-color);
   background-image:
