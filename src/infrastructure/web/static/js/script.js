@@ -133,16 +133,23 @@ document.querySelectorAll("[id^='due-date-']").forEach(function (li) {
                         date: formattedDate
                     })
                 })
-                    .then(function (res) {
-                        if (res.status === 200) {
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.ok) {
                             this.contentEditable = false;
                             this.removeEventListener("keyup", saveDate);
+                        } else if (data.error === "Due date must be in the future") {
+                            console.error("Error updating task date:", data.error);
+                            const errorDiv = document.getElementById('error-message');
+                            errorDiv.textContent = data.error;
+                            errorDiv.style.display = 'block';
+                            errorDiv.className = 'alert alert-danger';
                         } else {
-                            console.log("Error updating task date");
+                            console.error("Error updating task date:", data.error);
                         }
                     })
-                    .catch(function (err) {
-                        console.log("Error updating task date", err);
+                    .catch(error => {
+                        console.error("Error updating task date:", error);
                     });
             }
         };
@@ -194,3 +201,57 @@ document.querySelectorAll("[id^='status-']").forEach(function (li) {
             });
     });
 });
+
+document.addEventListener('DOMContentLoaded', function () {
+    const doneButtons = document.querySelectorAll('.done-bottom');
+
+    doneButtons.forEach(button => {
+        let pressTimer;
+
+        button.addEventListener('mousedown', function (e) {
+            pressTimer = setTimeout(() => {
+                const href = this.getAttribute('href');
+                window.location.href = href;
+            }, 2000); // 2 seconds
+            e.preventDefault();
+        });
+
+        button.addEventListener('click', function (e) {
+            e.preventDefault();
+        });
+
+        button.addEventListener('mouseup', function () {
+            clearTimeout(pressTimer);
+        });
+
+        button.addEventListener('mouseleave', function () {
+            clearTimeout(pressTimer);
+        });
+    });
+});
+
+document.querySelectorAll(".done-bottom button").forEach((button) => {
+    let pressTimer;
+
+    button.addEventListener('mousedown', function (e) {
+        pressTimer = setTimeout(() => {
+            this.classList.add("filled");
+        }, 100); // 1 second
+        e.preventDefault();
+    });
+
+    button.addEventListener('click', function (e) {
+        e.preventDefault();
+    });
+
+    button.addEventListener('mouseup', function () {
+        clearTimeout(pressTimer);
+        this.classList.remove("filled");
+    });
+
+    button.addEventListener('mouseleave', function () {
+        clearTimeout(pressTimer);
+        this.classList.remove("filled");
+    });
+});
+

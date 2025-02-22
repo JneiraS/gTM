@@ -235,16 +235,39 @@ li {
   border-radius: 4px;
   cursor: pointer;
   font-size: smaller;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
 }
 
-.done-bottom button:hover {
-  background-color: #45a049;
+.done-bottom button::after {
+  content: "";
+  position: absolute;
+  font-size: smaller;
+  display: inline-block;
+  left: 0;
+  bottom: 0;
+  width: 0%;
+  height: 100%;
+  background: rgba(204, 204, 204, 0.581);
+  opacity: 0;
+  transition: opacity 0.2s ease;
 }
 
-.task-card-bottom {
-  display: flex;
-  border-radius: var(--bottom-radius);
+.done-bottom button.filled::after {
+  opacity: 1;
+  width: 100%;
+  animation: fill-progress 2s linear forwards;
+}
+
+@keyframes fill-progress {
+  from {
+    width: 0%;
+  }
+
+  to {
+    width: 100%;
+  }
 }
 
 .deadline {
@@ -291,6 +314,41 @@ footer {
   justify-content: flex-start;
   align-items: center;
 }
+
+/* Message d'erreur */
+
+#error-message {
+  display: block;
+  position: fixed;
+  background-color: var(--old-rose);
+  color: whitesmoke;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: .5em 2em;
+  justify-content: end;
+  align-items: center;
+  text-align: right;
+  animation: fadeOut 10s forwards;
+}
+
+@keyframes fadeOut {
+  0% {
+    opacity: 0;
+    transform: translateY(1em);
+  }
+
+  10% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  100% {
+    opacity: 0;
+
+  }
+}
+
 
 /* Responsive */
 @media (orientation: portrait) and (max-width: 680px) {
