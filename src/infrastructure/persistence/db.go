@@ -1,6 +1,7 @@
 package persistence
 
 import (
+	"os"
 	"time"
 
 	"gorm.io/driver/sqlite"
@@ -12,14 +13,15 @@ import (
 // cannot be established.
 func CreateDB() *gorm.DB {
 
-	dbb, err := gorm.Open(sqlite.Open("data.db"), &gorm.Config{})
-	dbb.Set("gorm:table_options", "ENGINE=InnoDB")
-	// Migrations
-	dbb.AutoMigrate(&Task{}, &Subtask{}, &Comment{}, &Tag{}, &TaskTags{}, &TaskSubtasks{}, &TaskComments{}, &TaskTimeSpent{})
-	if err != nil {
-		panic("failed to connect database")
+	if _, err := os.Stat("data.db"); os.IsNotExist(err) {
+		dbb, err := gorm.Open(sqlite.Open("data.db"), &gorm.Config{})
+		dbb.Set("gorm:table_options", "ENGINE=InnoDB")
+		// Migrations
+		dbb.AutoMigrate(&Task{}, &Subtask{}, &Comment{}, &Tag{}, &TaskTags{}, &TaskSubtasks{}, &TaskComments{}, &TaskTimeSpent{}, &User{})
+		if err != nil {
+			panic("failed to connect database")
+		}
 	}
-
 	dsn := "file::memory:?cache=shared" +
 		"&_pragma=foreign_keys(1)" +
 		"&_pragma=busy_timeout(10000)" +
@@ -51,7 +53,7 @@ func CreateDB() *gorm.DB {
 	db.Exec("ATTACH DATABASE 'data.db' AS disk")
 
 	// Schema and initial sync
-	db.AutoMigrate(&Task{}, &Subtask{}, &Comment{}, &Tag{}, &TaskTags{}, &TaskSubtasks{}, &TaskComments{}, &TaskTimeSpent{})
+	db.AutoMigrate(&Task{}, &Subtask{}, &Comment{}, &Tag{}, &TaskTags{}, &TaskSubtasks{}, &TaskComments{}, &TaskTimeSpent{}, &User{})
 
 	db.Transaction(func(tx *gorm.DB) error {
 		tx.Exec("INSERT INTO main.tasks SELECT * FROM disk.tasks WHERE id NOT IN (SELECT id FROM main.tasks)")
@@ -80,6 +82,8 @@ func CreateDB() *gorm.DB {
 				tx.Exec("INSERT INTO disk.task_time_spents SELECT * FROM main.task_time_spents")
 				tx.Exec("DELETE FROM disk.task_comments")
 				tx.Exec("INSERT INTO disk.task_comments SELECT * FROM main.task_comments")
+				tx.Exec("DELETE FROM disk.users")
+				tx.Exec("INSERT INTO disk.users SELECT * FROM main.users")
 				return nil
 			})
 		}
