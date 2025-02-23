@@ -40,7 +40,7 @@ func RegisterUserHandler(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
-		c.JSON(http.StatusCreated, gin.H{"message": "User registered successfully"})
+		// c.JSON(http.StatusCreated, gin.H{"message": "User registered successfully"})
 		c.Redirect(http.StatusFound, "/")
 	}
 }

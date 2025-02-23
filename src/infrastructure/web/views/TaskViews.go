@@ -48,6 +48,7 @@ func SetupRouter(db *gorm.DB) {
 	router.POST("/register", useCases.RegisterUserHandler(db))
 	router.POST("/login", useCases.LoginUserHandler(db))
 	router.GET("/signup", DisplaySignupPage(db))
+	router.GET("/login", DisplayLoginPage(db))
 
 	router.Run(":7263")
 
@@ -127,6 +128,14 @@ func DisplaySignupPage(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.HTML(http.StatusOK, "signup.tmpl", gin.H{
 			"title": "Inscription",
+		})
+	}
+}
+
+func DisplayLoginPage(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.HTML(http.StatusOK, "login.tmpl", gin.H{
+			"title": "Connexion",
 		})
 	}
 }

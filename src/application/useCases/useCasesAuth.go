@@ -3,7 +3,6 @@ package useCases
 import (
 	"net/http"
 
-	"github.com/JneiraS/AMS/src/domain/models"
 	"github.com/JneiraS/AMS/src/domain/services"
 	"github.com/JneiraS/AMS/src/infrastructure/persistence"
 	"github.com/gin-gonic/gin"
@@ -13,23 +12,23 @@ import (
 func LoginUserHandler(db *gorm.DB) gin.HandlerFunc {
 
 	return func(c *gin.Context) {
-		var input models.LoginInput
+		username := c.PostForm("username")
+		password := c.PostForm("password")
 
-		// Vérifier que l'entrée est correcte
-		if err := c.ShouldBindJSON(&input); err != nil {
+		if username == "" || password == "" {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Données invalides"})
 			return
 		}
 
-		// Rechercher l'utilisateur par email
+		// Rechercher l'utilisateur par username
 		var user persistence.User
-		if err := db.Where("username = ?", c.PostForm("username")).First(&user).Error; err != nil {
+		if err := db.Where("username = ?", username).First(&user).Error; err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Utilisateur non trouvé"})
 			return
 		}
 
 		// Vérifier le mot de passe
-		if err := services.CheckPassword(user.Password, c.PostForm("password")); err != nil {
+		if err := services.CheckPassword(user.Password, password); err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Mot de passe incorrect"})
 			return
 		}
