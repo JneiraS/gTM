@@ -14,37 +14,33 @@ import (
 // Route pour l'inscription d'un utilisateur
 func RegisterUserHandler(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var user models.User
+		username := c.PostForm("username")
+		password := c.PostForm("password")
 
-		// Récupérer les données JSON envoyées par le client
-		if err := c.ShouldBindJSON(&user); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		if username == "" || password == "" {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Username and password are required"})
 			return
 		}
 
-		// Hasher le mot de passe
-		hashedPassword, err := services.HashPassword(user.Password)
+		hashedPassword, err := services.HashPassword(password)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Erreur lors du hashage du mot de passe"})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to hash password"})
 			return
 		}
 
-		// Créer l'utilisateur
-		persistenceUser := persistence.User{
+		user := persistence.User{
 			User: models.User{
-				Username: c.PostForm("username"),
+				Username: username,
 				Password: hashedPassword,
 			},
 		}
 
-		// Enregistrer dans la base de données
-		result := db.Create(&persistenceUser)
-		if result.Error != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
+		if err := db.Create(&user).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
 			return
 		}
 
+		c.JSON(http.StatusCreated, gin.H{"message": "User registered successfully"})
 		c.Redirect(http.StatusFound, "/")
-		c.JSON(http.StatusCreated, gin.H{"message": "Utilisateur créé avec succès"})
 	}
 }

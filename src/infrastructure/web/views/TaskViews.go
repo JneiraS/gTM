@@ -45,7 +45,9 @@ func SetupRouter(db *gorm.DB) {
 	router.POST("/update-task-due-date", useCases.UpdateDueDateHandler(db))
 	router.POST("/update-task-status", useCases.ToggleTaskStatusHandler(db))
 
-	router.POST("/signup", useCases.RegisterUserHandler(db))
+	router.POST("/register", useCases.RegisterUserHandler(db))
+	router.POST("/login", useCases.LoginUserHandler(db))
+	router.GET("/signup", DisplaySignupPage(db))
 
 	router.Run(":7263")
 
@@ -117,6 +119,14 @@ func DisplayTasks(db *gorm.DB) gin.HandlerFunc {
 			"latetasks":       lateTasks,
 			"project":         project,
 			"statistics":      statistics(priorityTasks, taskWithoutDueDate, lateTasks),
+		})
+	}
+}
+
+func DisplaySignupPage(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.HTML(http.StatusOK, "signup.tmpl", gin.H{
+			"title": "Inscription",
 		})
 	}
 }
