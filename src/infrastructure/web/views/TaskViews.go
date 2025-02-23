@@ -45,6 +45,8 @@ func SetupRouter(db *gorm.DB) {
 	router.POST("/update-task-due-date", useCases.UpdateDueDateHandler(db))
 	router.POST("/update-task-status", useCases.ToggleTaskStatusHandler(db))
 
+	router.POST("/signup", useCases.RegisterUserHandler(db))
+
 	router.Run(":7263")
 
 }

@@ -2,6 +2,7 @@ package persistence
 
 import (
 	"log"
+	"os"
 	"sync"
 	"time"
 
@@ -16,6 +17,16 @@ var (
 
 // CreateDB initialise une seule instance de la base de données
 func CreateDB() *gorm.DB {
+
+	if _, err := os.Stat("data.db"); os.IsNotExist(err) {
+		dbb, err := gorm.Open(sqlite.Open("data.db"), &gorm.Config{})
+		dbb.Set("gorm:table_options", "ENGINE=InnoDB")
+		// Migrations
+		dbb.AutoMigrate(&Task{}, &Subtask{}, &Comment{}, &Tag{}, &TaskTags{}, &TaskSubtasks{}, &TaskComments{}, &TaskTimeSpent{}, &User{})
+		if err != nil {
+			panic("failed to connect database")
+		}
+	}
 	once.Do(func() {
 		// Configuration de la base de données en mémoire
 		dsn := "file::memory:?cache=shared" +
@@ -51,7 +62,7 @@ func CreateDB() *gorm.DB {
 		db.Exec("ATTACH DATABASE 'data.db' AS disk")
 
 		// Migration des tables
-		err = db.AutoMigrate(&Task{}, &Subtask{}, &Comment{}, &Tag{}, &TaskTags{}, &TaskSubtasks{}, &TaskComments{}, &TaskTimeSpent{})
+		err = db.AutoMigrate(&Task{}, &Subtask{}, &Comment{}, &Tag{}, &TaskTags{}, &TaskSubtasks{}, &TaskComments{}, &TaskTimeSpent{}, &User{})
 		if err != nil {
 			log.Fatal("Erreur lors de la migration:", err)
 		}
@@ -72,7 +83,7 @@ func CreateDB() *gorm.DB {
 			for {
 				time.Sleep(1 * time.Minute)
 				err := db.Transaction(func(tx *gorm.DB) error {
-					tables := []string{"tasks", "subtasks", "comments", "tags", "task_tags", "task_subtasks", "task_comments", "task_time_spents"}
+					tables := []string{"tasks", "subtasks", "comments", "tags", "task_tags", "task_subtasks", "task_comments", "task_time_spents", "users"}
 					for _, table := range tables {
 						if err := tx.Exec("DELETE FROM disk." + table).Error; err != nil {
 							return err
@@ -82,7 +93,7 @@ func CreateDB() *gorm.DB {
 						}
 					}
 					// Nettoyage et optimisation de la base sur disque
-					return tx.Exec("VACUUM disk").Error
+					return tx.Exec("PRAGMA disk.vacuum").Error
 				})
 				if err != nil {
 					log.Println("Erreur lors de la sauvegarde automatique:", err)
