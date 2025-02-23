@@ -12,16 +12,6 @@ import (
 // struct to the database. This function will panic if the database connection
 // cannot be established.
 func CreateDB() *gorm.DB {
-
-	if _, err := os.Stat("data.db"); os.IsNotExist(err) {
-		dbb, err := gorm.Open(sqlite.Open("data.db"), &gorm.Config{})
-		dbb.Set("gorm:table_options", "ENGINE=InnoDB")
-		// Migrations
-		dbb.AutoMigrate(&Task{}, &Subtask{}, &Comment{}, &Tag{}, &TaskTags{}, &TaskSubtasks{}, &TaskComments{}, &TaskTimeSpent{}, &User{})
-		if err != nil {
-			panic("failed to connect database")
-		}
-	}
 	dsn := "file::memory:?cache=shared" +
 		"&_pragma=foreign_keys(1)" +
 		"&_pragma=busy_timeout(10000)" +
@@ -49,42 +39,33 @@ func CreateDB() *gorm.DB {
 	sqlDB.SetMaxIdleConns(10)
 	sqlDB.SetConnMaxLifetime(time.Hour)
 
-	// Attach disk database
-	db.Exec("ATTACH DATABASE 'data.db' AS disk")
-
-	// Schema and initial sync
+	// Schema migration
 	db.AutoMigrate(&Task{}, &Subtask{}, &Comment{}, &Tag{}, &TaskTags{}, &TaskSubtasks{}, &TaskComments{}, &TaskTimeSpent{}, &User{})
 
-	db.Transaction(func(tx *gorm.DB) error {
-		tx.Exec("INSERT INTO main.tasks SELECT * FROM disk.tasks WHERE id NOT IN (SELECT id FROM main.tasks)")
-		return nil
-	})
-	// Après l'AutoMigrate et la création des tables, ajouter :
+	// Attach disk database and copy data
+	if _, err := os.Stat("data.db"); !os.IsNotExist(err) {
+		db.Exec("ATTACH DATABASE 'data.db' AS disk")
+		tables := []string{"tasks", "subtasks", "comments", "tags", "task_tags", "task_subtasks", "task_comments", "task_time_spents", "users"}
+		for _, table := range tables {
+			db.Exec("INSERT INTO main." + table + " SELECT * FROM disk." + table)
+		}
+	}
 
-	// Sauvegarde périodique
+	// Periodic background save
 	go func() {
 		for {
 			time.Sleep(1 * time.Minute)
 			db.Transaction(func(tx *gorm.DB) error {
-				tx.Exec("DELETE FROM disk.tasks")
-				tx.Exec("INSERT INTO disk.tasks SELECT * FROM main.tasks")
-				tx.Exec("DELETE FROM disk.subtasks")
-				tx.Exec("INSERT INTO disk.subtasks SELECT * FROM main.subtasks")
-				tx.Exec("DELETE FROM disk.comments")
-				tx.Exec("INSERT INTO disk.comments SELECT * FROM main.comments")
-				tx.Exec("DELETE FROM disk.tags")
-				tx.Exec("INSERT INTO disk.tags SELECT * FROM main.tags")
-				tx.Exec("DELETE FROM disk.task_tags")
-				tx.Exec("INSERT INTO disk.task_tags SELECT * FROM main.task_tags")
-				tx.Exec("DELETE FROM disk.task_subtasks")
-				tx.Exec("INSERT INTO disk.task_subtasks SELECT * FROM main.task_subtasks")
-				tx.Exec("DELETE FROM disk.task_time_spents")
-				tx.Exec("INSERT INTO disk.task_time_spents SELECT * FROM main.task_time_spents")
-				tx.Exec("DELETE FROM disk.task_comments")
-				tx.Exec("INSERT INTO disk.task_comments SELECT * FROM main.task_comments")
-				tx.Exec("DELETE FROM disk.users")
-				tx.Exec("INSERT INTO disk.users SELECT * FROM main.users")
-				return nil
+				tables := []string{"tasks", "subtasks", "comments", "tags", "task_tags", "task_subtasks", "task_comments", "task_time_spents", "users"}
+				for _, table := range tables {
+					if err := tx.Exec("DELETE FROM disk." + table).Error; err != nil {
+						return err
+					}
+					if err := tx.Exec("INSERT INTO disk." + table + " SELECT * FROM main." + table).Error; err != nil {
+						return err
+					}
+				}
+				return tx.Exec("PRAGMA disk.vacuum").Error
 			})
 		}
 	}()
