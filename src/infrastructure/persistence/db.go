@@ -1,89 +1,103 @@
 package persistence
 
 import (
+	"log"
+	"sync"
 	"time"
 
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
-// CreateDB creates a new GORM database connection using SQLite3 and migrates the Task
-// struct to the database. This function will panic if the database connection
-// cannot be established.
+var (
+	db   *gorm.DB
+	once sync.Once
+)
+
+// CreateDB initialise une seule instance de la base de données
 func CreateDB() *gorm.DB {
+	once.Do(func() {
+		// Configuration de la base de données en mémoire
+		dsn := "file::memory:?cache=shared" +
+			"&_pragma=foreign_keys(1)" +
+			"&_pragma=busy_timeout(10000)" +
+			"&_pragma=synchronous(NORMAL)" +
+			"&_pragma=journal_mode=WAL" +
+			"&_pragma=cache_size(-2000000)" +
+			"&_pragma=mmap_size(2147483648)" +
+			"&_pragma=temp_store(MEMORY)" +
+			"&_pragma=threads(4)" +
+			"&_pragma=page_size(4096)"
 
-	dbb, err := gorm.Open(sqlite.Open("data.db"), &gorm.Config{})
-	dbb.Set("gorm:table_options", "ENGINE=InnoDB")
-	// Migrations
-	dbb.AutoMigrate(&Task{}, &Subtask{}, &Comment{}, &Tag{}, &TaskTags{}, &TaskSubtasks{}, &TaskComments{}, &TaskTimeSpent{})
-	if err != nil {
-		panic("failed to connect database")
-	}
-
-	dsn := "file::memory:?cache=shared" +
-		"&_pragma=foreign_keys(1)" +
-		"&_pragma=busy_timeout(10000)" +
-		"&_pragma=synchronous(NORMAL)" +
-		"&_pragma=journal_mode(WAL)" +
-		"&_pragma=cache_size(-2000000)" +
-		"&_pragma=mmap_size(2147483648)" +
-		"&_pragma=temp_store(MEMORY)" +
-		"&_pragma=threads(4)" +
-		"&_pragma=page_size(4096)"
-
-	db, err := gorm.Open(sqlite.Open(dsn), &gorm.Config{
-		SkipDefaultTransaction: true,
-		PrepareStmt:            true,
-	})
-	if err != nil {
-		panic("failed to connect database")
-	}
-
-	sqlDB, err := db.DB()
-	if err != nil {
-		panic("failed to get database")
-	}
-	sqlDB.SetMaxOpenConns(25)
-	sqlDB.SetMaxIdleConns(10)
-	sqlDB.SetConnMaxLifetime(time.Hour)
-
-	// Attach disk database
-	db.Exec("ATTACH DATABASE 'data.db' AS disk")
-
-	// Schema and initial sync
-	db.AutoMigrate(&Task{}, &Subtask{}, &Comment{}, &Tag{}, &TaskTags{}, &TaskSubtasks{}, &TaskComments{}, &TaskTimeSpent{})
-
-	db.Transaction(func(tx *gorm.DB) error {
-		tx.Exec("INSERT INTO main.tasks SELECT * FROM disk.tasks WHERE id NOT IN (SELECT id FROM main.tasks)")
-		return nil
-	})
-	// Après l'AutoMigrate et la création des tables, ajouter :
-
-	// Sauvegarde périodique
-	go func() {
-		for {
-			time.Sleep(1 * time.Minute)
-			db.Transaction(func(tx *gorm.DB) error {
-				tx.Exec("DELETE FROM disk.tasks")
-				tx.Exec("INSERT INTO disk.tasks SELECT * FROM main.tasks")
-				tx.Exec("DELETE FROM disk.subtasks")
-				tx.Exec("INSERT INTO disk.subtasks SELECT * FROM main.subtasks")
-				tx.Exec("DELETE FROM disk.comments")
-				tx.Exec("INSERT INTO disk.comments SELECT * FROM main.comments")
-				tx.Exec("DELETE FROM disk.tags")
-				tx.Exec("INSERT INTO disk.tags SELECT * FROM main.tags")
-				tx.Exec("DELETE FROM disk.task_tags")
-				tx.Exec("INSERT INTO disk.task_tags SELECT * FROM main.task_tags")
-				tx.Exec("DELETE FROM disk.task_subtasks")
-				tx.Exec("INSERT INTO disk.task_subtasks SELECT * FROM main.task_subtasks")
-				tx.Exec("DELETE FROM disk.task_time_spents")
-				tx.Exec("INSERT INTO disk.task_time_spents SELECT * FROM main.task_time_spents")
-				tx.Exec("DELETE FROM disk.task_comments")
-				tx.Exec("INSERT INTO disk.task_comments SELECT * FROM main.task_comments")
-				return nil
-			})
+		var err error
+		db, err = gorm.Open(sqlite.Open(dsn), &gorm.Config{
+			SkipDefaultTransaction: true,
+			PrepareStmt:            true,
+		})
+		if err != nil {
+			log.Fatal("Erreur de connexion à la base de données:", err)
 		}
-	}()
 
+		sqlDB, err := db.DB()
+		if err != nil {
+			log.Fatal("Erreur lors de l'obtention de sqlDB:", err)
+		}
+
+		sqlDB.SetMaxOpenConns(25)
+		sqlDB.SetMaxIdleConns(10)
+		sqlDB.SetConnMaxLifetime(time.Hour)
+
+		// Attacher la base persistante
+		db.Exec("ATTACH DATABASE 'data.db' AS disk")
+
+		// Migration des tables
+		err = db.AutoMigrate(&Task{}, &Subtask{}, &Comment{}, &Tag{}, &TaskTags{}, &TaskSubtasks{}, &TaskComments{}, &TaskTimeSpent{})
+		if err != nil {
+			log.Fatal("Erreur lors de la migration:", err)
+		}
+
+		// Synchronisation initiale des données
+		err = db.Transaction(func(tx *gorm.DB) error {
+			if err := tx.Exec("INSERT INTO main.tasks SELECT * FROM disk.tasks WHERE id NOT IN (SELECT id FROM main.tasks)").Error; err != nil {
+				return err
+			}
+			return nil
+		})
+		if err != nil {
+			log.Fatal("Erreur lors de la synchronisation des données:", err)
+		}
+
+		// Sauvegarde périodique en arrière-plan
+		go func() {
+			for {
+				time.Sleep(1 * time.Minute)
+				err := db.Transaction(func(tx *gorm.DB) error {
+					tables := []string{"tasks", "subtasks", "comments", "tags", "task_tags", "task_subtasks", "task_comments", "task_time_spents"}
+					for _, table := range tables {
+						if err := tx.Exec("DELETE FROM disk." + table).Error; err != nil {
+							return err
+						}
+						if err := tx.Exec("INSERT INTO disk." + table + " SELECT * FROM main." + table).Error; err != nil {
+							return err
+						}
+					}
+					// Nettoyage et optimisation de la base sur disque
+					return tx.Exec("VACUUM disk").Error
+				})
+				if err != nil {
+					log.Println("Erreur lors de la sauvegarde automatique:", err)
+				}
+			}
+		}()
+	})
+
+	return db
+}
+
+// GetDB retourne l'instance unique de la base de données
+func GetDB() *gorm.DB {
+	if db == nil {
+		return CreateDB()
+	}
 	return db
 }
