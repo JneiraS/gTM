@@ -210,3 +210,49 @@ func TestGetComment(t *testing.T) {
 		t.Errorf("Expected 0 comments, got %d", len(invalidComments))
 	}
 }
+
+func TestGetAllProjects(t *testing.T) {
+	db := setupTestDB(t)
+
+	// Test GetAllProjects with empty database
+	projects := persistence.GetAllProjects(db)
+	if len(projects) != 0 {
+		t.Errorf("expected empty list, got %v", projects)
+	}
+
+	// Test GetAllProjects with single project
+	task := persistence.Task{
+		Task: models.Task{
+			Project: "Project1",
+		},
+	}
+	db.Create(&task)
+	projects = persistence.GetAllProjects(db)
+	if len(projects) != 1 || projects[0] != "Project1" {
+		t.Errorf("expected [Project1], got %v", projects)
+	}
+
+	// Test GetAllProjects with multiple projects
+	task2 := persistence.Task{
+		Task: models.Task{
+			Project: "Project2",
+		},
+	}
+	db.Create(&task2)
+	projects = persistence.GetAllProjects(db)
+	if len(projects) != 2 || projects[0] != "Project1" || projects[1] != "Project2" {
+		t.Errorf("expected [Project1 Project2], got %v", projects)
+	}
+
+	// Test GetAllProjects with error in database query
+	db.Exec("DROP TABLE tasks")
+	defer db.Exec("CREATE TABLE tasks (id SERIAL PRIMARY KEY, project TEXT NOT NULL)")
+	err := db.Exec("SELECT * FROM tasks WHERE project != ''").Error
+	if err == nil {
+		t.Errorf("expected error, got nil")
+	}
+	projects = persistence.GetAllProjects(db)
+	if len(projects) != 0 {
+		t.Errorf("expected empty list, got %v", projects)
+	}
+}
