@@ -84,6 +84,12 @@ func DisplayTasks(db *gorm.DB) gin.HandlerFunc {
 			db.Where("status = ? AND project = ?", Done, project).
 				Order("updated_at ASC").
 				Find(&tasksDone)
+
+			baseQuery.Where("due_date > ? AND due_date < ? AND status != ?",
+				time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC),
+				time.Now(),
+				Done).
+				Find(&lateTasks)
 		} else {
 			db.Where("status = ? AND updated_at > ? AND updated_at < ?",
 				Done,
@@ -91,24 +97,15 @@ func DisplayTasks(db *gorm.DB) gin.HandlerFunc {
 				time.Now()).
 				Order("updated_at ASC").
 				Find(&tasksDone)
-		}
 
-		baseQuery.Order("priority ASC, due_date ASC").Find(&priorityTasks)
-		baseNoDueDateQuery.Order("priority ASC").Find(&taskWithoutDueDate)
-
-		if project != "" {
-			baseQuery.Where("due_date > ? AND due_date < ? AND status != ?",
-				time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC),
-				time.Now(),
-				Done).
-				Find(&lateTasks)
-		} else {
 			db.Where("due_date > ? AND due_date < ? AND status != ?",
 				time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC),
 				time.Now(),
 				Done).
 				Find(&lateTasks)
 		}
+		baseQuery.Order("priority ASC, due_date ASC").Find(&priorityTasks)
+		baseNoDueDateQuery.Order("priority ASC").Find(&taskWithoutDueDate)
 
 		// Affichage de la vue avec toutes les données
 		c.HTML(http.StatusOK, "index.tmpl", gin.H{
@@ -119,7 +116,7 @@ func DisplayTasks(db *gorm.DB) gin.HandlerFunc {
 			"tasksdone":       tasksDone,
 			"latetasks":       lateTasks,
 			"project":         project,
-			"statistics":      statistics(priorityTasks, taskWithoutDueDate, lateTasks),
+			"statistics":      getStatistics(priorityTasks, taskWithoutDueDate, lateTasks),
 		})
 	}
 }
@@ -140,11 +137,15 @@ func DisplayLoginPage(db *gorm.DB) gin.HandlerFunc {
 	}
 }
 
-func statistics(priorityTasks, taskWithoutDueDate, lateTasks []persistence.Task) []string {
+// getStatistics returns an array of strings which represent the statistics
+// of the tasks. The first element is the total number of tasks to do,
+// and the next elements are the number of tasks with a specific
+// characteristic.
+func getStatistics(priorityTasks, taskWithoutDueDate, lateTasks []persistence.Task) []string {
 	taskCounts := map[string]int{
-		"Priority":         len(priorityTasks),
-		"Without Due Date": len(taskWithoutDueDate),
-		"Late":             len(lateTasks),
+		"Tasks whith priority": len(priorityTasks),
+		"Without Due Date":     len(taskWithoutDueDate),
+		"Overdue":              len(lateTasks),
 	}
 
 	var totalTasks int
@@ -153,7 +154,7 @@ func statistics(priorityTasks, taskWithoutDueDate, lateTasks []persistence.Task)
 	}
 
 	statistics := []string{
-		fmt.Sprintf("Total number of tasks: %d", totalTasks),
+		fmt.Sprintf("Total number of tasks to do: %d", totalTasks),
 	}
 
 	for name, count := range taskCounts {
