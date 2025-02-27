@@ -1,5 +1,7 @@
 .vscode/*
 data.db
+data.db-shm
+data.db-wal
 
 # Binaries for programs and plugins
 *.exe
