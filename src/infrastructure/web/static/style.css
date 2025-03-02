@@ -208,6 +208,7 @@ li {
   align-items: center;
 }
 
+.title,
 .task-card-header li,
 .status,
 .deadline,
@@ -226,6 +227,10 @@ li {
   justify-items: center;
   align-items: center;
   text-align: center;
+}
+
+.title {
+  font-size: larger;
 }
 
 .description {
@@ -426,6 +431,22 @@ footer {
   align-items: center;
   text-align: right;
   animation: fadeOut 10s forwards;
+}
+
+/* TASK DETAILS */
+
+#detail-task-container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: var(--color-card);
+  color: var(--main-background-color);
+  padding: 2em;
+  border-radius: 8px;
+  box-shadow: #000000dc 0px 1px 3px 0px, #ffffffd7 0px 1px 1px 0px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  max-width: 90%;
 }
 
 @keyframes fadeOut {

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AMS</title>
+    <link rel="stylesheet" type="text/css" href="/static/style.css">
+</head>
+<body>
+   
+    {{template "header" .}}
+
+    {{ .title }}
+
+   
+
+    <section id="detail-task-container">
+        <p class="title">{{.task.Title}}</p>
+
+    </section>    
+
+    {{template "footer" .}}
+
+    <script src="/static/js/script.js"></script>
+</body>
+</html>
+

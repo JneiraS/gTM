@@ -3,6 +3,7 @@ package views
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/JneiraS/AMS/src/application/useCases"
@@ -49,6 +50,8 @@ func SetupRouter(db *gorm.DB) {
 	router.POST("/login", useCases.LoginUserHandler(db))
 	router.GET("/signup", DisplaySignupPage(db))
 	router.GET("/login", DisplayLoginPage(db))
+
+	router.GET("/task/:id", useCases.AuthMiddleware(), DisplayDetailsTask(db))
 
 	router.Run(":7263")
 
@@ -133,6 +136,21 @@ func DisplayLoginPage(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.HTML(http.StatusOK, "login.tmpl", gin.H{
 			"title": "Connexion",
+		})
+	}
+}
+
+func DisplayDetailsTask(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			c.Status(http.StatusBadRequest)
+			return
+		}
+		task, _ := persistence.GetTask(db, uint(id))
+		c.HTML(http.StatusOK, "details.tmpl", gin.H{
+			"title": "Détails de la tâche",
+			"task":  task,
 		})
 	}
 }
