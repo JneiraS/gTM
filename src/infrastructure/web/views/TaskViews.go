@@ -8,6 +8,7 @@ import (
 
 	"github.com/JneiraS/AMS/src/application/useCases"
 	"github.com/JneiraS/AMS/src/infrastructure/persistence"
+	"github.com/JneiraS/AMS/src/infrastructure/web/middleware"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
@@ -37,21 +38,21 @@ func SetupRouter(db *gorm.DB) {
 	router.LoadHTMLGlob("src/infrastructure/web/templates/*")
 	router.Static("/static", "src/infrastructure/web/static")
 
-	router.GET("/", useCases.AuthMiddleware(), DisplayTasks(db))
-	router.GET("/done/:id", useCases.AuthMiddleware(), useCases.MarkTaskAsCompletedHandler(db))
-	router.POST("/", useCases.AuthMiddleware(), useCases.CreateTaskHandler(db))
-	router.POST("/update-task", useCases.AuthMiddleware(), useCases.UpdateTaskDescriptionHandler(db))
-	router.POST("/update-task-title", useCases.AuthMiddleware(), useCases.UpdateTitleTaskHandler(db))
-	router.GET("/project/:project", useCases.AuthMiddleware(), DisplayTasks(db))
-	router.POST("/update-task-due-date", useCases.AuthMiddleware(), useCases.UpdateDueDateHandler(db))
-	router.POST("/update-task-status", useCases.AuthMiddleware(), useCases.ToggleTaskStatusHandler(db))
+	router.GET("/", middleware.AuthMiddleware(), DisplayTasks(db))
+	router.GET("/done/:id", middleware.AuthMiddleware(), useCases.MarkTaskAsCompletedHandler(db))
+	router.POST("/", middleware.AuthMiddleware(), useCases.CreateTaskHandler(db))
+	router.POST("/update-task", middleware.AuthMiddleware(), useCases.UpdateTaskDescriptionHandler(db))
+	router.POST("/update-task-title", middleware.AuthMiddleware(), useCases.UpdateTitleTaskHandler(db))
+	router.GET("/project/:project", middleware.AuthMiddleware(), DisplayTasks(db))
+	router.POST("/update-task-due-date", middleware.AuthMiddleware(), useCases.UpdateDueDateHandler(db))
+	router.POST("/update-task-status", middleware.AuthMiddleware(), useCases.ToggleTaskStatusHandler(db))
 
 	router.POST("/register", useCases.RegisterUserHandler(db))
 	router.POST("/login", useCases.LoginUserHandler(db))
 	router.GET("/signup", DisplaySignupPage(db))
 	router.GET("/login", DisplayLoginPage(db))
 
-	router.GET("/task/:id", useCases.AuthMiddleware(), DisplayDetailsTask(db))
+	router.GET("/task/:id", middleware.AuthMiddleware(), DisplayDetailsTask(db))
 
 	router.Run(":7263")
 
