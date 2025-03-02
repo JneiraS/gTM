@@ -78,3 +78,11 @@ func AuthMiddleware() gin.HandlerFunc {
 		c.Next()
 	}
 }
+
+// LogoutHandler supprime le cookie de session et redirige vers la page d'accueil.
+func LogoutHandler() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.SetCookie("token", "", -1, "/", "", false, true)
+		c.Redirect(http.StatusFound, "/login")
+	}
+}
