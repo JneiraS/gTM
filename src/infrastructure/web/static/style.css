@@ -30,6 +30,7 @@ a {
 header {
   background-color: hsla(0, 0%, 0%, 0.2);
   padding: .5em;
+  min-height: 2.25em;
 }
 
 .badge {
@@ -46,11 +47,11 @@ header {
   left: 1em;
 }
 
-#username {
+header #username {
   position: absolute;
   background-color: var(--ash-gray);
   width: fit-content;
-  right: .5em;
+  right: 1em;
   top: .5em;
   color: var(--main-background-color);
   border-radius: var(--radius);
