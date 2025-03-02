@@ -111,6 +111,8 @@ func DisplayTasks(db *gorm.DB) gin.HandlerFunc {
 		baseQuery.Order("priority ASC, due_date ASC").Find(&priorityTasks)
 		baseNoDueDateQuery.Order("priority ASC").Find(&taskWithoutDueDate)
 
+		username, _ := c.Cookie("username")
+
 		// Affichage de la vue avec toutes les données
 		c.HTML(http.StatusOK, "index.tmpl", gin.H{
 			"title":           "Liste des taches",
@@ -120,6 +122,7 @@ func DisplayTasks(db *gorm.DB) gin.HandlerFunc {
 			"tasksdone":       tasksDone,
 			"latetasks":       lateTasks,
 			"project":         project,
+			"user":            username,
 			"statistics":      getStatistics(priorityTasks, taskWithoutDueDate, lateTasks),
 		})
 	}
@@ -149,9 +152,12 @@ func DisplayDetailsTask(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 		task, _ := persistence.GetTask(db, uint(id))
+		username, _ := c.Cookie("username")
+
 		c.HTML(http.StatusOK, "details.tmpl", gin.H{
 			"title": "Détails de la tâche",
 			"task":  task,
+			"user":  username,
 		})
 	}
 }

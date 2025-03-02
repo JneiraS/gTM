@@ -9,6 +9,7 @@
   --ash-gray: #fff8f099;
   --color-card: #404549;
   --font-color: #C6C5B9;
+  --box-shadow: #000000dc 0px 1px 3px 0px, #ffffffd7 0px 1px 1px 0px;
 }
 
 * {
@@ -17,6 +18,11 @@
   box-sizing: border-box;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
   color: var(--font-color);
+}
+
+a {
+  text-decoration: none;
+  color: var(--main-background-color);
 }
 
 /* HEARDER */
@@ -28,6 +34,7 @@ header {
 
 .badge {
   background-color: var(--main-background-color);
+  box-shadow: var(--box-shadow);
   border-radius: 3px;
   padding: 0.25em;
   margin: 0 0.25em;
@@ -38,6 +45,21 @@ header {
   top: 300px;
   left: 1em;
 }
+
+#username {
+  position: absolute;
+  background-color: var(--ash-gray);
+  width: fit-content;
+  right: .5em;
+  top: .5em;
+  color: var(--main-background-color);
+  border-radius: var(--radius);
+  padding: 0 .25em;
+  box-shadow: var(--box-shadow)
+}
+
+
+
 
 /* BODY */
 body {
@@ -71,7 +93,7 @@ body {
   right: -300px;
   backdrop-filter: blur(5px);
   transition: right 0.4s ease;
-  box-shadow: #000000dc 0px 1px 3px 0px, #ffffffd7 0px 1px 1px 0px;
+  box-shadow: var(--box-shadow);
   z-index: 10;
 
 }
@@ -180,7 +202,7 @@ li {
   margin: .5em;
   border-radius: var(--radius);
   max-width: fit-content;
-  box-shadow: #000000dc 0px 1px 3px 0px, #ffffffd7 0px 1px 1px 0px;
+  box-shadow: var(--box-shadow);
 }
 
 .task-card-header-c {
@@ -233,6 +255,20 @@ li {
   font-size: larger;
 }
 
+.details-btn {
+  background-color: var(--ash-gray);
+  color: var(--main-background-color);
+  font-weight: bold;
+  padding: 2px 7px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: smaller;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
 .description {
   min-height: 55px;
   background-color: #00000035;
@@ -278,7 +314,6 @@ li {
   display: inline-block;
   left: 0;
   bottom: 0;
-  midth: 0%;
   height: 100%;
   background: hsla(35, 100%, 52%, 0.33);
   opacity: 0;

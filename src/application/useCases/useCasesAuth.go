@@ -41,7 +41,8 @@ func LoginUserHandler(db *gorm.DB) gin.HandlerFunc {
 		}
 
 		// ⚠️ Stocker le token dans un cookie sécurisé
-		c.SetCookie("token", token, 3600, "/", "", false, true) // Expire après 1h
+		c.SetCookie("token", token, 3600, "/", "", false, true)
+		c.SetCookie("username", user.Username, 3600, "/", "", false, true) // Expire après 1h
 
 		// Rediriger vers une page sécurisée
 		c.Redirect(http.StatusFound, "/")
