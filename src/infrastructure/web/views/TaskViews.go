@@ -3,10 +3,12 @@ package views
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/JneiraS/AMS/src/application/useCases"
 	"github.com/JneiraS/AMS/src/infrastructure/persistence"
+	"github.com/JneiraS/AMS/src/infrastructure/web/middleware"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
@@ -36,19 +38,21 @@ func SetupRouter(db *gorm.DB) {
 	router.LoadHTMLGlob("src/infrastructure/web/templates/*")
 	router.Static("/static", "src/infrastructure/web/static")
 
-	router.GET("/", useCases.AuthMiddleware(), DisplayTasks(db))
-	router.GET("/done/:id", useCases.AuthMiddleware(), useCases.MarkTaskAsCompletedHandler(db))
-	router.POST("/", useCases.AuthMiddleware(), useCases.CreateTaskHandler(db))
-	router.POST("/update-task", useCases.AuthMiddleware(), useCases.UpdateTaskDescriptionHandler(db))
-	router.POST("/update-task-title", useCases.AuthMiddleware(), useCases.UpdateTitleTaskHandler(db))
-	router.GET("/project/:project", useCases.AuthMiddleware(), DisplayTasks(db))
-	router.POST("/update-task-due-date", useCases.AuthMiddleware(), useCases.UpdateDueDateHandler(db))
-	router.POST("/update-task-status", useCases.AuthMiddleware(), useCases.ToggleTaskStatusHandler(db))
+	router.GET("/", middleware.AuthMiddleware(), DisplayTasks(db))
+	router.GET("/done/:id", middleware.AuthMiddleware(), useCases.MarkTaskAsCompletedHandler(db))
+	router.POST("/", middleware.AuthMiddleware(), useCases.CreateTaskHandler(db))
+	router.POST("/update-task", middleware.AuthMiddleware(), useCases.UpdateTaskDescriptionHandler(db))
+	router.POST("/update-task-title", middleware.AuthMiddleware(), useCases.UpdateTitleTaskHandler(db))
+	router.GET("/project/:project", middleware.AuthMiddleware(), DisplayTasks(db))
+	router.POST("/update-task-due-date", middleware.AuthMiddleware(), useCases.UpdateDueDateHandler(db))
+	router.POST("/update-task-status", middleware.AuthMiddleware(), useCases.ToggleTaskStatusHandler(db))
 
 	router.POST("/register", useCases.RegisterUserHandler(db))
 	router.POST("/login", useCases.LoginUserHandler(db))
 	router.GET("/signup", DisplaySignupPage(db))
 	router.GET("/login", DisplayLoginPage(db))
+
+	router.GET("/task/:id", middleware.AuthMiddleware(), DisplayDetailsTask(db))
 
 	router.Run(":7263")
 
@@ -107,6 +111,8 @@ func DisplayTasks(db *gorm.DB) gin.HandlerFunc {
 		baseQuery.Order("priority ASC, due_date ASC").Find(&priorityTasks)
 		baseNoDueDateQuery.Order("priority ASC").Find(&taskWithoutDueDate)
 
+		username, _ := c.Cookie("username")
+
 		// Affichage de la vue avec toutes les données
 		c.HTML(http.StatusOK, "index.tmpl", gin.H{
 			"title":           "Liste des taches",
@@ -116,6 +122,7 @@ func DisplayTasks(db *gorm.DB) gin.HandlerFunc {
 			"tasksdone":       tasksDone,
 			"latetasks":       lateTasks,
 			"project":         project,
+			"user":            username,
 			"statistics":      getStatistics(priorityTasks, taskWithoutDueDate, lateTasks),
 		})
 	}
@@ -133,6 +140,24 @@ func DisplayLoginPage(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.HTML(http.StatusOK, "login.tmpl", gin.H{
 			"title": "Connexion",
+		})
+	}
+}
+
+func DisplayDetailsTask(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			c.Status(http.StatusBadRequest)
+			return
+		}
+		task, _ := persistence.GetTask(db, uint(id))
+		username, _ := c.Cookie("username")
+
+		c.HTML(http.StatusOK, "details.tmpl", gin.H{
+			"title": "Détails de la tâche",
+			"task":  task,
+			"user":  username,
 		})
 	}
 }

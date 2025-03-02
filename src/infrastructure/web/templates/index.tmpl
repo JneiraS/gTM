@@ -62,6 +62,7 @@
                         {{if .UpdatedAt.After .CreatedAt}}
                         <li>{{.UpdatedAt.Format "02.01.2006 à 15:04"}}</li>
                         {{end}}
+                        <a class="details-btn" href="/task/{{.ID}}">+</a>
                     </div>
                     <div class="description" id="task-{{.ID}}">
                         <li><pre>{{.Description}}</pre></li>
@@ -94,6 +95,7 @@
                         {{if .UpdatedAt.After .CreatedAt}}
                         <li>{{.UpdatedAt.Format "02.01.2006 à 15:04"}}</li>
                         {{end}}
+                        <a class="details-btn" href="/task/{{.ID}}">+</a>
                     </div>
                     <div class="description" id="task-{{.ID}}">
                         <li><pre>{{.Description}}</pre></li>
