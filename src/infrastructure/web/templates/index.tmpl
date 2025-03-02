@@ -130,6 +130,8 @@
                     <li>{{.CreatedAt.Format "02.01.2006 à 15:04"}}</li>
                     {{if .UpdatedAt.After .CreatedAt}}
                     <li>{{.UpdatedAt.Format "02.01.2006 à 15:04"}}</li>
+                    <a class="details-btn" href="/task/{{.ID}}">+</a>
+
                     {{end}}
                 </div>
                 <div class="description">
@@ -164,6 +166,8 @@
                     <li>{{.CreatedAt.Format "02.01.2006 à 15:04"}}</li>
                     {{if .UpdatedAt.After .CreatedAt}}
                     <li>{{.UpdatedAt.Format "02.01.2006 à 15:04"}}</li>
+                    <a class="details-btn" href="/task/{{.ID}}">+</a>
+
                     {{end}}
                 </div>
                 <div class="description">

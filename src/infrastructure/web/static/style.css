@@ -47,19 +47,37 @@ header {
   left: 1em;
 }
 
-header #username {
+#l-and-u {
   position: absolute;
-  background-color: var(--ash-gray);
+  display: flex;
   width: fit-content;
   right: 1em;
   top: .5em;
+  gap: .5em;
+}
+
+header #username {
+  background-color: var(--ash-gray);
   color: var(--main-background-color);
   border-radius: var(--radius);
   padding: 0 .25em;
   box-shadow: var(--box-shadow)
 }
 
+#logout {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23C6C5B9' d='M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 20px;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  opacity: 0.8;
+}
 
+#logout:hover {
+  opacity: 1;
+}
 
 
 /* BODY */

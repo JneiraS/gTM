@@ -52,6 +52,8 @@ func SetupRouter(db *gorm.DB) {
 	router.GET("/signup", DisplaySignupPage(db))
 	router.GET("/login", DisplayLoginPage(db))
 
+	router.GET("/logout", useCases.LogoutHandler())
+
 	router.GET("/task/:id", middleware.AuthMiddleware(), DisplayDetailsTask(db))
 
 	router.Run(":7263")
