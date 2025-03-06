@@ -26,6 +26,12 @@ a {
   color: var(--main-background-color);
 }
 
+h1 {
+  font-weight: bold;
+  font-size: 2em;
+  margin-bottom: .75em;
+}
+
 /* HEARDER */
 
 header {
@@ -37,11 +43,12 @@ header {
 .badge {
   background-color: var(--main-background-color);
   box-shadow: var(--box-shadow);
+  border: #118ab27f 1px solid;
   border-radius: 3px;
   padding: 0.25em;
   margin: 0 0.25em;
   font-size: 0.8em;
-  color: var(--font-color);
+  color: whitesmoke;
   position: sticky;
   top: 300px;
   left: 1em;
@@ -57,11 +64,17 @@ header {
 }
 
 header #username {
-  background-color: var(--ash-gray);
-  color: var(--main-background-color);
+  background-color: var(--blue-munsell);
+
+  font-weight: bold;
   border-radius: var(--radius);
-  padding: 0 .25em;
+  padding: 0 .25em 0 .45em;
   box-shadow: var(--box-shadow)
+}
+
+header #username a {
+  color: whitesmoke;
+  font-weight: normal;
 }
 
 #logout {
@@ -407,6 +420,94 @@ li {
 .login-button:hover,
 .register-button:hover {
   background-color: #ffffffb9;
+}
+
+
+
+
+/* TASK DETAILS*/
+
+
+.detail-task-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5em;
+  border-radius: 12px;
+  box-shadow: var(--box-shadow);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  max-width: 600px;
+  margin: 2em auto;
+  background-color: var(--color-card);
+}
+
+.detail-task-container .title {
+  font-size: 1.8em;
+  font-weight: bold;
+  margin-bottom: 1.5em;
+  color: var(--font-color);
+}
+
+.task-details {
+  width: 100%;
+}
+
+.task-details .description {
+  font-size: 1.1em;
+  line-height: 1.6;
+  margin-bottom: 2em;
+  color: var(--font-color);
+}
+
+.task-info {
+  background-color: rgba(255, 255, 255, 0.05);
+  padding: 1.5em;
+  border-radius: 8px;
+  margin-bottom: 1.5em;
+}
+
+.task-info p {
+  margin: 0.8em 0;
+}
+
+.task-progress {
+  margin: 2em 0;
+}
+
+.progress-bar {
+  background-color: rgba(255, 255, 255, 0.1);
+  height: 12px;
+  border-radius: 6px;
+  overflow: hidden;
+  margin: 1em 0;
+}
+
+.progress {
+  background-color: var(--font-color);
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.task-time {
+  background-color: rgba(255, 255, 255, 0.05);
+  padding: 1.5em;
+  border-radius: 8px;
+  margin-top: 1.5em;
+}
+
+.task-time p {
+  margin: 0.8em 0;
+}
+
+.description_dt {
+  background-color: #00000035;
+  margin: 0.25em 0 0.7em;
+  padding: 1em;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+
+
 }
 
 @keyframes fill-progress {
