@@ -170,19 +170,18 @@ func DisplayDetailsTask(db *gorm.DB) gin.HandlerFunc {
 // characteristic.
 func getStatistics(priorityTasks, taskWithoutDueDate, lateTasks []persistence.Task) []string {
 	taskCounts := map[string]int{
-		"Tasks whith priority": len(priorityTasks),
-		"Without Due Date":     len(taskWithoutDueDate),
-		"Overdue":              len(lateTasks),
+		"Tasks with priority": len(priorityTasks),
+		"Without Due Date":    len(taskWithoutDueDate),
+		"Overdue":             len(lateTasks),
 	}
 
-	var totalTasks int
+	totalTasks := 0
 	for _, count := range taskCounts {
 		totalTasks += count
 	}
 
-	statistics := []string{
-		fmt.Sprintf("Total number of tasks to do: %d", totalTasks),
-	}
+	statistics := make([]string, 0, len(taskCounts)+1)
+	statistics = append(statistics, fmt.Sprintf("Total number of tasks to do: %d", totalTasks))
 
 	for name, count := range taskCounts {
 		statistics = append(statistics, fmt.Sprintf("%s: %d", name, count))
