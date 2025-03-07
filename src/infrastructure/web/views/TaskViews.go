@@ -2,12 +2,14 @@ package views
 
 import (
 	"fmt"
+	"html/template"
 	"net/http"
 	"strconv"
 	"time"
 
 	"github.com/JneiraS/AMS/src/application/useCases"
 	"github.com/JneiraS/AMS/src/infrastructure/persistence"
+	"github.com/JneiraS/AMS/src/infrastructure/web/components"
 	"github.com/JneiraS/AMS/src/infrastructure/web/middleware"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -32,6 +34,19 @@ const (
 // routed to the corresponding functions in the useCases package.
 func SetupRouter(db *gorm.DB) {
 	router := gin.Default()
+
+	router.SetFuncMap(template.FuncMap{
+		"safe": func(s interface{}) template.HTML {
+			switch v := s.(type) {
+			case string:
+				return template.HTML(v)
+			case fmt.Stringer:
+				return template.HTML(v.String())
+			default:
+				return template.HTML(fmt.Sprint(v))
+			}
+		},
+	})
 
 	// Spécifier les adresses IP ou plages autorisées
 	router.SetTrustedProxies([]string{"192.168.1.2", "10.0.0.0/8"})
@@ -126,6 +141,7 @@ func DisplayTasks(db *gorm.DB) gin.HandlerFunc {
 			"project":         project,
 			"user":            username,
 			"statistics":      getStatistics(priorityTasks, taskWithoutDueDate, lateTasks),
+			"navbar":          components.Navbar(),
 		})
 	}
 }
