@@ -130,9 +130,7 @@ func DisplayTasks(db *gorm.DB) gin.HandlerFunc {
 		baseNoDueDateQuery.Order("priority ASC").Find(&taskWithoutDueDate)
 
 		username, _ := c.Cookie("username")
-
-		claims, _ := c.Get("userID")
-		userID = int(claims.(float64))
+		userID = getUserIDFromContext(c)
 
 		// Affichage de la vue avec toutes les données
 		c.HTML(http.StatusOK, "index.tmpl", gin.H{
@@ -149,6 +147,11 @@ func DisplayTasks(db *gorm.DB) gin.HandlerFunc {
 		})
 
 	}
+}
+
+func getUserIDFromContext(c *gin.Context) int {
+	claims, _ := c.Get("userID")
+	return int(claims.(float64))
 }
 
 func DisplaySignupPage(db *gorm.DB) gin.HandlerFunc {
@@ -180,8 +183,7 @@ func DisplayDetailsTask(db *gorm.DB) gin.HandlerFunc {
 		task, _ := persistence.GetTask(db, uint(id))
 
 		username, _ := c.Cookie("username")
-		claims, _ := c.Get("userID")
-		userID = int(claims.(float64))
+		userID = getUserIDFromContext(c)
 
 		c.HTML(http.StatusOK, "details.tmpl", gin.H{
 			"title":  "Détails de la tâche",
