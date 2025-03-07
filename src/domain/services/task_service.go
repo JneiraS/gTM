@@ -1,9 +1,11 @@
 package services
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/JneiraS/AMS/src/infrastructure/persistence"
+	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
@@ -11,6 +13,13 @@ const (
 	millisecondesToMinutes = 60000000000
 	EndTaskStatus          = "Done"
 	ProgressComplete       = 100
+	Pending                = "Pending"
+	InProgress             = "In progress"
+	Done                   = "Done"
+	invalidRequestMsg      = "Invalid request"
+	invalidTaskIDMsg       = "Invalid task ID"
+	taskNotFoundMsg        = "Task not found"
+	FIND_BY_PROJECT        = "project = ?"
 )
 
 // EndTask met à jour une tâche en la définissant comme terminée.
@@ -57,4 +66,85 @@ func IncrementTimeSpent(db *gorm.DB, taskID uint) int {
 	taskTimeSpent := persistence.GetTaskTimeSpent(db, taskID)
 
 	return int(time.Now().Sub(taskTimeSpent.StartTime)) / millisecondesToMinutes
+}
+
+// getStatistics returns an array of strings which represent the statistics
+// of the tasks. The first element is the total number of tasks to do,
+// and the next elements are the number of tasks with a specific
+// characteristic.
+func GetStatistics(priorityTasks, taskWithoutDueDate, lateTasks []persistence.Task) []string {
+	taskCounts := map[string]int{
+		"Tasks with priority": len(priorityTasks),
+		"Without Due Date":    len(taskWithoutDueDate),
+		"Overdue":             len(lateTasks),
+	}
+
+	totalTasks := 0
+	for _, count := range taskCounts {
+		totalTasks += count
+	}
+
+	statistics := make([]string, 0, len(taskCounts)+1)
+	statistics = append(statistics, fmt.Sprintf("Total number of tasks to do: %d", totalTasks))
+
+	for name, count := range taskCounts {
+		statistics = append(statistics, fmt.Sprintf("%s: %d", name, count))
+	}
+
+	return statistics
+}
+
+func GetUserIDFromContext(c *gin.Context) int {
+	claims, _ := c.Get("userID")
+	return int(claims.(float64))
+}
+
+// getTasksByCategory retourne quatre groupe de tâches et un nom de projet.
+func GetTasksByCategory(c *gin.Context, db *gorm.DB) ([]persistence.Task, []persistence.Task, []persistence.Task, []persistence.Task, string) {
+	var priorityTasks []persistence.Task
+	var taskWithoutDueDate []persistence.Task
+	var tasksDone []persistence.Task
+	var lateTasks []persistence.Task
+
+	project := c.Param("project")
+
+	baseQuery := db.Where("due_date > ? AND due_date > ? AND status != ?",
+		time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC),
+		time.Now(),
+		Done)
+
+	baseNoDueDateQuery := db.Where("due_date < ? AND status != ?",
+		time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC),
+		Done)
+
+	if project != "" {
+		baseQuery = baseQuery.Where(FIND_BY_PROJECT, project)
+		baseNoDueDateQuery = baseNoDueDateQuery.Where(FIND_BY_PROJECT, project)
+		db.Where("status = ? AND project = ?", Done, project).
+			Order("updated_at ASC").
+			Find(&tasksDone)
+
+		baseQuery.Where("due_date > ? AND due_date < ? AND status != ?",
+			time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC),
+			time.Now(),
+			Done).
+			Find(&lateTasks)
+	} else {
+		db.Where("status = ? AND updated_at > ? AND updated_at < ?",
+			Done,
+			time.Now().AddDate(0, 0, -1),
+			time.Now()).
+			Order("updated_at ASC").
+			Find(&tasksDone)
+
+		db.Where("due_date > ? AND due_date < ? AND status != ?",
+			time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC),
+			time.Now(),
+			Done).
+			Find(&lateTasks)
+	}
+
+	baseQuery.Order("priority ASC, due_date ASC").Find(&priorityTasks)
+	baseNoDueDateQuery.Order("priority ASC").Find(&taskWithoutDueDate)
+	return priorityTasks, taskWithoutDueDate, tasksDone, lateTasks, project
 }
