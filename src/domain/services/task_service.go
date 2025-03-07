@@ -100,7 +100,7 @@ func GetUserIDFromContext(c *gin.Context) int {
 }
 
 // getTasksByCategory retourne quatre groupe de tâches et un nom de projet.
-func GetTasksByCategory(c *gin.Context, db *gorm.DB) ([]persistence.Task, []persistence.Task, []persistence.Task, []persistence.Task, string) {
+func GetTasksByCategory(c *gin.Context, db *gorm.DB) ([]persistence.Task, []persistence.Task, []persistence.Task, []persistence.Task, string, error) {
 	var priorityTasks []persistence.Task
 	var taskWithoutDueDate []persistence.Task
 	var tasksDone []persistence.Task
@@ -120,31 +120,43 @@ func GetTasksByCategory(c *gin.Context, db *gorm.DB) ([]persistence.Task, []pers
 	if project != "" {
 		baseQuery = baseQuery.Where(FIND_BY_PROJECT, project)
 		baseNoDueDateQuery = baseNoDueDateQuery.Where(FIND_BY_PROJECT, project)
-		db.Where("status = ? AND project = ?", Done, project).
+		if err := db.Where("status = ? AND project = ?", Done, project).
 			Order("updated_at ASC").
-			Find(&tasksDone)
+			Find(&tasksDone).Error; err != nil {
+			return nil, nil, nil, nil, "", err
+		}
 
-		baseQuery.Where("due_date > ? AND due_date < ? AND status != ?",
+		if err := baseQuery.Where("due_date > ? AND due_date < ? AND status != ?",
 			time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC),
 			time.Now(),
 			Done).
-			Find(&lateTasks)
+			Find(&lateTasks).Error; err != nil {
+			return nil, nil, nil, nil, "", err
+		}
 	} else {
-		db.Where("status = ? AND updated_at > ? AND updated_at < ?",
+		if err := db.Where("status = ? AND updated_at > ? AND updated_at < ?",
 			Done,
 			time.Now().AddDate(0, 0, -1),
 			time.Now()).
 			Order("updated_at ASC").
-			Find(&tasksDone)
+			Find(&tasksDone).Error; err != nil {
+			return nil, nil, nil, nil, "", err
+		}
 
-		db.Where("due_date > ? AND due_date < ? AND status != ?",
+		if err := db.Where("due_date > ? AND due_date < ? AND status != ?",
 			time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC),
 			time.Now(),
 			Done).
-			Find(&lateTasks)
+			Find(&lateTasks).Error; err != nil {
+			return nil, nil, nil, nil, "", err
+		}
 	}
 
-	baseQuery.Order("priority ASC, due_date ASC").Find(&priorityTasks)
-	baseNoDueDateQuery.Order("priority ASC").Find(&taskWithoutDueDate)
-	return priorityTasks, taskWithoutDueDate, tasksDone, lateTasks, project
+	if err := baseQuery.Order("priority ASC, due_date ASC").Find(&priorityTasks).Error; err != nil {
+		return nil, nil, nil, nil, "", err
+	}
+	if err := baseNoDueDateQuery.Order("priority ASC").Find(&taskWithoutDueDate).Error; err != nil {
+		return nil, nil, nil, nil, "", err
+	}
+	return priorityTasks, taskWithoutDueDate, tasksDone, lateTasks, project, nil
 }

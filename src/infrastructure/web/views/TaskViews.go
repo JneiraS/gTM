@@ -15,6 +15,11 @@ import (
 	"gorm.io/gorm"
 )
 
+const (
+	ErrorTemplate = "error.tmpl"
+	IndexTemplate = "index.tmpl"
+)
+
 // const (
 // 	Pending           = "Pending"
 // 	InProgress        = "In progress"
@@ -81,14 +86,16 @@ func DisplayTasks(db *gorm.DB) gin.HandlerFunc {
 
 		var userID int
 
-		priorityTasks, taskWithoutDueDate, tasksDone, lateTasks, project := services.GetTasksByCategory(c, db)
-
+		priorityTasks, taskWithoutDueDate, tasksDone, lateTasks, project, err := services.GetTasksByCategory(c, db)
+		if err != nil {
+			c.HTML(http.StatusInternalServerError, ErrorTemplate, gin.H{"error": err.Error()})
+			return
+		}
 		username, _ := c.Cookie("username")
 		userID = services.GetUserIDFromContext(c)
 
 		// Affichage de la vue avec toutes les données
-		c.HTML(http.StatusOK, "index.tmpl", gin.H{
-			"title":           "Liste des taches",
+		c.HTML(http.StatusOK, IndexTemplate, gin.H{
 			"projects":        persistence.GetAllProjects(db),
 			"prioritytasks":   priorityTasks,
 			"taskswithoutdue": taskWithoutDueDate,
@@ -96,8 +103,7 @@ func DisplayTasks(db *gorm.DB) gin.HandlerFunc {
 			"latetasks":       lateTasks,
 			"project":         project,
 			"statistics":      services.GetStatistics(priorityTasks, taskWithoutDueDate, lateTasks),
-
-			"navbar": components.Navbar(userID, username),
+			"navbar":          components.Navbar(userID, username),
 		})
 
 	}
