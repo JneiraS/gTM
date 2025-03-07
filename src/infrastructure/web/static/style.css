@@ -35,9 +35,10 @@ h1 {
 /* HEARDER */
 
 header {
+  display: flex;
   background-color: hsla(0, 0%, 0%, 0.2);
   padding: .5em;
-  min-height: 2.25em;
+  min-height: 2.5em;
 }
 
 .badge {
@@ -54,6 +55,20 @@ header {
   left: 1em;
 }
 
+.navbar {
+  right: 0;
+}
+
+
+.navbar ol {
+  display: flex;
+}
+
+
+.navbar a {
+  color: var(--ash-gray);
+}
+
 #l-and-u {
   position: absolute;
   display: flex;
@@ -64,8 +79,10 @@ header {
 }
 
 header #username {
+  display: flex;
   background-color: var(--blue-munsell);
-
+  justify-content: center;
+  align-items: center;
   font-weight: bold;
   border-radius: var(--radius);
   padding: 0 .25em 0 .45em;

@@ -87,6 +87,7 @@ func DisplayTasks(db *gorm.DB) gin.HandlerFunc {
 		var taskWithoutDueDate []persistence.Task
 		var tasksDone []persistence.Task
 		var lateTasks []persistence.Task
+		var userID int
 
 		project := c.Param("project")
 
@@ -130,6 +131,9 @@ func DisplayTasks(db *gorm.DB) gin.HandlerFunc {
 
 		username, _ := c.Cookie("username")
 
+		claims, _ := c.Get("userID")
+		userID = int(claims.(float64))
+
 		// Affichage de la vue avec toutes les données
 		c.HTML(http.StatusOK, "index.tmpl", gin.H{
 			"title":           "Liste des taches",
@@ -139,10 +143,11 @@ func DisplayTasks(db *gorm.DB) gin.HandlerFunc {
 			"tasksdone":       tasksDone,
 			"latetasks":       lateTasks,
 			"project":         project,
-			"user":            username,
 			"statistics":      getStatistics(priorityTasks, taskWithoutDueDate, lateTasks),
-			"navbar":          components.Navbar(),
+
+			"navbar": components.Navbar(userID, username),
 		})
+
 	}
 }
 
@@ -163,6 +168,9 @@ func DisplayLoginPage(db *gorm.DB) gin.HandlerFunc {
 }
 
 func DisplayDetailsTask(db *gorm.DB) gin.HandlerFunc {
+
+	var userID int
+
 	return func(c *gin.Context) {
 		id, err := strconv.Atoi(c.Param("id"))
 		if err != nil {
@@ -170,12 +178,15 @@ func DisplayDetailsTask(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 		task, _ := persistence.GetTask(db, uint(id))
+
 		username, _ := c.Cookie("username")
+		claims, _ := c.Get("userID")
+		userID = int(claims.(float64))
 
 		c.HTML(http.StatusOK, "details.tmpl", gin.H{
-			"title": "Détails de la tâche",
-			"task":  task,
-			"user":  username,
+			"title":  "Détails de la tâche",
+			"task":   task,
+			"navbar": components.Navbar(userID, username),
 		})
 	}
 }
