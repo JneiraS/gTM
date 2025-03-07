@@ -3,9 +3,11 @@
         {{range .statistics}}
             <span class="badge">{{.}} </span>
         {{end}}
-        <div id="l-and-u">
-            <div id="username"><a href="">{{.user}}</a></div>
+        
+         <div id="l-and-u">
+            {{.navbar | safe}}   
             <a id="logout" href="/logout"></a>
         </div>
 	</header>
+  
 {{end}}
