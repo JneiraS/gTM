@@ -10,38 +10,8 @@
    
     {{template "header" .}}
 
-    {{ .title }}
-
-   {{ .user }}
-
-    <section class="detail-task-container">
-        <h1>{{.task.Title}}</h1>
-        <div class="task-details">
-                    <p class="description_dt">{{.task.Description}}</p>
-                    <div class="task-info">
-                        <p><strong>Due Date:</strong> {{.task.DueDate.Format "2006-01-02"}}</p>
-                        <p><strong>Status:</strong> {{.task.Status}}</p>
-                        <p><strong>Priority:</strong> {{.task.Priority}}</p>
-                        <p><strong>Assignee:</strong> {{.task.Assignee}}</p>
-                        <p><strong>Creator:</strong> {{.task.Creator}}</p>
-                        <p><strong>Project:</strong> {{.task.Project}}</p>
-                    </div>
-                    <div class="task-progress">
-                        <div class="progress-bar">
-                            <div class="progress" style="width: {{.task.Progress}}%"></div>
-                        </div>
-                        <p><strong>Progress:</strong> {{.task.Progress}}%</p>
-                    </div>
-                    <div class="task-time">
-                        <p><strong>Estimated Time:</strong> {{.task.EstimatedTime}} hours</p>
-                        <p><strong>Time Spent:</strong> {{.task.TimeSpent}} hours</p>
-                    </div>
-                </div>
-        
-
-
-    </section>    
-
+    {{.detail| safe}}
+   
     {{template "footer" .}}
 
     <script src="/static/js/script.js"></script>

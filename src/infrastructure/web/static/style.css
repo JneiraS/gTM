@@ -525,7 +525,7 @@ li {
 }
 
 .progress {
-  background-color: var(--font-color);
+  background-color: var(--mint);
   height: 100%;
   transition: width 0.3s ease;
 }
@@ -547,9 +547,9 @@ li {
   padding: 1em;
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 8px;
-
-
 }
+
+
 
 @keyframes fill-progress {
   from {

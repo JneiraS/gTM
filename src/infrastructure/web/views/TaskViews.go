@@ -142,8 +142,8 @@ func DisplayDetailsTask(db *gorm.DB) gin.HandlerFunc {
 
 		c.HTML(http.StatusOK, "details.tmpl", gin.H{
 			"title":  "Détails de la tâche",
-			"task":   task,
 			"navbar": components.Navbar(userID, username),
+			"detail": components.CardDetails(task),
 		})
 	}
 }

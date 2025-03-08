@@ -1,0 +1,64 @@
+package components
+
+import (
+	"fmt"
+
+	"github.com/JneiraS/AMS/src/infrastructure/persistence"
+	gom "maragu.dev/gomponents"
+	gomh "maragu.dev/gomponents/html"
+)
+
+func CardDetails(task persistence.Task) gom.Node {
+	return gomh.Section(gomh.Class("detail-task-container"),
+		CardTitle(task.Title),
+		Container("task-details", task),
+	)
+}
+
+func CardTitle(title string) gom.Node {
+	return gomh.H1(gom.Text(title))
+}
+func Container(class string, task persistence.Task) gom.Node {
+	return gomh.Div(gomh.Class(class),
+		Paragraph("description_dt", task.Description),
+		DetailContainer("task-info", task),
+		ProgressBar(task),
+		TaskTime(task),
+	)
+}
+
+func DetailContainer(class string, task persistence.Task) gom.Node {
+	return gomh.Div(gomh.Class(class),
+		KeyValue("Due Date", task.DueDate.Format("2006-01-02")),
+		KeyValue("Status", task.Status),
+		KeyValue("Priority", task.Priority),
+		KeyValue("Assignee", task.Assignee),
+		KeyValue("Creator", task.Creator),
+		KeyValue("Project", task.Project),
+	)
+}
+func Paragraph(class, text string) gom.Node {
+	return gomh.P(gomh.Class(class),
+		gom.Text(text))
+}
+
+func TaskTime(task persistence.Task) gom.Node {
+	return gomh.Div(gomh.Class("task-time"),
+		KeyValue("Estimated Time", fmt.Sprintf("%d hours", task.EstimatedTime)),
+		KeyValue("Time Spent", fmt.Sprintf("%d hours", task.TimeSpent)),
+	)
+}
+
+func KeyValue(key, value string) gom.Node {
+	return gomh.P(gomh.Strong(gom.Text(key+": ")),
+		gom.Text(value))
+}
+
+func ProgressBar(task persistence.Task) gom.Node {
+	return gomh.Div(gomh.Class("task-progress"),
+		gomh.Div(gomh.Class("progress-bar"),
+			gomh.Div(gomh.Class("progress"),
+				gomh.Style("width: "+fmt.Sprintf("%d%%", task.Progress))),
+		),
+	)
+}
