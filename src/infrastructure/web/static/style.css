@@ -1,14 +1,14 @@
 :root {
-  --radius: 3px;
+  --radius: 5px;
   --upper-radius: var(--radius) var(--radius) 0 0;
   --bottom-radius: 0 0 var(--radius) var(--radius);
-  --main-background-color: #32363A;
+  --main-background-color: #2F3337;
   --mint: #61A875;
   --ecru: #C4AD6E;
   --old-rose: #C07972;
   --blue-munsell: #118AB2;
   --ash-gray: #fff8f099;
-  --color-card: #354046;
+  --color-card: #42474C;
   --font-color: #C6C5B9;
 }
 
@@ -195,7 +195,7 @@ form input[type="submit"]:hover {
   transition: 0.3s ease;
 }
 
-/* Les Tâches */
+/* TASKS */
 .main-container {
   margin: 1.5em 2em;
   display: flex;
@@ -267,10 +267,18 @@ li {
 .task-card-header-a,
 .task-card-header-b,
 .task-card-header-c {
-  padding: 0.25em;
+  padding: 0.5em;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  border-bottom: solid 2px var(--main-background-color);
+
+}
+
+
+.fas,
+.fa-solid {
+  opacity: .4;
 }
 
 .title,
@@ -283,7 +291,7 @@ li {
 .task-card-header-b li,
 .task-card-header-c li {
   background-color: rgba(255, 255, 255, 0.207);
-  font-weight: bold;
+  font-weight: normal;
   font-size: smaller;
   padding: .15em .3em;
   border-radius: 3px;
@@ -294,8 +302,12 @@ li {
   text-align: center;
 }
 
-.title {
-  font-size: larger;
+.task-title {
+  font-weight: bold;
+  color: var(--font-color);
+  margin: 0 .9em 0 1em;
+  padding: 0 .1em;
+
 }
 
 .details-btn {
@@ -314,17 +326,28 @@ li {
 
 .description {
   min-height: 55px;
-  background-color: #00000035;
-  margin: 0.25em 0.7em 0.7em;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  margin: .25em;
   border-radius: 3px;
-  padding: 0.35em;
   overflow-wrap: break-word;
   overflow-y: auto;
   white-space: initial;
 }
 
+.description pre {
+  font-weight: bold;
+  padding: 2em 1em;
+  border-radius: var(--radius);
+  background-color: hsla(0, 0%, 100%, 0.02);
+  color: var(--font-color);
+}
+
+
 /* DOWN */
+
+.task-card-bottom {
+  border-radius: var(--bottom-radius);
+  border-top: solid 2px var(--main-background-color);
+}
 
 .done-bottom {
   font-size: smaller;
@@ -333,7 +356,6 @@ li {
 }
 
 .done-bottom button {
-  background-color: var(--font-color);
   color: var(--main-background-color);
   font-weight: bold;
   padding: 4px 7px;
@@ -346,8 +368,10 @@ li {
   overflow: hidden;
 }
 
-.done-bottom button:hover {
-  background-color: #ffffffb9;
+.fa-circle-check {
+  color: var(--main-background-color);
+  font-size: larger;
+
 }
 
 .done-bottom button::after {
@@ -358,7 +382,7 @@ li {
   left: 0;
   bottom: 0;
   height: 100%;
-  background: var(--blue-munsell);
+  background: var(--mint);
   opacity: 0;
   transition: opacity 0.2s ease;
 }
@@ -539,7 +563,8 @@ li {
 
 .deadline {
   background-color: var(--old-rose);
-  color: var(--main-background-color);
+  color: var(--ash-gray);
+  font-weight: bold;
   flex-grow: 1;
   flex-basis: 200;
 
