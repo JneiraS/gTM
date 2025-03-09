@@ -3,6 +3,7 @@ package components
 import (
 	"fmt"
 
+	"github.com/JneiraS/AMS/src/domain/services"
 	"github.com/JneiraS/AMS/src/infrastructure/persistence"
 	gom "maragu.dev/gomponents"
 	gomh "maragu.dev/gomponents/html"
@@ -16,7 +17,7 @@ func CardDetails(task persistence.Task) gom.Node {
 }
 
 func CardComments(task persistence.Task, listOfComment []persistence.Comment) gom.Node {
-	return gomh.Section(gomh.Class("detail-task-container"),
+	return gomh.Section(gomh.Class("detail-task-comment"),
 		gomh.H1(gom.Text("Comments")),
 
 		FormComment(task.ID),
@@ -38,14 +39,15 @@ func Container(class string, task persistence.Task) gom.Node {
 
 func DetailContainer(class string, task persistence.Task) gom.Node {
 	return gomh.Div(gomh.Class(class),
-		KeyValue("Due Date", task.DueDate.Format("2006-01-02")),
+		gom.If(!task.DueDate.IsZero(), KeyValue("Due Date", task.DueDate.Format("2006-01-02"))),
 		KeyValue("Status", task.Status),
-		KeyValue("Priority", task.Priority),
+		KeyValue("Priority", services.FormatPryority(task.Priority)),
 		KeyValue("Assignee", task.Assignee),
 		KeyValue("Creator", task.Creator),
 		KeyValue("Project", task.Project),
 	)
 }
+
 func Paragraph(class, text string) gom.Node {
 	return gomh.P(gomh.Class(class),
 		gom.Text(text))
@@ -54,7 +56,7 @@ func Paragraph(class, text string) gom.Node {
 func TaskTime(task persistence.Task) gom.Node {
 	return gomh.Div(gomh.Class("task-time"),
 		KeyValue("Estimated Time", fmt.Sprintf("%d hours", task.EstimatedTime)),
-		KeyValue("Time Spent", fmt.Sprintf("%d hours", task.TimeSpent)),
+		KeyValue("Time Spent", services.FormatTimeSpent(task.TimeSpent)),
 	)
 }
 

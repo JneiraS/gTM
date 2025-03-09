@@ -160,3 +160,26 @@ func GetTasksByCategory(c *gin.Context, db *gorm.DB) ([]persistence.Task, []pers
 	}
 	return priorityTasks, taskWithoutDueDate, tasksDone, lateTasks, project, nil
 }
+
+func FormatTimeSpent(minutes int) string {
+	if minutes >= 1440 {
+		days := minutes / 1440
+		remainingHours := (minutes % 1440) / 60
+		return fmt.Sprintf("%d days %d hours", days, remainingHours)
+	}
+	if minutes >= 60 {
+		hours := minutes / 60
+		remainingMinutes := minutes % 60
+		return fmt.Sprintf("%d hours %d minutes", hours, remainingMinutes)
+	}
+	return fmt.Sprintf("%d minutes", minutes)
+}
+
+func FormatPryority(priority string) string {
+	priorityMap := map[string]string{
+		"a": "High",
+		"b": "Medium",
+		"c": "Low",
+	}
+	return priorityMap[priority]
+}

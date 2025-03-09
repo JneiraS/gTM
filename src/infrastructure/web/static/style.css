@@ -35,8 +35,10 @@ h1 {
 /* HEARDER */
 
 header {
+  position: sticky;
+  top: 0px;
   display: flex;
-  background-color: hsla(0, 0%, 0%, 0.2);
+  background-color: rgb(37, 41, 45);
   padding: .5em;
   min-height: 2.5em;
 }
@@ -470,12 +472,13 @@ li {
 .details-container {
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: self-start;
   justify-content: space-between;
   gap: 1em;
 }
 
-.detail-task-container {
+.detail-task-container,
+.detail-task-comment {
   display: flex;
   flex-grow: 1;
   gap: 2em;
@@ -489,6 +492,11 @@ li {
   max-width: 600px;
   margin: 2em auto;
   background-color: var(--color-card);
+}
+
+.detail-task-container {
+  position: sticky;
+  top: 4.5em;
 }
 
 .detail-task-container .title {
@@ -630,7 +638,10 @@ li {
 }
 
 .comment-author {
-  color: var(--blue-munsell);
+  background-color: var(--ecru);
+  color: var(--color-card);
+  border-radius: var(--radius);
+  padding: .1em 0.5em;
   font-weight: bold;
   margin-bottom: 0.5em;
   gap: .5em;
@@ -716,15 +727,6 @@ footer {
 }
 
 /* TASK DETAILS */
-
-/* #detail-task-container {
-  display: flex;
-  justify-content: space-between;
-  padding: 2em;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  max-width: 90%;
-} */
 
 @keyframes fadeOut {
   0% {
