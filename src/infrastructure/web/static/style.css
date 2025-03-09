@@ -523,8 +523,18 @@ li {
 }
 
 .task-info p {
+  display: flex;
   margin: 0.8em 0;
+  gap: .3em;
 }
+
+.task-info p i {
+  color: var(--ecru);
+  opacity: .8;
+
+}
+
+
 
 .task-progress {
   margin: 2em 0;

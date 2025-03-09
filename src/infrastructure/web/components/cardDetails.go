@@ -39,12 +39,12 @@ func Container(class string, task persistence.Task) gom.Node {
 
 func DetailContainer(class string, task persistence.Task) gom.Node {
 	return gomh.Div(gomh.Class(class),
-		gom.If(!task.DueDate.IsZero(), KeyValue("Due Date", task.DueDate.Format("2006-01-02"))),
-		KeyValue("Status", task.Status),
-		KeyValue("Priority", services.FormatPryority(task.Priority)),
-		KeyValue("Assignee", task.Assignee),
-		KeyValue("Creator", task.Creator),
-		KeyValue("Project", task.Project),
+		gom.If(!task.DueDate.IsZero(), KeyValue("Due Date", task.DueDate.Format("2006-01-02"), "fa-solid fa-calendar-xmark")),
+		KeyValue("Status", task.Status, ""),
+		KeyValue("Priority", services.FormatPryority(task.Priority), ""),
+		KeyValue("Assignee", task.Assignee, ""),
+		KeyValue("Creator", task.Creator, ""),
+		KeyValue("Project", task.Project, ""),
 	)
 }
 
@@ -55,13 +55,13 @@ func Paragraph(class, text string) gom.Node {
 
 func TaskTime(task persistence.Task) gom.Node {
 	return gomh.Div(gomh.Class("task-time"),
-		KeyValue("Estimated Time", fmt.Sprintf("%d hours", task.EstimatedTime)),
-		KeyValue("Time Spent", services.FormatTimeSpent(task.TimeSpent)),
+		KeyValue("Estimated Time", fmt.Sprintf("%d hours", task.EstimatedTime), ""),
+		KeyValue("Time Spent", services.FormatTimeSpent(task.TimeSpent), ""),
 	)
 }
 
-func KeyValue(key, value string) gom.Node {
-	return gomh.P(gomh.Strong(gom.Text(key+": ")),
+func KeyValue(key, value, icon string) gom.Node {
+	return gomh.P(gomh.I(gomh.Class(icon)), gomh.Strong(gom.Text(key+": ")),
 		gom.Text(value))
 }
 
