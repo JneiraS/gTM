@@ -141,11 +141,17 @@ func DisplayDetailsTask(db *gorm.DB) gin.HandlerFunc {
 		username, _ := c.Cookie("username")
 		userID = services.GetUserIDFromContext(c)
 
+		listOfComment, err := persistence.GetAllCommentsOfTask(db, uint(id))
+		if err != nil {
+			c.Status(http.StatusInternalServerError)
+			return
+		}
+
 		c.HTML(http.StatusOK, "details.tmpl", gin.H{
 			"title":    "Détails de la tâche",
 			"navbar":   components.Navbar(userID, username),
 			"detail":   components.CardDetails(task),
-			"comments": components.CardComments(task),
+			"comments": components.CardComments(task, listOfComment),
 		})
 	}
 }

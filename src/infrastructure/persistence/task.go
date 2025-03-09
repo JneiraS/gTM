@@ -164,6 +164,28 @@ func GetComment(db *gorm.DB, id uint) []Comment {
 	return comments
 }
 
+func GetTaskComments(db *gorm.DB, id uint) ([]TaskComments, error) {
+	var taskComments []TaskComments
+	result := db.Where("task_id = ?", id).Find(&taskComments)
+	if result.Error != nil {
+		return nil, fmt.Errorf("error while retrieving task comments: %w", result.Error)
+	}
+	return taskComments, nil
+}
+
+func GetAllCommentsOfTask(db *gorm.DB, taskID uint) ([]Comment, error) {
+	var comments []Comment
+	taskComments, err := GetTaskComments(db, taskID)
+	if err != nil {
+		return nil, err
+	}
+	for _, taskComment := range taskComments {
+		comment := GetComment(db, taskComment.CommentID)
+		comments = append(comments, comment...)
+	}
+	return comments, nil
+}
+
 // GetAllProjects renvoie une liste de tous les noms de projet dans la base de données.
 //
 // La fonction prend une connexion de base de données GORM et renvoie une liste de

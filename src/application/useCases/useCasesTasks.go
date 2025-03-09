@@ -227,8 +227,7 @@ func CreateCommentHandler(db *gorm.DB) gin.HandlerFunc {
 		comment := persistence.Comment{
 			Comment: models.Comment{
 				Author: username,
-				Text:   c.PostForm("text"),
-			},
+				Text:   c.PostForm("comment")},
 		}
 
 		persistence.CreateComment(db, comment, uint(id))
