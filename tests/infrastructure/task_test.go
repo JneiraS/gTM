@@ -149,7 +149,7 @@ func TestCreateComment(t *testing.T) {
 		},
 	}
 
-	persistence.CreateComment(db, comment)
+	persistence.CreateComment(db, comment, 1)
 
 	var savedComment persistence.Comment
 	result := db.First(&savedComment, 1)

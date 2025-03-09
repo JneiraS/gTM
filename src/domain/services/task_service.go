@@ -10,16 +10,18 @@ import (
 )
 
 const (
-	millisecondesToMinutes = 60000000000
-	EndTaskStatus          = "Done"
-	ProgressComplete       = 100
-	Pending                = "Pending"
-	InProgress             = "In progress"
-	Done                   = "Done"
-	invalidRequestMsg      = "Invalid request"
-	invalidTaskIDMsg       = "Invalid task ID"
-	taskNotFoundMsg        = "Task not found"
-	FIND_BY_PROJECT        = "project = ?"
+	millisecondesToMinutes            = 60000000000
+	EndTaskStatus                     = "Done"
+	ProgressComplete                  = 100
+	Pending                           = "Pending"
+	InProgress                        = "In progress"
+	Done                              = "Done"
+	invalidRequestMsg                 = "Invalid request"
+	invalidTaskIDMsg                  = "Invalid task ID"
+	taskNotFoundMsg                   = "Task not found"
+	FIND_BY_PROJECT                   = "project = ?"
+	NUMBER_OF_WORKING_MINUTES_PER_DAY = 420
+	MINUTES_PER_HOUR                  = 60
 )
 
 // EndTask met à jour une tâche en la définissant comme terminée.
@@ -159,4 +161,27 @@ func GetTasksByCategory(c *gin.Context, db *gorm.DB) ([]persistence.Task, []pers
 		return nil, nil, nil, nil, "", err
 	}
 	return priorityTasks, taskWithoutDueDate, tasksDone, lateTasks, project, nil
+}
+
+func FormatTimeSpent(minutes int) string {
+	if minutes >= NUMBER_OF_WORKING_MINUTES_PER_DAY {
+		days := minutes / NUMBER_OF_WORKING_MINUTES_PER_DAY
+		remainingHours := (minutes % NUMBER_OF_WORKING_MINUTES_PER_DAY) / MINUTES_PER_HOUR
+		return fmt.Sprintf("%d days %d hours", days, remainingHours)
+	}
+	if minutes >= MINUTES_PER_HOUR {
+		hours := minutes / MINUTES_PER_HOUR
+		remainingMinutes := minutes % MINUTES_PER_HOUR
+		return fmt.Sprintf("%d hours %d minutes", hours, remainingMinutes)
+	}
+	return fmt.Sprintf("%d minutes", minutes)
+}
+
+func FormatPryority(priority string) string {
+	priorityMap := map[string]string{
+		"a": "High",
+		"b": "Medium",
+		"c": "Low",
+	}
+	return priorityMap[priority]
 }

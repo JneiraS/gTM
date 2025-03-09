@@ -72,6 +72,7 @@ func SetupRouter(db *gorm.DB) {
 	router.GET("/login", DisplayLoginPage(db))
 	router.GET("/logout", useCases.LogoutHandler())
 	router.GET("/task/:id", middleware.AuthMiddleware(), DisplayDetailsTask(db))
+	router.POST("/comment/:id", middleware.AuthMiddleware(), useCases.CreateCommentHandler(db))
 
 	router.Run(":7263")
 
@@ -140,10 +141,17 @@ func DisplayDetailsTask(db *gorm.DB) gin.HandlerFunc {
 		username, _ := c.Cookie("username")
 		userID = services.GetUserIDFromContext(c)
 
+		listOfComment, err := persistence.GetAllCommentsOfTask(db, uint(id))
+		if err != nil {
+			c.Status(http.StatusInternalServerError)
+			return
+		}
+
 		c.HTML(http.StatusOK, "details.tmpl", gin.H{
-			"title":  "Détails de la tâche",
-			"navbar": components.Navbar(userID, username),
-			"detail": components.CardDetails(task),
+			"title":    "Détails de la tâche",
+			"navbar":   components.Navbar(userID, username),
+			"detail":   components.CardDetails(task),
+			"comments": components.CardComments(task, listOfComment),
 		})
 	}
 }

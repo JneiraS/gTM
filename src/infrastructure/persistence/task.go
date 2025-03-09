@@ -86,8 +86,14 @@ func CreateSubtask(db *gorm.DB, subtask Subtask) {
 //
 // La fonction ne renvoie pas de valeur, mais provoquera une panique si l'opération
 // de création  choue.
-func CreateComment(db *gorm.DB, comment Comment) {
+func CreateComment(db *gorm.DB, comment Comment, TaskID uint) {
 	db.Create(&comment)
+
+	TaskComments := TaskComments{
+		CommentID: comment.ID,
+		TaskID:    TaskID,
+	}
+	db.Create(&TaskComments)
 }
 
 func CreateTaskTimeSpent(db *gorm.DB, taskID uint) (TaskTimeSpent, error) {
@@ -156,6 +162,28 @@ func GetComment(db *gorm.DB, id uint) []Comment {
 	var comments []Comment
 	db.First(&comments, id)
 	return comments
+}
+
+func GetTaskComments(db *gorm.DB, id uint) ([]TaskComments, error) {
+	var taskComments []TaskComments
+	result := db.Where("task_id = ?", id).Order("comment_id desc").Find(&taskComments)
+	if result.Error != nil {
+		return nil, fmt.Errorf("error while retrieving task comments: %w", result.Error)
+	}
+	return taskComments, nil
+}
+
+func GetAllCommentsOfTask(db *gorm.DB, taskID uint) ([]Comment, error) {
+	var comments []Comment
+	taskComments, err := GetTaskComments(db, taskID)
+	if err != nil {
+		return nil, err
+	}
+	for _, taskComment := range taskComments {
+		comment := GetComment(db, taskComment.CommentID)
+		comments = append(comments, comment...)
+	}
+	return comments, nil
 }
 
 // GetAllProjects renvoie une liste de tous les noms de projet dans la base de données.
@@ -276,4 +304,5 @@ func DeleteSubtask(db *gorm.DB, id uint) {
 func DeleteComment(db *gorm.DB, id uint) {
 	var comment Comment
 	db.Delete(&comment, id)
+
 }

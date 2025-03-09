@@ -217,3 +217,22 @@ func UpdateDueDateHandler(db *gorm.DB) gin.HandlerFunc {
 		c.JSON(http.StatusOK, gin.H{"status": "Task due date updated successfully"})
 	}
 }
+
+func CreateCommentHandler(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+
+		username, _ := c.Cookie("username")
+		id, _ := strconv.Atoi(c.Param("id"))
+
+		comment := persistence.Comment{
+			Comment: models.Comment{
+				Author: username,
+				Text:   c.PostForm("comment")},
+		}
+
+		persistence.CreateComment(db, comment, uint(id))
+
+		c.Status(http.StatusCreated)
+		c.Redirect(http.StatusFound, "/task/"+c.Param("id"))
+	}
+}
