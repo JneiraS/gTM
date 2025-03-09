@@ -481,14 +481,12 @@ li {
 .detail-task-comment {
   display: flex;
   flex-grow: 1;
-  gap: 2em;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 2.5em;
   border-radius: 12px;
   box-shadow: var(--box-shadow);
-  border: 1px solid rgba(255, 255, 255, 0.15);
   max-width: 600px;
   margin: 2em auto;
   background-color: var(--color-card);
@@ -502,7 +500,7 @@ li {
 .detail-task-container .title {
   font-size: 1.8em;
   font-weight: bold;
-  margin-bottom: 1.5em;
+  margin-bottom: .5em;
   color: var(--font-color);
 }
 

@@ -162,9 +162,9 @@ func GetTasksByCategory(c *gin.Context, db *gorm.DB) ([]persistence.Task, []pers
 }
 
 func FormatTimeSpent(minutes int) string {
-	if minutes >= 1440 {
-		days := minutes / 1440
-		remainingHours := (minutes % 1440) / 60
+	if minutes >= 420 {
+		days := minutes / 420
+		remainingHours := (minutes % 420) / 60
 		return fmt.Sprintf("%d days %d hours", days, remainingHours)
 	}
 	if minutes >= 60 {
