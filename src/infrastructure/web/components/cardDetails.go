@@ -99,11 +99,21 @@ func ListOfComments(listOfComment []persistence.Comment) gom.Node {
 func ListComments(listOfComment persistence.Comment) gom.Node {
 	return gomh.Div(
 		gomh.Class("comment"),
-		gomh.Div(gomh.Class("comment-author"),
-			gom.Text(listOfComment.Author),
+
+		gomh.Div(gomh.Class("comment-time"),
+			gom.Text(listOfComment.CreatedAt.Format("02-01-2006 at 15:04")),
 		),
-		gomh.Div(gomh.Class("comment-text"),
-			gom.Text(listOfComment.Text),
+
+		gomh.Div(gomh.Class("comment-container-inner"),
+
+			gomh.Div(gomh.Class("comment-author"),
+				gom.Text(listOfComment.Author),
+			),
+
+			gomh.Div(gomh.Class("comment-text"),
+				gom.Text(listOfComment.Text),
+			),
 		),
 	)
+
 }

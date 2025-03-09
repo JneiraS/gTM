@@ -166,7 +166,7 @@ func GetComment(db *gorm.DB, id uint) []Comment {
 
 func GetTaskComments(db *gorm.DB, id uint) ([]TaskComments, error) {
 	var taskComments []TaskComments
-	result := db.Where("task_id = ?", id).Find(&taskComments)
+	result := db.Where("task_id = ?", id).Order("comment_id desc").Find(&taskComments)
 	if result.Error != nil {
 		return nil, fmt.Errorf("error while retrieving task comments: %w", result.Error)
 	}
@@ -304,4 +304,5 @@ func DeleteSubtask(db *gorm.DB, id uint) {
 func DeleteComment(db *gorm.DB, id uint) {
 	var comment Comment
 	db.Delete(&comment, id)
+
 }

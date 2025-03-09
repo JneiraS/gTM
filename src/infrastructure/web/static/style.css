@@ -478,6 +478,7 @@ li {
 .detail-task-container {
   display: flex;
   flex-grow: 1;
+  gap: 2em;
   flex-direction: column;
   align-items: center;
   justify-content: center;
@@ -569,7 +570,7 @@ li {
 .comment-input {
   flex-grow: 1;
   background-color: rgba(255, 255, 255, 0.05);
-  border: 1px soulid rgba(255, 255, 255, 0.15);
+  border: #118ab27f 1px solid;
   border-radius: 8px;
   padding: 1em;
   color: var(--font-color);
@@ -596,6 +597,50 @@ li {
 .comment-form button:hover {
   background-color: var(--mint);
 }
+
+
+/* Comment display */
+
+.comment-list {
+  display: flex;
+  flex-direction: column;
+  gap: .5em;
+  width: 100%;
+}
+
+.comment {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 1em;
+  margin-bottom: 1em;
+}
+
+.comment-container-inner {
+  display: flex;
+  gap: 1em;
+
+}
+
+.comment-time {
+  font-size: small;
+
+}
+
+.comment-author {
+  color: var(--blue-munsell);
+  font-weight: bold;
+  margin-bottom: 0.5em;
+  gap: .5em;
+}
+
+.comment-text {
+  color: var(--font-color);
+  line-height: 1.4;
+}
+
 
 @keyframes fill-progress {
   from {
@@ -672,19 +717,14 @@ footer {
 
 /* TASK DETAILS */
 
-#detail-task-container {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: var(--color-card);
-  color: var(--main-background-color);
+/* #detail-task-container {
+  display: flex;
+  justify-content: space-between;
   padding: 2em;
   border-radius: 8px;
-  box-shadow: #000000dc 0px 1px 3px 0px, #ffffffd7 0px 1px 1px 0px;
   border: 1px solid rgba(255, 255, 255, 0.15);
   max-width: 90%;
-}
+} */
 
 @keyframes fadeOut {
   0% {
