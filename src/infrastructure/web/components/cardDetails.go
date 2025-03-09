@@ -15,9 +15,11 @@ func CardDetails(task persistence.Task) gom.Node {
 	)
 }
 
-func CardComments() gom.Node {
+func CardComments(task persistence.Task) gom.Node {
 	return gomh.Section(gomh.Class("detail-task-container"),
-		FormComment(),
+		gomh.H1(gom.Text("Comments")),
+
+		FormComment(task.ID),
 	)
 }
 
@@ -69,13 +71,18 @@ func ProgressBar(task persistence.Task) gom.Node {
 	)
 }
 
-func FormComment() gom.Node {
-	return gomh.Div(gomh.Class("comment-form"),
-		gomh.Textarea(gomh.Class("comment-input"),
+func FormComment(id uint) gom.Node {
+	return gomh.Form(
+		gomh.Class("comment-form"),
+		gomh.Action("/comment/"+fmt.Sprintf("%d", id)),
+		gomh.Method("POST"),
+		gomh.Textarea(
+			gomh.Class("comment-input"),
 			gomh.Placeholder("Add a comment..."),
 			gomh.Name("comment"),
 		),
-		gomh.Button(gomh.Type("submit"),
+		gomh.Button(
+			gomh.Type("submit"),
 			gom.Text("Add Comment"),
 		),
 	)

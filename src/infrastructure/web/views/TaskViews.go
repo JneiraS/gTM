@@ -72,6 +72,7 @@ func SetupRouter(db *gorm.DB) {
 	router.GET("/login", DisplayLoginPage(db))
 	router.GET("/logout", useCases.LogoutHandler())
 	router.GET("/task/:id", middleware.AuthMiddleware(), DisplayDetailsTask(db))
+	router.POST("/comment/:id", middleware.AuthMiddleware(), useCases.CreateCommentHandler(db))
 
 	router.Run(":7263")
 
@@ -144,7 +145,7 @@ func DisplayDetailsTask(db *gorm.DB) gin.HandlerFunc {
 			"title":    "Détails de la tâche",
 			"navbar":   components.Navbar(userID, username),
 			"detail":   components.CardDetails(task),
-			"comments": components.CardComments(),
+			"comments": components.CardComments(task),
 		})
 	}
 }

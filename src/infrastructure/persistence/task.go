@@ -86,8 +86,14 @@ func CreateSubtask(db *gorm.DB, subtask Subtask) {
 //
 // La fonction ne renvoie pas de valeur, mais provoquera une panique si l'opération
 // de création  choue.
-func CreateComment(db *gorm.DB, comment Comment) {
+func CreateComment(db *gorm.DB, comment Comment, TaskID uint) {
 	db.Create(&comment)
+
+	TaskComments := TaskComments{
+		CommentID: comment.ID,
+		TaskID:    TaskID,
+	}
+	db.Create(&TaskComments)
 }
 
 func CreateTaskTimeSpent(db *gorm.DB, taskID uint) (TaskTimeSpent, error) {
