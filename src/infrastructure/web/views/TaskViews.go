@@ -141,9 +141,10 @@ func DisplayDetailsTask(db *gorm.DB) gin.HandlerFunc {
 		userID = services.GetUserIDFromContext(c)
 
 		c.HTML(http.StatusOK, "details.tmpl", gin.H{
-			"title":  "Détails de la tâche",
-			"navbar": components.Navbar(userID, username),
-			"detail": components.CardDetails(task),
+			"title":    "Détails de la tâche",
+			"navbar":   components.Navbar(userID, username),
+			"detail":   components.CardDetails(task),
+			"comments": components.CardComments(),
 		})
 	}
 }

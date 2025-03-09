@@ -9,9 +9,10 @@
 <body>
    
     {{template "header" .}}
-
+    <div class="details-container">
     {{.detail| safe}}
-   
+    {{.comments| safe }}
+    </div>
     {{template "footer" .}}
 
     <script src="/static/js/script.js"></script>
