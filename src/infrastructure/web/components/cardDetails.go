@@ -27,8 +27,9 @@ func CardComments(task p.Task, listOfComment []p.Comment) gom.Node {
 func CardTitle(title string) gom.Node {
 	return gomh.H1(gom.Text(title))
 }
+
 func Container(class string, task p.Task) gom.Node {
-	return gomh.Div(gomh.Class(class),
+	return gomh.Div(gomh.Class(class), gomh.ID("task-"+fmt.Sprintf("%d", task.ID)),
 		ParagraphWithClass("description_dt", task.Description),
 		DetailContainer("task-info", task),
 		ProgressBar(task),
@@ -39,11 +40,11 @@ func Container(class string, task p.Task) gom.Node {
 func DetailContainer(class string, task p.Task) gom.Node {
 	return gomh.Div(gomh.Class(class),
 		gom.If(!task.DueDate.IsZero(), KeyValue("Due Date", task.DueDate.Format("2006-01-02"), "fa-solid fa-calendar-xmark")),
-		KeyValue("Status", task.Status, ""),
-		KeyValue("Priority", services.FormatPryority(task.Priority), ""),
+		KeyValue("Status", task.Status, "fa-solid fa-ellipsis-vertical"),
+		KeyValue("Priority", services.FormatPryority(task.Priority), "fa-solid fa-circle-exclamation"),
 		KeyValue("Assignee", task.Assignee, "fas fa-user"),
 		KeyValue("Creator", task.Creator, "fas fa-user"),
-		KeyValue("Project", task.Project, ""),
+		KeyValue("Project", task.Project, "fa-solid fa-diagram-project"),
 	)
 }
 
@@ -54,8 +55,8 @@ func ParagraphWithClass(class, text string) gom.Node {
 
 func TaskTime(task p.Task) gom.Node {
 	return gomh.Div(gomh.Class("task-time"),
-		KeyValue("Estimated Time", fmt.Sprintf("%d hours", task.EstimatedTime), ""),
-		KeyValue("Time Spent", services.FormatTimeSpent(task.TimeSpent), ""),
+		KeyValue("Estimated Time", fmt.Sprintf("%d hours", task.EstimatedTime), "fa-solid fa-stopwatch-20"),
+		KeyValue("Time Spent", services.FormatTimeSpent(task.TimeSpent), "fa-solid fa-hourglass-end"),
 	)
 }
 
