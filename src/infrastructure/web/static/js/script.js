@@ -276,4 +276,48 @@ function setStatusColors() {
     });
 }
 
+document.querySelectorAll(".description_dt").forEach(function (el) {
+    const taskElement = el.closest(".task-details");
+    const taskId = taskElement ? taskElement.id.split("-")[1] : null;
+
+    el.addEventListener("click", function () {
+        this.contentEditable = true;
+        this.focus();
+
+        const save = (e) => {
+            if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+                fetch("/update-task", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        id: taskId,
+                        description: this.innerText.trim()
+                    })
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            this.contentEditable = false;
+                            this.removeEventListener("keyup", save);
+                        } else {
+                            console.error("Échec de la mise à jour de la description");
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Erreur lors de la mise à jour :", error);
+                    });
+            }
+        };
+
+        this.addEventListener("blur", () => {
+            this.contentEditable = false;
+            this.removeEventListener("keyup", save);
+        });
+
+        this.addEventListener("keyup", save);
+    });
+});
+
+
 setStatusColors()
