@@ -1,46 +1,3 @@
-document.querySelectorAll(".description").forEach(function (el) {
-    const id = el.id ? el.id.split("-")[1] : null;
-    el.querySelectorAll("li").forEach(function (li) {
-        li.addEventListener("click", function () {
-            this.contentEditable = true;
-            this.focus();
-
-            const save = (e) => {
-                if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
-                    fetch("/update-task", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify({
-                            id: id,
-                            description: this.innerHTML.replace(/<div>/g, '\n').replace(/<\/div>/g, '').replace(/<br\s*\/?>/g, '\n').replace(/<pre>/g, '').replace(/<\/pre>/g, '').replace('&gt;', ">")
-                        })
-                    })
-                        .then(response => {
-                            if (response.ok) {
-                                this.contentEditable = false;
-                                this.removeEventListener("keyup", save);
-                            } else {
-                                console.error("Failed to update task description");
-                            }
-                        })
-                        .catch(error => {
-                            console.error("Error updating task description:", error);
-                        });
-                }
-            };
-
-            this.addEventListener("blur", () => {
-                this.contentEditable = false;
-                this.removeEventListener("keyup", save);
-            });
-
-            this.addEventListener("keyup", save);
-        });
-    });
-});
-
 document.querySelectorAll("[id^='title-']").forEach(function (li) {
     li.addEventListener("click", function () {
         this.contentEditable = true;
@@ -276,46 +233,64 @@ function setStatusColors() {
     });
 }
 
+
+// Fonction pour rendre un élément éditable et sauvegarder les modifications
+function makeEditable(el, taskId) {
+    el.contentEditable = true;
+    el.focus();
+
+    const save = (e) => {
+        if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+            fetch("/update-task", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    id: taskId,
+                    description: el.innerText.trim()
+                })
+            })
+                .then(response => {
+                    if (response.ok) {
+                        el.contentEditable = false;
+                        el.removeEventListener("keyup", save);
+                    } else {
+                        console.error("Échec de la mise à jour de la description");
+                    }
+                })
+                .catch(error => {
+                    console.error("Erreur lors de la mise à jour :", error);
+                });
+        }
+    };
+
+    el.addEventListener("blur", () => {
+        el.contentEditable = false;
+        el.removeEventListener("keyup", save);
+    });
+
+    el.addEventListener("keyup", save);
+}
+
+// Gestion des descriptions générales `.description_dt`
 document.querySelectorAll(".description_dt").forEach(function (el) {
     const taskElement = el.closest(".task-details");
     const taskId = taskElement ? taskElement.id.split("-")[1] : null;
 
     el.addEventListener("click", function () {
-        this.contentEditable = true;
-        this.focus();
+        makeEditable(el, taskId);
+    });
+});
 
-        const save = (e) => {
-            if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
-                fetch("/update-task", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        id: taskId,
-                        description: this.innerText.trim()
-                    })
-                })
-                    .then(response => {
-                        if (response.ok) {
-                            this.contentEditable = false;
-                            this.removeEventListener("keyup", save);
-                        } else {
-                            console.error("Échec de la mise à jour de la description");
-                        }
-                    })
-                    .catch(error => {
-                        console.error("Erreur lors de la mise à jour :", error);
-                    });
-            }
-        };
+// Gestion des listes `.description li`
+document.querySelectorAll(".description").forEach(function (el) {
+    const taskId = el.id ? el.id.split("-")[1] : null;
 
-        this.addEventListener("blur", () => {
-            this.contentEditable = false;
-            this.removeEventListener("keyup", save);
+    el.querySelectorAll("li").forEach(function (li) {
+        li.addEventListener("click", function () {
+            makeEditable(this, taskId);
         });
-
-        this.addEventListener("keyup", save);
     });
 });
 
