@@ -26,6 +26,8 @@ const (
 func CreateTaskHandler(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		dueDate, _ := time.Parse("2006-01-02T15:04", c.PostForm("due_date"))
+		user, _ := c.Cookie("username")
+
 		task := persistence.Task{
 			Task: models.Task{
 				Title:       c.PostForm("title"),
@@ -34,7 +36,7 @@ func CreateTaskHandler(db *gorm.DB) gin.HandlerFunc {
 				Status:      c.PostForm("status"),
 				Priority:    c.PostForm("priority"),
 				Assignee:    c.PostForm("assignee"),
-				Creator:     c.PostForm("creator"),
+				Creator:     user,
 				Project:     c.PostForm("project"),
 				Progress:    0,
 			},
