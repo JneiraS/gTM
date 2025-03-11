@@ -234,13 +234,17 @@ function setStatusColors() {
 }
 
 
-// Fonction pour rendre un élément éditable et sauvegarder les modifications
-function makeEditable(el, taskId) {
-    el.contentEditable = true;
-    el.focus();
+/**
+ * Set an element as editable and listen for Enter key to save modifications.
+ */
+function makeEditable(element, taskId) {
+    element.contentEditable = true;
+    element.focus();
 
-    const save = (e) => {
-        if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+    // Only listen for the Enter key
+    element.addEventListener("keyup", (event) => {
+        if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) {
+            const description = element.innerText.trim();
             fetch("/update-task", {
                 method: "POST",
                 headers: {
@@ -248,29 +252,19 @@ function makeEditable(el, taskId) {
                 },
                 body: JSON.stringify({
                     id: taskId,
-                    description: el.innerText.trim()
+                    description
                 })
             })
                 .then(response => {
                     if (response.ok) {
-                        el.contentEditable = false;
-                        el.removeEventListener("keyup", save);
-                    } else {
-                        console.error("Échec de la mise à jour de la description");
+                        element.contentEditable = false;
                     }
                 })
                 .catch(error => {
-                    console.error("Erreur lors de la mise à jour :", error);
+                    console.error("Error updating description:", error);
                 });
         }
-    };
-
-    el.addEventListener("blur", () => {
-        el.contentEditable = false;
-        el.removeEventListener("keyup", save);
     });
-
-    el.addEventListener("keyup", save);
 }
 
 // Gestion des descriptions générales `.description_dt`
