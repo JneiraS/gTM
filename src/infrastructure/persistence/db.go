@@ -1,6 +1,7 @@
 package persistence
 
 import (
+	"fmt"
 	"log"
 	"time"
 
@@ -8,6 +9,14 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
+
+// Structure pour représenter une transaction GORM
+type Transaction struct {
+	Func func(tx *gorm.DB) error
+}
+
+// Queue de transactions (buffer de 100 transactions max)
+var transactionQueue = make(chan Transaction, 100)
 
 // CreateDB initialise la connexion SQLite avec une meilleure gestion de concurrence
 func CreateDB() *gorm.DB {
@@ -47,4 +56,15 @@ func CreateDB() *gorm.DB {
 		&User{})
 
 	return db
+}
+
+// Worker qui exécute les transactions de la queue
+func Worker(db *gorm.DB) {
+	for txn := range transactionQueue {
+		// Exécution dans une transaction GORM
+		err := db.Transaction(txn.Func)
+		if err != nil {
+			fmt.Println("Erreur lors de l'exécution de la transaction:", err)
+		}
+	}
 }

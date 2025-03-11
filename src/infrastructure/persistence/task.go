@@ -62,8 +62,16 @@ func CreateTask(db *gorm.DB, task Task) {
 	task.Description = strings.ReplaceAll(task.Description, "\r\n", "\n")
 	// Convert single carriage returns to line breaks
 	task.Description = strings.ReplaceAll(task.Description, "\r", "\n")
-	db.Create(&task)
-	CreateTaskTimeSpent(db, task.ID)
+
+	transactionQueue <- Transaction{
+		Func: func(tx *gorm.DB) error {
+			if err := tx.Create(&task).Error; err != nil {
+				return err
+			}
+			CreateTaskTimeSpent(tx, task.ID)
+			return nil
+		},
+	}
 }
 
 // Crée une nouvelle sous-tâche dans la base de données.
@@ -216,19 +224,23 @@ func GetTaskTimeSpent(db *gorm.DB, taskID uint) TaskTimeSpent {
 // La fonction ne renvoie pas de valeur, mais provoquera une panique si l'opération
 // de mise à jour  choue.
 func UpdateTask(db *gorm.DB, task Task) {
-	db.Model(&task).Updates(map[string]interface{}{
-		"Title":         task.Title,
-		"Description":   task.Description,
-		"DueDate":       task.DueDate,
-		"Status":        task.Status,
-		"Priority":      task.Priority,
-		"Assignee":      task.Assignee,
-		"Creator":       task.Creator,
-		"Project":       task.Project,
-		"Progress":      task.Progress,
-		"EstimatedTime": task.EstimatedTime,
-		"TimeSpent":     task.TimeSpent,
-	})
+	transactionQueue <- Transaction{
+		Func: func(tx *gorm.DB) error {
+			return tx.Model(&task).Updates(map[string]interface{}{
+				"Title":         task.Title,
+				"Description":   task.Description,
+				"DueDate":       task.DueDate,
+				"Status":        task.Status,
+				"Priority":      task.Priority,
+				"Assignee":      task.Assignee,
+				"Creator":       task.Creator,
+				"Project":       task.Project,
+				"Progress":      task.Progress,
+				"EstimatedTime": task.EstimatedTime,
+				"TimeSpent":     task.TimeSpent,
+			}).Error
+		},
+	}
 }
 
 // Mettre à jour une sous-tâche dans la base de données.
