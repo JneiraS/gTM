@@ -1,4 +1,5 @@
 .vscode/*
+.zed/*
 data.db
 data.db-shm
 data.db-wal

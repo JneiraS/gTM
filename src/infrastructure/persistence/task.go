@@ -2,10 +2,11 @@ package persistence
 
 import (
 	"fmt"
-	"github.com/JneiraS/AMS/src/domain/models"
-	"gorm.io/gorm"
 	"strings"
 	"time"
+
+	"github.com/JneiraS/AMS/src/domain/models"
+	"gorm.io/gorm"
 )
 
 const (
