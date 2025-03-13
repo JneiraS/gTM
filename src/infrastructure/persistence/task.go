@@ -22,6 +22,7 @@ type Subtask struct {
 	models.Subtask
 }
 
+// Completed  renvoie vrai si le statut de la sous-tâche est "completed", sinon faux.
 func (s *Subtask) Completed() bool {
 	return s.Status == "completed"
 }
