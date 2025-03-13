@@ -131,7 +131,7 @@ func TestCreateSubtask(t *testing.T) {
 		},
 	}
 
-	persistence.CreateSubtask(db, subtask)
+	persistence.CreateSubtask(db, subtask, 1)
 
 	var savedSubtask persistence.Subtask
 	result := db.First(&savedSubtask, 1)
@@ -139,7 +139,6 @@ func TestCreateSubtask(t *testing.T) {
 		t.Errorf("Failed to retrieve created subtask: %v", result.Error)
 	}
 }
-
 func TestCreateComment(t *testing.T) {
 	db := setupTestDB(t)
 

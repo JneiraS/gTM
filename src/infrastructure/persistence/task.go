@@ -73,8 +73,14 @@ func CreateTask(db *gorm.DB, task Task) {
 }
 
 // Crée une nouvelle sous-tâche dans la base de données.
-func CreateSubtask(db *gorm.DB, subtask Subtask) {
+func CreateSubtask(db *gorm.DB, subtask Subtask, TaskID uint) {
 	db.Create(&subtask)
+
+	taskSubtask := TaskSubtasks{
+		SubtaskID: subtask.ID,
+		TaskID:    TaskID,
+	}
+	db.Create(&taskSubtask)
 }
 
 // Crée un nouveau commentaire dans la base de données.
@@ -162,6 +168,28 @@ func GetAllCommentsOfTask(db *gorm.DB, taskID uint) ([]Comment, error) {
 		comments = append(comments, comment...)
 	}
 	return comments, nil
+}
+
+func GetTaskSubtasks(db *gorm.DB, id uint) ([]TaskSubtasks, error) {
+	var taskSubtasks []TaskSubtasks
+	result := db.Where(REQUEST_TASK_ID, id).Order("subtask_id desc").Find(&taskSubtasks)
+	if result.Error != nil {
+		return nil, fmt.Errorf("error while retrieving task subtasks: %w", result.Error)
+	}
+	return taskSubtasks, nil
+}
+
+func GetAllSubtasksOfTask(db *gorm.DB, taskID uint) ([]Subtask, error) {
+	var subtasks []Subtask
+	taskSubtasks, err := GetTaskSubtasks(db, taskID)
+	if err != nil {
+		return nil, err
+	}
+	for _, taskSubtask := range taskSubtasks {
+		subtask := GetSubtask(db, taskSubtask.SubtaskID)
+		subtasks = append(subtasks, subtask)
+	}
+	return subtasks, nil
 }
 
 // GetAllProjects renvoie une liste de tous les noms de projet dans la base de données.

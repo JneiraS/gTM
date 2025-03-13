@@ -20,23 +20,7 @@ const (
 	IndexTemplate = "index.tmpl"
 )
 
-// const (
-// 	Pending           = "Pending"
-// 	InProgress        = "In progress"
-// 	Done              = "Done"
-// 	invalidRequestMsg = "Invalid request"
-// 	invalidTaskIDMsg  = "Invalid task ID"
-// 	taskNotFoundMsg   = "Task not found"
-// 	FIND_BY_PROJECT   = "project = ?"
-// )
-
 // SetupRouter creates a web server that serves the web interface for the application.
-//
-// The web interface shows four lists of tasks: tasks with a due date, tasks without
-// a due date, tasks that are done, and tasks that are late.
-//
-// The functions to create a new task, mark a task as done and update a task are
-// routed to the corresponding functions in the useCases package.
 func SetupRouter(db *gorm.DB) {
 	router := gin.Default()
 
@@ -73,6 +57,7 @@ func SetupRouter(db *gorm.DB) {
 	router.GET("/logout", useCases.LogoutHandler())
 	router.GET("/task/:id", middleware.AuthMiddleware(), DisplayDetailsTask(db))
 	router.POST("/comment/:id", middleware.AuthMiddleware(), useCases.CreateCommentHandler(db))
+	router.POST("/subtask/:id", middleware.AuthMiddleware(), useCases.CreateSubtaskHandler(db))
 
 	router.Run(":7263")
 
@@ -147,11 +132,16 @@ func DisplayDetailsTask(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
+		listOfSubtask, _ := persistence.GetAllSubtasksOfTask(db, uint(id))
+
+		fmt.Println(listOfSubtask)
+
 		c.HTML(http.StatusOK, "details.tmpl", gin.H{
 			"title":    "Détails de la tâche",
 			"navbar":   components.Navbar(userID, username),
 			"detail":   components.CardDetails(task),
 			"comments": components.CardComments(task, listOfComment),
+			"subtasks": components.CardSubtasks(task, listOfSubtask),
 		})
 	}
 }

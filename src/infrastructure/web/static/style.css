@@ -41,6 +41,7 @@ header {
   background-color: rgb(37, 41, 45);
   padding: .5em;
   min-height: 2.5em;
+  z-index: 10;
 }
 
 .badge {
@@ -470,6 +471,7 @@ li {
 
 /* TASK DETAILS*/
 .details-container {
+  padding: 2em;
   display: flex;
   flex-direction: row;
   align-items: self-start;
@@ -573,6 +575,32 @@ li {
   padding: 1em;
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 8px;
+}
+
+
+textarea.comment-input {
+  height: 3em;
+  width: 100%;
+  margin-bottom: 1em;
+}
+
+
+.subtask-list {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.subtask-check {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 1em;
+  margin-bottom: 1em;
 }
 
 /* Comments */

@@ -13,12 +13,14 @@
     {{template "header" .}}
     <div class="details-container">
     {{.detail| safe}}
+    {{.subtasks| safe}}
     {{.comments| safe }}
     </div>
     {{template "footer" .}}
 
     <script src="/static/js/script.js"></script>i
     <script src="/static/js/script.js"></script>
+    <script src="/static/js/script-details.js"></script>
 
 </body>
 </html>

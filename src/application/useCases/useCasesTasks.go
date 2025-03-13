@@ -238,3 +238,22 @@ func CreateCommentHandler(db *gorm.DB) gin.HandlerFunc {
 		c.Redirect(http.StatusFound, "/task/"+c.Param("id"))
 	}
 }
+
+func CreateSubtaskHandler(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+
+		id, _ := strconv.Atoi(c.Param("id"))
+
+		subtask := persistence.Subtask{
+			Subtask: models.Subtask{
+				Title:  c.PostForm("title"),
+				Status: c.PostForm("status"),
+			},
+		}
+
+		persistence.CreateSubtask(db, subtask, uint(id))
+
+		c.Status(http.StatusCreated)
+		c.Redirect(http.StatusFound, "/task/"+c.Param("id"))
+	}
+}
