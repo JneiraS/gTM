@@ -48,6 +48,7 @@ func Subtask(subtask p.Subtask, id uint) gom.Node {
 			gomh.Type("checkbox"),
 			gomh.ID(fmt.Sprintf("subtask-%d", id)),
 			gomh.Name("completed"),
+			gom.If(subtask.Completed(), gomh.Checked()),
 		),
 		gomh.Label(
 			gomh.For(fmt.Sprintf("subtask-%d", id)),

@@ -22,6 +22,10 @@ type Subtask struct {
 	models.Subtask
 }
 
+func (s *Subtask) Completed() bool {
+	return s.Status == "completed"
+}
+
 type TaskSubtasks struct {
 	SubtaskID uint `gorm:"primaryKey"`
 	TaskID    uint `gorm:"primaryKey"`
