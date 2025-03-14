@@ -58,7 +58,7 @@ func SetupRouter(db *gorm.DB) {
 	router.GET("/task/:id", middleware.AuthMiddleware(), DisplayDetailsTask(db))
 	router.POST("/comment/:id", middleware.AuthMiddleware(), useCases.CreateCommentHandler(db))
 	router.POST("/subtask/:id", middleware.AuthMiddleware(), useCases.CreateSubtaskHandler(db))
-	router.POST("/subtask/status-change/:id", middleware.AuthMiddleware(), useCases.UpdateSubtaskStatusHandler(db))
+	router.POST("/subtask/:id/status-change/:id_sub", middleware.AuthMiddleware(), useCases.UpdateSubtaskStatusHandler(db))
 
 	router.Run(":7263")
 
@@ -134,8 +134,6 @@ func DisplayDetailsTask(db *gorm.DB) gin.HandlerFunc {
 		}
 
 		listOfSubtask, _ := persistence.GetAllSubtasksOfTask(db, uint(id))
-
-		fmt.Println(listOfSubtask)
 
 		c.HTML(http.StatusOK, "details.tmpl", gin.H{
 			"title":    "Détails de la tâche",
