@@ -256,6 +256,11 @@ func UpdateTaskTimeSpent(db *gorm.DB, taskTimeSpent TaskTimeSpent) {
 	})
 }
 
+func EndSubtask(db *gorm.DB, subtask Subtask) {
+	db.Model(&subtask).Update("status", "completed")
+
+}
+
 //------DELETE------
 
 // Supprime une tâche de la base de données.
@@ -274,5 +279,4 @@ func DeleteSubtask(db *gorm.DB, id uint) {
 func DeleteComment(db *gorm.DB, id uint) {
 	var comment Comment
 	db.Delete(&comment, id)
-
 }

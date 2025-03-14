@@ -257,3 +257,21 @@ func CreateSubtaskHandler(db *gorm.DB) gin.HandlerFunc {
 		c.Redirect(http.StatusFound, "/task/"+c.Param("id"))
 	}
 }
+
+func UpdateSubtaskStatusHandler(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			c.Status(http.StatusBadRequest)
+			return
+		}
+
+		subtaskToUpdate := persistence.Subtask{}
+		db.First(&subtaskToUpdate, id)
+
+		persistence.EndSubtask(db, subtaskToUpdate)
+
+		c.Status(http.StatusCreated)
+		c.Redirect(http.StatusFound, "/")
+	}
+}

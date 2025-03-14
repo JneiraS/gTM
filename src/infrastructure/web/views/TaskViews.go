@@ -58,6 +58,7 @@ func SetupRouter(db *gorm.DB) {
 	router.GET("/task/:id", middleware.AuthMiddleware(), DisplayDetailsTask(db))
 	router.POST("/comment/:id", middleware.AuthMiddleware(), useCases.CreateCommentHandler(db))
 	router.POST("/subtask/:id", middleware.AuthMiddleware(), useCases.CreateSubtaskHandler(db))
+	router.POST("/subtask/status-change/:id", middleware.AuthMiddleware(), useCases.UpdateSubtaskStatusHandler(db))
 
 	router.Run(":7263")
 

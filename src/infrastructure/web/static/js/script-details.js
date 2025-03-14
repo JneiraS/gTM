@@ -19,3 +19,35 @@ listOfSubtask.forEach(subtask => {
         }
     });
 });
+
+
+
+listOfSubtask.forEach(subtask => {
+    subtask.addEventListener("change", function () {
+        const subtaskId = this.id.split('-')[1];
+        const isCompleted = this.checked;
+
+        fetch('/subtask/status-change/' + subtaskId, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                completed: isCompleted
+            })
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Revert the checkbox state if the request failed
+                this.checked = !isCompleted;
+                this.parentNode.style.textDecoration = isCompleted ? "none" : "line-through";
+                this.parentNode.style.opacity = isCompleted ? "1" : "0.25";
+            });
+    });
+});
