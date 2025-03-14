@@ -678,12 +678,12 @@ textarea.comment-input {
 
 .comment-author {
   background-color: var(--ecru);
+  height: fit-content;
   color: var(--color-card);
   border-radius: var(--radius);
   padding: .1em 0.5em;
   font-weight: bold;
   margin-bottom: 0.5em;
-  gap: .5em;
 }
 
 .comment-text {
