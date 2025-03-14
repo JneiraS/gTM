@@ -1,4 +1,8 @@
 let listOfSubtask = document.querySelectorAll("[id^='subtask-']");
+const taskId = window.location.pathname.split('/').pop();
+
+
+
 // console.log(listOfSubtask)
 
 // Barrer les sous-tâches cochées
@@ -27,7 +31,7 @@ listOfSubtask.forEach(subtask => {
         const subtaskId = this.id.split('-')[1];
         const isCompleted = this.checked;
 
-        fetch('/subtask/status-change/' + subtaskId, {
+        fetch('/subtask/' + taskId + '/status-change/' + subtaskId, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -42,12 +46,24 @@ listOfSubtask.forEach(subtask => {
                 }
                 return response.json();
             })
-            .catch(error => {
-                console.error('Error:', error);
-                // Revert the checkbox state if the request failed
-                this.checked = !isCompleted;
-                this.parentNode.style.textDecoration = isCompleted ? "none" : "line-through";
-                this.parentNode.style.opacity = isCompleted ? "1" : "0.25";
-            });
+            .then(() => {
+                if (isCompleted) {
+                    this.parentNode.style.textDecoration = "line-through";
+                    this.parentNode.style.opacity = "0.25";
+                } else {
+                    this.parentNode.style.textDecoration = "none";
+                    this.parentNode.style.opacity = "1";
+                }
+            })
+
+        StatusBarEvo();
+
     });
 });
+
+function StatusBarEvo() {
+    let totalSubtasks = document.querySelectorAll("[id^='subtask-']").length;
+    let checkedSubtasks = document.querySelectorAll("[id^='subtask-']:checked").length;
+    let porcentOfCompletedSubtasks = (checkedSubtasks / totalSubtasks) * 100;
+    document.querySelector(".progress").style.width = `${porcentOfCompletedSubtasks}%`;
+}

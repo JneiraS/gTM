@@ -1,6 +1,7 @@
 package useCases
 
 import (
+	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -260,6 +261,12 @@ func CreateSubtaskHandler(db *gorm.DB) gin.HandlerFunc {
 
 func UpdateSubtaskStatusHandler(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		id_sub, err := strconv.Atoi(c.Param("id_sub"))
+		if err != nil {
+			c.Status(http.StatusBadRequest)
+			return
+		}
+
 		id, err := strconv.Atoi(c.Param("id"))
 		if err != nil {
 			c.Status(http.StatusBadRequest)
@@ -267,11 +274,67 @@ func UpdateSubtaskStatusHandler(db *gorm.DB) gin.HandlerFunc {
 		}
 
 		subtaskToUpdate := persistence.Subtask{}
-		db.First(&subtaskToUpdate, id)
+		db.First(&subtaskToUpdate, id_sub)
 
 		persistence.EndSubtask(db, subtaskToUpdate)
+		calculateProgressHandler(db, id)
 
 		c.Status(http.StatusCreated)
 		c.Redirect(http.StatusFound, "/")
 	}
+
+}
+func calculateProgressHandler(db *gorm.DB, taskID int) {
+	log.Printf("calculateProgressHandler called with taskID=%d\n", taskID)
+
+	// Vérifier si la tâche existe
+	var task persistence.Task
+	if err := db.First(&task, taskID).Error; err != nil && err != gorm.ErrRecordNotFound {
+		log.Printf("calculateProgressHandler: error finding task with ID %d: %v", taskID, err)
+		return
+	}
+
+	// Compter le nombre total de sous-tâches
+	var taskCount int64
+	if err := db.Table("task_subtasks").Where("task_id = ?", taskID).Count(&taskCount).Error; err != nil {
+		log.Printf("calculateProgressHandler: error counting task-subtask relation for task %d: %v", taskID, err)
+		return
+	}
+
+	// Récupérer les IDs des sous-tâches
+	var subtaskIDs []uint
+	if err := db.Table("task_subtasks").Where("task_id = ?", taskID).Pluck("subtask_id", &subtaskIDs).Error; err != nil {
+		log.Printf("calculateProgressHandler: error retrieving subtask IDs for task %d: %v", taskID, err)
+		return
+	}
+
+	log.Printf("Sous-tâches associées à la tâche %d : %+v\n", taskID, subtaskIDs)
+
+	// Compter les sous-tâches terminées
+	var completedCount int64
+	for _, subtaskID := range subtaskIDs {
+		if err := db.Table("subtasks").Where("id = ? AND status = ?", subtaskID, "completed").Count(&completedCount).Error; err != nil {
+			log.Printf("calculateProgressHandler: error counting completed subtasks for task %d: %v", taskID, err)
+			return
+		}
+	}
+
+	log.Printf("Nombre total de sous-tâches : %d\n", taskCount)
+	log.Printf("Nombre de sous-tâches terminées : %d\n", completedCount)
+
+	// Calculer le pourcentage de progression
+	var progress int
+	if taskCount > 0 {
+		progress = int(float64(completedCount) / float64(taskCount) * 100)
+	} else {
+		progress = 0
+	}
+
+	log.Printf("Progression : %d%%\n", progress)
+
+	// Mettre à jour la progression de la tâche
+	task.Progress = progress
+	persistence.UpdateTask(db, task)
+
+	log.Printf("Tâche mise à jour avec une progression de %d%%\n", progress)
 }
