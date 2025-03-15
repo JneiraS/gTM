@@ -3,7 +3,7 @@ package components
 import (
 	"fmt"
 
-	"github.com/JneiraS/AMS/src/domain/services"
+	as "github.com/JneiraS/AMS/src/application/services"
 	p "github.com/JneiraS/AMS/src/infrastructure/persistence"
 	gom "maragu.dev/gomponents"
 	gomh "maragu.dev/gomponents/html"
@@ -41,7 +41,7 @@ func DetailContainer(class string, task p.Task) gom.Node {
 	return gomh.Div(gomh.Class(class),
 		gom.If(!task.DueDate.IsZero(), KeyValue("Due Date", task.DueDate.Format("2006-01-02"), "fa-solid fa-calendar-xmark")),
 		KeyValue("Status", task.Status, "fa-solid fa-ellipsis-vertical"),
-		KeyValue("Priority", services.FormatPryority(task.Priority), "fa-solid fa-circle-exclamation"),
+		KeyValue("Priority", as.FormatPryority(task.Priority), "fa-solid fa-circle-exclamation"),
 		KeyValue("Assignee", task.Assignee, "fas fa-user"),
 		KeyValue("Creator", task.Creator, "fas fa-user"),
 		KeyValue("Project", task.Project, "fa-solid fa-diagram-project"),
@@ -56,7 +56,7 @@ func ParagraphWithClass(class, text string) gom.Node {
 func TaskTime(task p.Task) gom.Node {
 	return gomh.Div(gomh.Class("task-time"),
 		KeyValue("Estimated Time", fmt.Sprintf("%d hours", task.EstimatedTime), "fa-solid fa-stopwatch-20"),
-		KeyValue("Time Spent", services.FormatTimeSpent(task.TimeSpent), "fa-solid fa-hourglass-end"),
+		KeyValue("Time Spent", as.FormatTimeSpent(task.TimeSpent), "fa-solid fa-hourglass-end"),
 	)
 }
 

@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"time"
 
+	as "github.com/JneiraS/AMS/src/application/services"
 	"github.com/JneiraS/AMS/src/domain/models"
-	"github.com/JneiraS/AMS/src/domain/services"
 	"github.com/JneiraS/AMS/src/infrastructure/persistence"
 
 	"github.com/gin-gonic/gin"
@@ -78,10 +78,10 @@ func ToggleTaskStatusHandler(db *gorm.DB) gin.HandlerFunc {
 
 		if task.Status == "Pending" || task.Status == "Stopped" {
 			task.Status = InProgress
-			services.UpdateStartTime(db, task.ID)
+			as.UpdateStartTime(db, task.ID)
 		} else if task.Status == InProgress {
 			task.Status = "Stopped"
-			task.TimeSpent = task.TimeSpent + services.IncrementTimeSpent(db, task.ID)
+			task.TimeSpent = task.TimeSpent + as.IncrementTimeSpent(db, task.ID)
 		}
 		if err := db.Save(&task).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update task status", "status": 500})
@@ -100,7 +100,7 @@ func MarkTaskAsCompletedHandler(db *gorm.DB) gin.HandlerFunc {
 			c.Status(http.StatusBadRequest)
 			return
 		}
-		services.EndTask(db, uint(id))
+		as.EndTask(db, uint(id))
 		c.Redirect(http.StatusFound, "/")
 	}
 }
