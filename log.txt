@@ -1,0 +1,2 @@
+2025-03-15 21:15:02 [INFO] User attempted login: Jneira
+2025-03-15 21:15:59 [INFO] User logged in: Jneira
