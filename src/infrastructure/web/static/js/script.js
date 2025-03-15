@@ -1,46 +1,3 @@
-document.querySelectorAll(".description").forEach(function (el) {
-    const id = el.id ? el.id.split("-")[1] : null;
-    el.querySelectorAll("li").forEach(function (li) {
-        li.addEventListener("click", function () {
-            this.contentEditable = true;
-            this.focus();
-
-            const save = (e) => {
-                if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
-                    fetch("/update-task", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify({
-                            id: id,
-                            description: this.innerHTML.replace(/<div>/g, '\n').replace(/<\/div>/g, '').replace(/<br\s*\/?>/g, '\n').replace(/<pre>/g, '').replace(/<\/pre>/g, '').replace('&gt;', ">")
-                        })
-                    })
-                        .then(response => {
-                            if (response.ok) {
-                                this.contentEditable = false;
-                                this.removeEventListener("keyup", save);
-                            } else {
-                                console.error("Failed to update task description");
-                            }
-                        })
-                        .catch(error => {
-                            console.error("Error updating task description:", error);
-                        });
-                }
-            };
-
-            this.addEventListener("blur", () => {
-                this.contentEditable = false;
-                this.removeEventListener("keyup", save);
-            });
-
-            this.addEventListener("keyup", save);
-        });
-    });
-});
-
 document.querySelectorAll("[id^='title-']").forEach(function (li) {
     li.addEventListener("click", function () {
         this.contentEditable = true;
@@ -275,5 +232,61 @@ function setStatusColors() {
         }
     });
 }
+
+
+/**
+ * Set an element as editable and listen for Enter key to save modifications.
+ */
+function makeEditable(element, taskId) {
+    element.contentEditable = true;
+    element.focus();
+
+    // Only listen for the Enter key
+    element.addEventListener("keyup", (event) => {
+        if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) {
+            const description = element.innerText.trim();
+            fetch("/update-task", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    id: taskId,
+                    description
+                })
+            })
+                .then(response => {
+                    if (response.ok) {
+                        element.contentEditable = false;
+                    }
+                })
+                .catch(error => {
+                    console.error("Error updating description:", error);
+                });
+        }
+    });
+}
+
+// Gestion des descriptions générales `.description_dt`
+document.querySelectorAll(".description_dt").forEach(function (el) {
+    const taskElement = el.closest(".task-details");
+    const taskId = taskElement ? taskElement.id.split("-")[1] : null;
+
+    el.addEventListener("click", function () {
+        makeEditable(el, taskId);
+    });
+});
+
+// Gestion des listes `.description li`
+document.querySelectorAll(".description").forEach(function (el) {
+    const taskId = el.id ? el.id.split("-")[1] : null;
+
+    el.querySelectorAll("li").forEach(function (li) {
+        li.addEventListener("click", function () {
+            makeEditable(this, taskId);
+        });
+    });
+});
+
 
 setStatusColors()

@@ -1,6 +1,7 @@
 package useCases
 
 import (
+	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -26,6 +27,8 @@ const (
 func CreateTaskHandler(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		dueDate, _ := time.Parse("2006-01-02T15:04", c.PostForm("due_date"))
+		user, _ := c.Cookie("username")
+
 		task := persistence.Task{
 			Task: models.Task{
 				Title:       c.PostForm("title"),
@@ -34,7 +37,7 @@ func CreateTaskHandler(db *gorm.DB) gin.HandlerFunc {
 				Status:      c.PostForm("status"),
 				Priority:    c.PostForm("priority"),
 				Assignee:    c.PostForm("assignee"),
-				Creator:     c.PostForm("creator"),
+				Creator:     user,
 				Project:     c.PostForm("project"),
 				Progress:    0,
 			},
@@ -216,4 +219,113 @@ func UpdateDueDateHandler(db *gorm.DB) gin.HandlerFunc {
 
 		c.JSON(http.StatusOK, gin.H{"status": "Task due date updated successfully"})
 	}
+}
+
+func CreateCommentHandler(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+
+		username, _ := c.Cookie("username")
+		id, _ := strconv.Atoi(c.Param("id"))
+
+		comment := persistence.Comment{
+			Comment: models.Comment{
+				Author: username,
+				Text:   c.PostForm("comment")},
+		}
+
+		persistence.CreateComment(db, comment, uint(id))
+
+		c.Status(http.StatusCreated)
+		c.Redirect(http.StatusFound, "/task/"+c.Param("id"))
+	}
+}
+
+func CreateSubtaskHandler(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+
+		id, _ := strconv.Atoi(c.Param("id"))
+
+		subtask := persistence.Subtask{
+			Subtask: models.Subtask{
+				Title:  c.PostForm("title"),
+				Status: c.PostForm("status"),
+			},
+		}
+
+		persistence.CreateSubtask(db, subtask, uint(id))
+
+		c.Status(http.StatusCreated)
+		c.Redirect(http.StatusFound, "/task/"+c.Param("id"))
+	}
+}
+
+func UpdateSubtaskStatusHandler(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		id_sub, err := strconv.Atoi(c.Param("id_sub"))
+		if err != nil {
+			c.Status(http.StatusBadRequest)
+			return
+		}
+
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			c.Status(http.StatusBadRequest)
+			return
+		}
+
+		subtaskToUpdate := persistence.Subtask{}
+		db.First(&subtaskToUpdate, id_sub)
+
+		persistence.EndSubtask(db, subtaskToUpdate)
+		calculateProgressHandler(db, id)
+
+		c.Status(http.StatusCreated)
+		c.Redirect(http.StatusFound, "/")
+	}
+
+}
+func calculateProgressHandler(db *gorm.DB, taskID int) {
+
+	// Vérifier si la tâche existe
+	var task persistence.Task
+	if err := db.First(&task, taskID).Error; err != nil && err != gorm.ErrRecordNotFound {
+		log.Printf("calculateProgressHandler: error finding task with ID %d: %v", taskID, err)
+		return
+	}
+
+	// Compter le nombre total de sous-tâches
+	var taskCount int64
+	if err := db.Table("task_subtasks").Where("task_id = ?", taskID).Count(&taskCount).Error; err != nil {
+		log.Printf("calculateProgressHandler: error counting task-subtask relation for task %d: %v", taskID, err)
+		return
+	}
+
+	// Récupérer les IDs des sous-tâches
+	var subtaskIDs []uint
+	if err := db.Table("task_subtasks").Where("task_id = ?", taskID).Pluck("subtask_id", &subtaskIDs).Error; err != nil {
+		log.Printf("calculateProgressHandler: error retrieving subtask IDs for task %d: %v", taskID, err)
+		return
+	}
+
+	// Compter les sous-tâches terminées
+	var completedCount int64
+	for _, subtaskID := range subtaskIDs {
+		if err := db.Table("subtasks").Where("id = ? AND status = ?", subtaskID, "completed").Count(&completedCount).Error; err != nil {
+			log.Printf("calculateProgressHandler: error counting completed subtasks for task %d: %v", taskID, err)
+			return
+		}
+	}
+
+	// Calculer le pourcentage de progression
+	var progress int
+	if taskCount > 0 {
+		progress = int(float64(completedCount) / float64(taskCount) * 100)
+	} else {
+		progress = 0
+	}
+
+	// Mettre à jour la progression de la tâche
+	task.Progress += progress
+	persistence.UpdateTask(db, task)
+
 }

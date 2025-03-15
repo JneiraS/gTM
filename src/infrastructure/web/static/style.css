@@ -1,14 +1,14 @@
 :root {
-  --radius: 3px;
+  --radius: 5px;
   --upper-radius: var(--radius) var(--radius) 0 0;
   --bottom-radius: 0 0 var(--radius) var(--radius);
-  --main-background-color: #32363A;
+  --main-background-color: #2F3337;
   --mint: #61A875;
   --ecru: #C4AD6E;
   --old-rose: #C07972;
   --blue-munsell: #118AB2;
   --ash-gray: #fff8f099;
-  --color-card: #354046;
+  --color-card: #42474C;
   --font-color: #C6C5B9;
 }
 
@@ -26,25 +26,50 @@ a {
   color: var(--main-background-color);
 }
 
+h1 {
+  font-weight: bold;
+  font-size: 2em;
+  margin-bottom: .75em;
+}
+
 /* HEARDER */
 
 header {
-  background-color: hsla(0, 0%, 0%, 0.2);
+  position: sticky;
+  top: 0px;
+  display: flex;
+  background-color: rgb(37, 41, 45);
   padding: .5em;
-  min-height: 2.25em;
+  min-height: 2.5em;
+  z-index: 10;
 }
 
 .badge {
   background-color: var(--main-background-color);
   box-shadow: var(--box-shadow);
+  border: #118ab27f 1px solid;
   border-radius: 3px;
   padding: 0.25em;
   margin: 0 0.25em;
   font-size: 0.8em;
-  color: var(--font-color);
+  color: whitesmoke;
   position: sticky;
   top: 300px;
   left: 1em;
+}
+
+.navbar {
+  right: 0;
+}
+
+
+.navbar ol {
+  display: flex;
+}
+
+
+.navbar a {
+  color: var(--ash-gray);
 }
 
 #l-and-u {
@@ -57,11 +82,19 @@ header {
 }
 
 header #username {
-  background-color: var(--ash-gray);
-  color: var(--main-background-color);
+  display: flex;
+  background-color: var(--blue-munsell);
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
   border-radius: var(--radius);
-  padding: 0 .25em;
+  padding: 0 .25em 0 .45em;
   box-shadow: var(--box-shadow)
+}
+
+header #username a {
+  color: whitesmoke;
+  font-weight: normal;
 }
 
 #logout {
@@ -165,7 +198,7 @@ form input[type="submit"]:hover {
   transition: 0.3s ease;
 }
 
-/* Les Tâches */
+/* TASKS */
 .main-container {
   margin: 1.5em 2em;
   display: flex;
@@ -237,10 +270,18 @@ li {
 .task-card-header-a,
 .task-card-header-b,
 .task-card-header-c {
-  padding: 0.25em;
+  padding: 0.5em;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  border-bottom: solid 2px var(--main-background-color);
+
+}
+
+
+.fas,
+.fa-solid {
+  opacity: .4;
 }
 
 .title,
@@ -253,7 +294,7 @@ li {
 .task-card-header-b li,
 .task-card-header-c li {
   background-color: rgba(255, 255, 255, 0.207);
-  font-weight: bold;
+  font-weight: normal;
   font-size: smaller;
   padding: .15em .3em;
   border-radius: 3px;
@@ -264,8 +305,12 @@ li {
   text-align: center;
 }
 
-.title {
-  font-size: larger;
+.task-title {
+  font-weight: bold;
+  color: var(--font-color);
+  margin: 0 .9em 0 1em;
+  padding: 0 .1em;
+
 }
 
 .details-btn {
@@ -284,17 +329,28 @@ li {
 
 .description {
   min-height: 55px;
-  background-color: #00000035;
-  margin: 0.25em 0.7em 0.7em;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  margin: .25em;
   border-radius: 3px;
-  padding: 0.35em;
   overflow-wrap: break-word;
   overflow-y: auto;
   white-space: initial;
 }
 
+.description pre {
+  font-weight: bold;
+  padding: 2em 1em;
+  border-radius: var(--radius);
+  background-color: hsla(0, 0%, 100%, 0.02);
+  color: var(--font-color);
+}
+
+
 /* DOWN */
+
+.task-card-bottom {
+  border-radius: var(--bottom-radius);
+  border-top: solid 2px var(--main-background-color);
+}
 
 .done-bottom {
   font-size: smaller;
@@ -303,7 +359,6 @@ li {
 }
 
 .done-bottom button {
-  background-color: var(--font-color);
   color: var(--main-background-color);
   font-weight: bold;
   padding: 4px 7px;
@@ -316,8 +371,10 @@ li {
   overflow: hidden;
 }
 
-.done-bottom button:hover {
-  background-color: #ffffffb9;
+.fa-circle-check {
+  color: var(--main-background-color);
+  font-size: larger;
+
 }
 
 .done-bottom button::after {
@@ -328,7 +385,7 @@ li {
   left: 0;
   bottom: 0;
   height: 100%;
-  background: var(--blue-munsell);
+  background: var(--mint);
   opacity: 0;
   transition: opacity 0.2s ease;
 }
@@ -409,6 +466,232 @@ li {
   background-color: #ffffffb9;
 }
 
+
+
+
+/* TASK DETAILS*/
+.details-container {
+  padding: 2em;
+  display: flex;
+  flex-direction: row;
+  align-items: self-start;
+  justify-content: space-between;
+  gap: 1em;
+}
+
+.detail-task-container,
+.detail-task-comment {
+  display: flex;
+  flex-grow: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5em;
+  border-radius: 12px;
+  box-shadow: var(--box-shadow);
+  max-width: 600px;
+  margin: 2em auto;
+  background-color: var(--color-card);
+}
+
+.detail-task-container {
+  position: sticky;
+  top: 4.5em;
+}
+
+.detail-task-container .title {
+  font-size: 1.8em;
+  font-weight: bold;
+  margin-bottom: .5em;
+  color: var(--font-color);
+}
+
+.task-details {
+  width: 100%;
+}
+
+.task-details .description {
+  font-size: 1.1em;
+  line-height: 1.6;
+  margin-bottom: 2em;
+  color: var(--font-color);
+}
+
+.task-info {
+  background-color: rgba(255, 255, 255, 0.05);
+  padding: 1.5em;
+  border-radius: 8px;
+  margin-bottom: 1.5em;
+}
+
+.task-info p,
+.task-time p {
+  display: flex;
+  margin: 0.8em 0;
+  gap: .3em;
+}
+
+.task-info p i,
+.task-time p i {
+  color: var(--ecru);
+  opacity: .8;
+
+}
+
+
+
+.task-progress {
+  margin: 2em 0;
+}
+
+.progress-bar {
+  background-color: rgba(255, 255, 255, 0.1);
+  height: 12px;
+  border-radius: 6px;
+  overflow: hidden;
+  margin: 1em 0;
+}
+
+.progress {
+  background-color: var(--mint);
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.task-time {
+  background-color: rgba(255, 255, 255, 0.05);
+  padding: 1.5em;
+  border-radius: 8px;
+  margin-top: 1.5em;
+}
+
+.task-time p {
+  margin: 0.8em 0;
+}
+
+.description_dt {
+  background-color: #00000035;
+  margin: 0.25em 0 0.7em;
+  padding: 1em;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+}
+
+
+textarea.comment-input {
+  height: 3em;
+  width: 100%;
+  margin-bottom: 1em;
+}
+
+
+.subtask-list {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.subtask-check {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 1em;
+  margin-bottom: 1em;
+}
+
+/* Comments */
+
+.comment-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  margin-bottom: 1em;
+}
+
+.comment-input {
+  flex-grow: 1;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: #118ab27f 1px solid;
+  border-radius: 8px;
+  padding: 1em;
+  color: var(--font-color);
+  resize: vertical;
+
+}
+
+.comment-input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.comment-form button {
+  background-color: var(--blue-munsell);
+  color: var(--ash-gray);
+  border: none;
+  border-radius: 4px;
+  padding: 0.8em 1.5em;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  font-family: inherit;
+}
+
+.comment-form button:hover {
+  background-color: var(--mint);
+}
+
+
+/* Comment display */
+
+.comment-list {
+  display: flex;
+  flex-direction: column;
+  gap: .5em;
+  width: 100%;
+}
+
+.comment {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 1em;
+  margin-bottom: 1em;
+}
+
+.comment-container-inner {
+  display: flex;
+  gap: 1em;
+
+}
+
+.comment-time {
+  font-size: small;
+
+}
+
+.comment-author {
+  background-color: var(--ecru);
+  height: fit-content;
+  color: var(--color-card);
+  border-radius: var(--radius);
+  padding: .1em 0.5em;
+  font-weight: bold;
+  margin-bottom: 0.5em;
+}
+
+.comment-text {
+  color: var(--font-color);
+  line-height: 1.4;
+}
+
+
 @keyframes fill-progress {
   from {
     width: 0%;
@@ -421,7 +704,8 @@ li {
 
 .deadline {
   background-color: var(--old-rose);
-  color: var(--main-background-color);
+  color: var(--ash-gray);
+  font-weight: bold;
   flex-grow: 1;
   flex-basis: 200;
 
@@ -482,20 +766,6 @@ footer {
 }
 
 /* TASK DETAILS */
-
-#detail-task-container {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: var(--color-card);
-  color: var(--main-background-color);
-  padding: 2em;
-  border-radius: 8px;
-  box-shadow: #000000dc 0px 1px 3px 0px, #ffffffd7 0px 1px 1px 0px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  max-width: 90%;
-}
 
 @keyframes fadeOut {
   0% {

@@ -5,23 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AMS</title>
     <link rel="stylesheet" type="text/css" href="/static/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
 </head>
 <body>
    
     {{template "header" .}}
-
-    {{ .title }}
-
-   {{ .user }}
-
-    <section id="detail-task-container">
-        <p class="title">{{.task.Title}}</p>
-
-    </section>    
-
+    <div class="details-container">
+    {{.detail| safe}}
+    {{.subtasks| safe}}
+    {{.comments| safe }}
+    </div>
     {{template "footer" .}}
 
+    <script src="/static/js/script.js"></script>i
     <script src="/static/js/script.js"></script>
+    <script src="/static/js/script-details.js"></script>
+
 </body>
 </html>
 

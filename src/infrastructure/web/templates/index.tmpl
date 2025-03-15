@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AMS</title>
     <link rel="stylesheet" type="text/css" href="/static/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
 </head>
 <body>
    
@@ -40,8 +42,6 @@
             <label for="assignee">Assignee:</label>
             <input type="text" id="assignee" name="assignee">
             
-            <label for="creator">Creator:</label>
-            <input type="text" id="creator" name="creator">
             
             <label for="project">Project:</label>
             <input type="text" id="project" name="project">
@@ -57,12 +57,13 @@
                 {{ range .prioritytasks }}
                 <ul class="task-card">
                     <div class="task-card-header-{{.Priority}}">
-                        <li id="title-{{.ID}}">{{ .Title }}</li>
-                        <li>{{.CreatedAt.Format "02.01.2006 à 15:04"}}</li>
+                        <i class="fa-solid fa-pen"></i> 
+                        <p class="task-title" id="title-{{.ID}}"> {{ .Title }}</p>
+                        <li><i class="fas fa-calendar-plus"></i> {{.CreatedAt.Format "02.01.2006 à 15:04"}}</li>
                         {{if .UpdatedAt.After .CreatedAt}}
-                        <li>{{.UpdatedAt.Format "02.01.2006 à 15:04"}}</li>
+                        <li><i class="fas fa-edit"></i> {{.UpdatedAt.Format "02.01.2006 à 15:04"}}</li>
                         {{end}}
-                        <a class="details-btn" href="/task/{{.ID}}">+</a>
+                        <a class="details-btn" href="/task/{{.ID}}"><i class="fa-regular fa-rectangle-list"></i></a>
                     </div>
                     <div class="description" id="task-{{.ID}}">
                         <li><pre>{{.Description}}</pre></li>
@@ -70,15 +71,15 @@
                     <div class="task-card-bottom">
                         {{if .DueDate.IsZero}}
                         {{else}}
-                        <li class="deadline" id="due-date-{{.ID}}">{{ .DueDate.Format "02.01.2006 à 15:04" }}</li>
+                        <li class="deadline" id="due-date-{{.ID}}"><i class="fa-solid fa-calendar-xmark"></i> {{ .DueDate.Format "02.01.2006 à 15:04" }}</li>
                         {{end}}
                         {{if .Assignee}}
-                        <li class="assignee">{{ .Assignee }}</li>
+                        <li class="assignee"><i class="fas fa-user"></i> {{ .Assignee }}</li>
                         {{end}}
                         <a class="change-status" id="status-{{.ID}}">{{ .Status }}</a>
                         <li>
                             <a class="done-bottom" href="/done/{{.ID}}">
-                                <button type="submit">Done</button>
+                                <button type="submit"><i class="fa-solid fa-circle-check"></i></button>
                             </a>
                         </li>
                     </div>
@@ -90,12 +91,12 @@
                 {{ range .taskswithoutdue }}
                 <ul class="task-card">
                     <div class="task-card-header-{{.Priority}}">
-                        <li id="title-{{.ID}}">{{ .Title }}</li>
-                        <li>{{.CreatedAt.Format "02.01.2006 à 15:04"}}</li>
+                        <i class="fa-solid fa-pen"></i> 
+                        <p class="task-title" id="title-{{.ID}}"> {{ .Title }}</p>                        <li><i class="fas fa-calendar-plus"></i> {{.CreatedAt.Format "02.01.2006 à 15:04"}}</li>
                         {{if .UpdatedAt.After .CreatedAt}}
-                        <li>{{.UpdatedAt.Format "02.01.2006 à 15:04"}}</li>
+                        <li><i class="fas fa-edit"></i> {{.UpdatedAt.Format "02.01.2006 à 15:04"}}</li>
                         {{end}}
-                        <a class="details-btn" href="/task/{{.ID}}">+</a>
+                        <a class="details-btn" href="/task/{{.ID}}"><i class="fa-regular fa-rectangle-list"></i></a>
                     </div>
                     <div class="description" id="task-{{.ID}}">
                         <li><pre>{{.Description}}</pre></li>
@@ -106,12 +107,12 @@
                         <li class="deadline" id="due-date-{{.ID}}">{{ .DueDate.Format "02.01.2006 à 15:04" }}</li>
                         {{end}}
                         {{if .Assignee}}
-                        <li class="assignee">{{ .Assignee }}</li>
+                        <li class="assignee"><i class="fas fa-user"></i> {{ .Assignee }}</li>
                         {{end}}
                         <a class="change-status" id="status-{{.ID}}">{{ .Status }}</a>
                         <li>
                             <a class="done-bottom" href="/done/{{.ID}}">
-                                <button type="submit">Done</button>
+                                <button type="submit"><i class="fa-solid fa-circle-check"></i></button>
                             </a>
                         </li>
                     </div>
@@ -126,11 +127,11 @@
             {{ range .latetasks }}
             <ul class="task-card">
                 <div class="task-card-header-{{.Priority}}">
-                    <li>{{ .Title }}</li>
-                    <li>{{.CreatedAt.Format "02.01.2006 à 15:04"}}</li>
+                    <i class="fa-solid fa-pen"></i> 
+                    <p class="task-title" id="title-{{.ID}}"> {{ .Title }}</p>                    <li><i class="fas fa-calendar-plus"></i> {{.CreatedAt.Format "02.01.2006 à 15:04"}}</li>
                     {{if .UpdatedAt.After .CreatedAt}}
-                    <li>{{.UpdatedAt.Format "02.01.2006 à 15:04"}}</li>
-                    <a class="details-btn" href="/task/{{.ID}}">+</a>
+                    <li><i class="fas fa-edit"></i> {{.UpdatedAt.Format "02.01.2006 à 15:04"}}</li>
+                    <a class="details-btn" href="/task/{{.ID}}"><i class="fa-regular fa-rectangle-list"></i></a>
 
                     {{end}}
                 </div>
@@ -143,12 +144,12 @@
                     <li class="deadline" id="due-date-{{.ID}}">{{ .DueDate.Format "02.01.2006 à 15:04" }}</li>
                     {{end}}
                     {{if .Assignee}}
-                    <li class="assignee">{{ .Assignee }}</li>
+                    <li class="assignee"><i class="fas fa-user"></i> {{ .Assignee }}</li>
                     {{end}}
                     <li class="status">{{ .Status }}</li>
                     <li>
                         <a class="done-bottom" href="/done/{{.ID}}">
-                            <button type="submit">Done</button>
+                            <button type="submit"><i class="fa-solid fa-circle-check"></i></button>
                         </a>
                     </li>
                 </div>
@@ -162,11 +163,11 @@
             {{ range .tasksdone }}
             <ul class="task-card">
                 <div class="task-card-header-{{.Priority}}">
-                    <li>{{ .Title }}</li>
-                    <li>{{.CreatedAt.Format "02.01.2006 à 15:04"}}</li>
+                    <i class="fa-solid fa-pen"></i> 
+                    <p class="task-title" id="title-{{.ID}}"> {{ .Title }}</p>                    <li><i class="fas fa-calendar-plus"></i> {{.CreatedAt.Format "02.01.2006 à 15:04"}}</li>
                     {{if .UpdatedAt.After .CreatedAt}}
-                    <li>{{.UpdatedAt.Format "02.01.2006 à 15:04"}}</li>
-                    <a class="details-btn" href="/task/{{.ID}}">+</a>
+                    <li><i class="fas fa-edit"></i> {{.UpdatedAt.Format "02.01.2006 à 15:04"}}</li>
+                    <a class="details-btn" href="/task/{{.ID}}"><i class="fa-regular fa-rectangle-list"></i></a>
 
                     {{end}}
                 </div>
@@ -179,7 +180,7 @@
                     <li class="deadline">{{ .DueDate.Format "02.01.2006 à 15:04" }}</li>
                     {{end}}
                     {{if .Assignee}}
-                    <li class="assignee">{{ .Assignee }}</li>
+                    <li class="assignee"><i class="fas fa-user"></i> {{ .Assignee }}</li>
                     {{end}}
                     <li class="status">{{ .Status }}</li>
                     <li>

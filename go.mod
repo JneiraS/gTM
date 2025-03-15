@@ -38,4 +38,5 @@ require (
 	google.golang.org/protobuf v1.36.4 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/gorm v1.25.12 // indirect
+	maragu.dev/gomponents v1.1.0
 )
