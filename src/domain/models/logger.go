@@ -24,15 +24,14 @@ func (l Logger) LogError(message string) {
 }
 
 func (l Logger) logToFile(filename string, content string) {
+	now := time.Now().Format("2006-01-02 15:04:05")
+	buf := []byte(now + " " + content + "\n")
 	file, err := os.OpenFile(filename, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0644)
 	if err != nil {
-		log.Println(err)
 		return
 	}
-	defer file.Close()
-
-	now := time.Now()
-	_, err = file.WriteString(now.Format("2006-01-02 15:04:05") + " " + content + "\n")
+	_, err = file.Write(buf)
+	_ = file.Close()
 	if err != nil {
 		log.Println(err)
 	}
