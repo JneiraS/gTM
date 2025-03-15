@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	LOGIN_PAGE = "login.html"
+	LOGIN_PAGE = "login.tmpl"
 )
 
 func LoginUserHandler(db *gorm.DB) gin.HandlerFunc {
