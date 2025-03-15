@@ -285,7 +285,6 @@ func UpdateSubtaskStatusHandler(db *gorm.DB) gin.HandlerFunc {
 
 }
 func calculateProgressHandler(db *gorm.DB, taskID int) {
-	log.Printf("calculateProgressHandler called with taskID=%d\n", taskID)
 
 	// Vérifier si la tâche existe
 	var task persistence.Task
@@ -308,8 +307,6 @@ func calculateProgressHandler(db *gorm.DB, taskID int) {
 		return
 	}
 
-	log.Printf("Sous-tâches associées à la tâche %d : %+v\n", taskID, subtaskIDs)
-
 	// Compter les sous-tâches terminées
 	var completedCount int64
 	for _, subtaskID := range subtaskIDs {
@@ -319,9 +316,6 @@ func calculateProgressHandler(db *gorm.DB, taskID int) {
 		}
 	}
 
-	log.Printf("Nombre total de sous-tâches : %d\n", taskCount)
-	log.Printf("Nombre de sous-tâches terminées : %d\n", completedCount)
-
 	// Calculer le pourcentage de progression
 	var progress int
 	if taskCount > 0 {
@@ -330,11 +324,8 @@ func calculateProgressHandler(db *gorm.DB, taskID int) {
 		progress = 0
 	}
 
-	log.Printf("Progression : %d%%\n", progress)
-
 	// Mettre à jour la progression de la tâche
-	task.Progress = progress
+	task.Progress += progress
 	persistence.UpdateTask(db, task)
 
-	log.Printf("Tâche mise à jour avec une progression de %d%%\n", progress)
 }

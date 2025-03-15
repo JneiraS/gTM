@@ -1,7 +1,6 @@
 let listOfSubtask = document.querySelectorAll("[id^='subtask-']");
 const taskId = window.location.pathname.split('/').pop();
-
-
+updateSubtaskProgressBar();
 
 // console.log(listOfSubtask)
 
@@ -23,7 +22,6 @@ listOfSubtask.forEach(subtask => {
         }
     });
 });
-
 
 
 listOfSubtask.forEach(subtask => {
@@ -56,12 +54,12 @@ listOfSubtask.forEach(subtask => {
                 }
             })
 
-        StatusBarEvo();
+        updateSubtaskProgressBar();
 
     });
 });
 
-function StatusBarEvo() {
+function updateSubtaskProgressBar() {
     let totalSubtasks = document.querySelectorAll("[id^='subtask-']").length;
     let checkedSubtasks = document.querySelectorAll("[id^='subtask-']:checked").length;
     let porcentOfCompletedSubtasks = (checkedSubtasks / totalSubtasks) * 100;
