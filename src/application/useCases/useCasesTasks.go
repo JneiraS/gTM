@@ -15,9 +15,11 @@ import (
 )
 
 const (
-	Pending           = "Pending"
-	InProgress        = "In progress"
-	Done              = "Done"
+	Pending    = "Pending"
+	InProgress = "In progress"
+	Done       = "Done"
+	STOPPED    = "Stopped"
+
 	invalidRequestMsg = "Invalid request"
 	invalidTaskIDMsg  = "Invalid task ID"
 	taskNotFoundMsg   = "Task not found"
@@ -56,7 +58,7 @@ func CreateTaskHandler(db *gorm.DB) gin.HandlerFunc {
 func ToggleTaskStatusHandler(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var requestBody struct {
-			ID string `json:"id"`
+			TaskID string `json:"id"`
 		}
 
 		if err := c.BindJSON(&requestBody); err != nil {
@@ -64,27 +66,44 @@ func ToggleTaskStatusHandler(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
-		id, err := strconv.Atoi(requestBody.ID)
+		taskID, err := strconv.Atoi(requestBody.TaskID)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": invalidTaskIDMsg, "status": 400})
 			return
 		}
 
+		tx := db.Begin()
+		defer func() {
+			if r := recover(); r != nil {
+				tx.Rollback()
+			}
+		}()
+
 		task := persistence.Task{}
-		if err := db.First(&task, id).Error; err != nil {
+		if err := tx.First(&task, taskID).Error; err != nil {
+			tx.Rollback()
 			c.JSON(http.StatusNotFound, gin.H{"error": taskNotFoundMsg, "status": 404})
 			return
 		}
 
-		if task.Status == "Pending" || task.Status == "Stopped" {
+		switch task.Status {
+		case Pending, STOPPED:
 			task.Status = InProgress
-			as.UpdateStartTime(db, task.ID)
-		} else if task.Status == InProgress {
-			task.Status = "Stopped"
-			task.TimeSpent = task.TimeSpent + as.IncrementTimeSpent(db, task.ID)
+			as.UpdateStartTime(tx, task.ID)
+		case InProgress:
+			task.Status = STOPPED
+			task.TimeSpent += as.IncrementTimeSpent(tx, task.ID)
 		}
-		if err := db.Save(&task).Error; err != nil {
+
+		if err := tx.Save(&task).Error; err != nil {
+			tx.Rollback()
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update task status", "status": 500})
+			return
+		}
+
+		if err := tx.Commit().Error; err != nil {
+			tx.Rollback()
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to commit transaction", "status": 500})
 			return
 		}
 
