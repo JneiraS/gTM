@@ -1,13 +1,15 @@
 package useCases
 
 import (
+	"fmt"
 	"log"
+
 	"net/http"
 	"strconv"
 	"time"
 
-	"github.com/JneiraS/AMS/src/domain/models"
-	"github.com/JneiraS/AMS/src/domain/services"
+	as "github.com/JneiraS/AMS/src/application/services"
+	m "github.com/JneiraS/AMS/src/domain/models"
 	"github.com/JneiraS/AMS/src/infrastructure/persistence"
 
 	"github.com/gin-gonic/gin"
@@ -15,9 +17,11 @@ import (
 )
 
 const (
-	Pending           = "Pending"
-	InProgress        = "In progress"
-	Done              = "Done"
+	Pending    = "Pending"
+	InProgress = "In progress"
+	Done       = "Done"
+	STOPPED    = "Stopped"
+
 	invalidRequestMsg = "Invalid request"
 	invalidTaskIDMsg  = "Invalid task ID"
 	taskNotFoundMsg   = "Task not found"
@@ -30,7 +34,7 @@ func CreateTaskHandler(db *gorm.DB) gin.HandlerFunc {
 		user, _ := c.Cookie("username")
 
 		task := persistence.Task{
-			Task: models.Task{
+			Task: m.Task{
 				Title:       c.PostForm("title"),
 				Description: c.PostForm("description"),
 				DueDate:     dueDate,
@@ -43,6 +47,8 @@ func CreateTaskHandler(db *gorm.DB) gin.HandlerFunc {
 			},
 		}
 		persistence.CreateTask(db, task)
+		m.Logger{}.LogInfo(fmt.Sprintf("New task created by: %s", user))
+
 		if task.Project != "" {
 			c.Redirect(http.StatusFound, "/project/"+task.Project)
 		} else {
@@ -56,7 +62,7 @@ func CreateTaskHandler(db *gorm.DB) gin.HandlerFunc {
 func ToggleTaskStatusHandler(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var requestBody struct {
-			ID string `json:"id"`
+			TaskID string `json:"id"`
 		}
 
 		if err := c.BindJSON(&requestBody); err != nil {
@@ -64,27 +70,44 @@ func ToggleTaskStatusHandler(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
-		id, err := strconv.Atoi(requestBody.ID)
+		taskID, err := strconv.Atoi(requestBody.TaskID)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": invalidTaskIDMsg, "status": 400})
 			return
 		}
 
+		tx := db.Begin()
+		defer func() {
+			if r := recover(); r != nil {
+				tx.Rollback()
+			}
+		}()
+
 		task := persistence.Task{}
-		if err := db.First(&task, id).Error; err != nil {
+		if err := tx.First(&task, taskID).Error; err != nil {
+			tx.Rollback()
 			c.JSON(http.StatusNotFound, gin.H{"error": taskNotFoundMsg, "status": 404})
 			return
 		}
 
-		if task.Status == "Pending" || task.Status == "Stopped" {
+		switch task.Status {
+		case Pending, STOPPED:
 			task.Status = InProgress
-			services.UpdateStartTime(db, task.ID)
-		} else if task.Status == InProgress {
-			task.Status = "Stopped"
-			task.TimeSpent = task.TimeSpent + services.IncrementTimeSpent(db, task.ID)
+			as.UpdateStartTime(tx, task.ID)
+		case InProgress:
+			task.Status = STOPPED
+			task.TimeSpent += as.IncrementTimeSpent(tx, task.ID)
 		}
-		if err := db.Save(&task).Error; err != nil {
+
+		if err := tx.Save(&task).Error; err != nil {
+			tx.Rollback()
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update task status", "status": 500})
+			return
+		}
+
+		if err := tx.Commit().Error; err != nil {
+			tx.Rollback()
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to commit transaction", "status": 500})
 			return
 		}
 
@@ -100,7 +123,7 @@ func MarkTaskAsCompletedHandler(db *gorm.DB) gin.HandlerFunc {
 			c.Status(http.StatusBadRequest)
 			return
 		}
-		services.EndTask(db, uint(id))
+		as.EndTask(db, uint(id))
 		c.Redirect(http.StatusFound, "/")
 	}
 }
@@ -129,6 +152,8 @@ func UpdateTaskDescriptionHandler(db *gorm.DB) gin.HandlerFunc {
 
 		task.Description = update.Description
 		if err := db.Save(&task).Error; err != nil {
+			m.Logger{}.LogError(fmt.Sprintf("Failed to update task description for task ID: %d", id))
+
 			c.Status(http.StatusInternalServerError)
 			return
 		}
@@ -228,7 +253,7 @@ func CreateCommentHandler(db *gorm.DB) gin.HandlerFunc {
 		id, _ := strconv.Atoi(c.Param("id"))
 
 		comment := persistence.Comment{
-			Comment: models.Comment{
+			Comment: m.Comment{
 				Author: username,
 				Text:   c.PostForm("comment")},
 		}
@@ -246,7 +271,7 @@ func CreateSubtaskHandler(db *gorm.DB) gin.HandlerFunc {
 		id, _ := strconv.Atoi(c.Param("id"))
 
 		subtask := persistence.Subtask{
-			Subtask: models.Subtask{
+			Subtask: m.Subtask{
 				Title:  c.PostForm("title"),
 				Status: c.PostForm("status"),
 			},

@@ -1,12 +1,19 @@
 package useCases
 
 import (
+	"fmt"
 	"net/http"
 
+	as "github.com/JneiraS/AMS/src/application/services"
+	m "github.com/JneiraS/AMS/src/domain/models"
 	"github.com/JneiraS/AMS/src/domain/services"
 	"github.com/JneiraS/AMS/src/infrastructure/persistence"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
+)
+
+const (
+	LOGIN_PAGE = "login.tmpl"
 )
 
 func LoginUserHandler(db *gorm.DB) gin.HandlerFunc {
@@ -16,33 +23,38 @@ func LoginUserHandler(db *gorm.DB) gin.HandlerFunc {
 		password := c.PostForm("password")
 
 		if username == "" || password == "" {
-			c.HTML(http.StatusBadRequest, "login.html", gin.H{"error": "Données invalides"})
+			c.HTML(http.StatusBadRequest, LOGIN_PAGE, gin.H{"error": "Données invalides"})
 			return
 		}
 
 		// Rechercher l'utilisateur dans la base de données
 		var user persistence.User
 		if err := db.Where("username = ?", username).First(&user).Error; err != nil {
-			c.HTML(http.StatusUnauthorized, "login.html", gin.H{"error": "Utilisateur non trouvé"})
+			c.HTML(http.StatusUnauthorized, LOGIN_PAGE, gin.H{"error": "Utilisateur non trouvé"})
 			return
 		}
 
 		// Vérifier le mot de passe
 		if err := services.CheckPassword(user.Password, password); err != nil {
-			c.HTML(http.StatusUnauthorized, "login.html", gin.H{"error": "Mot de passe incorrect"})
+			c.HTML(http.StatusUnauthorized, LOGIN_PAGE, gin.H{"error": "Mot de passe incorrect"})
+			// Logger tentative de connexion
+			m.Logger{}.LogInfo(fmt.Sprintf("User attempted login: %s", username))
 			return
 		}
 
 		// Générer le token JWT
-		token, err := services.GenerateJWT(user)
+		token, err := as.GenerateJWT(user)
 		if err != nil {
-			c.HTML(http.StatusInternalServerError, "login.html", gin.H{"error": "Erreur lors de la génération du token"})
+			c.HTML(http.StatusInternalServerError, LOGIN_PAGE, gin.H{"error": "Erreur lors de la génération du token"})
 			return
 		}
 
 		// ⚠️ Stocker le token dans un cookie sécurisé
 		c.SetCookie("token", token, 3600, "/", "", false, true)
 		c.SetCookie("username", user.Username, 3600, "/", "", false, true) // Expire après 1h
+
+		// Logger l'utilisateur
+		m.Logger{}.LogInfo(fmt.Sprintf("User logged in: %s", user.Username))
 
 		// Rediriger vers une page sécurisée
 		c.Redirect(http.StatusFound, "/")
