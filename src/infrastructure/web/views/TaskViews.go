@@ -80,7 +80,7 @@ func DisplayTasks(db *gorm.DB) gin.HandlerFunc {
 
 		var userID int
 
-		priorityTasks, taskWithoutDueDate, tasksDone, lateTasks, project, err := as.GetTasksByCategory(c, db)
+		result, err := as.GetTasksByCategory(c, db)
 		if err != nil {
 			c.HTML(http.StatusInternalServerError, ErrorTemplate, gin.H{"error": err.Error()})
 			return
@@ -91,18 +91,17 @@ func DisplayTasks(db *gorm.DB) gin.HandlerFunc {
 		// Affichage de la vue avec toutes les données
 		c.HTML(http.StatusOK, IndexTemplate, gin.H{
 			"projects":        p.GetAllProjects(db),
-			"prioritytasks":   priorityTasks,
-			"taskswithoutdue": taskWithoutDueDate,
-			"tasksdone":       tasksDone,
-			"latetasks":       lateTasks,
-			"project":         project,
-			"statistics":      as.GetStatistics(priorityTasks, taskWithoutDueDate, lateTasks),
+			"prioritytasks":   result.PriorityTasks,
+			"taskswithoutdue": result.TaskWithoutDueDate,
+			"tasksdone":       result.TasksDone,
+			"latetasks":       result.LateTasks,
+			"project":         result.Project,
+			"statistics":      as.GetStatistics(result.PriorityTasks, result.TaskWithoutDueDate, result.LateTasks),
 			"navbar":          comp.Navbar(userID, username),
 		})
 
 	}
 }
-
 func DisplaySignupPage(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.HTML(http.StatusOK, "signup.tmpl", gin.H{

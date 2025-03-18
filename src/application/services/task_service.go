@@ -24,6 +24,16 @@ const (
 	MINUTES_PER_HOUR                  = 60
 )
 
+type GetTasksByCategoryResult struct {
+	PriorityTasks      []persistence.Task
+	TaskWithoutDueDate []persistence.Task
+	TasksDone          []persistence.Task
+	LateTasks          []persistence.Task
+	Project            string
+}
+
+var defaultDate time.Time = time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC)
+
 // EndTask met à jour une tâche en la définissant comme terminée.
 //
 // La fonction prend une connexion de base de données GORM et un identifiant de
@@ -102,7 +112,7 @@ func GetUserIDFromContext(c *gin.Context) int {
 }
 
 // getTasksByCategory retourne quatre groupe de tâches et un nom de projet.
-func GetTasksByCategory(c *gin.Context, db *gorm.DB) ([]persistence.Task, []persistence.Task, []persistence.Task, []persistence.Task, string, error) {
+func GetTasksByCategory(c *gin.Context, db *gorm.DB) (GetTasksByCategoryResult, error) {
 	var priorityTasks []persistence.Task
 	var taskWithoutDueDate []persistence.Task
 	var tasksDone []persistence.Task
@@ -110,13 +120,12 @@ func GetTasksByCategory(c *gin.Context, db *gorm.DB) ([]persistence.Task, []pers
 
 	project := c.Param("project")
 
-	baseQuery := db.Where("due_date > ? AND due_date > ? AND status != ?",
-		time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC),
+	baseQuery := db.Where("due_date > ? AND status != ?",
 		time.Now(),
 		Done)
 
 	baseNoDueDateQuery := db.Where("due_date < ? AND status != ?",
-		time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC),
+		defaultDate,
 		Done)
 
 	if project != "" {
@@ -125,15 +134,15 @@ func GetTasksByCategory(c *gin.Context, db *gorm.DB) ([]persistence.Task, []pers
 		if err := db.Where("status = ? AND project = ?", Done, project).
 			Order("updated_at ASC").
 			Find(&tasksDone).Error; err != nil {
-			return nil, nil, nil, nil, "", err
+			return GetTasksByCategoryResult{nil, nil, nil, nil, ""}, err
 		}
 
 		if err := baseQuery.Where("due_date > ? AND due_date < ? AND status != ?",
-			time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC),
+			defaultDate,
 			time.Now(),
 			Done).
 			Find(&lateTasks).Error; err != nil {
-			return nil, nil, nil, nil, "", err
+			return GetTasksByCategoryResult{nil, nil, nil, nil, ""}, err
 		}
 	} else {
 		if err := db.Where("status = ? AND updated_at > ? AND updated_at < ?",
@@ -142,27 +151,29 @@ func GetTasksByCategory(c *gin.Context, db *gorm.DB) ([]persistence.Task, []pers
 			time.Now()).
 			Order("updated_at ASC").
 			Find(&tasksDone).Error; err != nil {
-			return nil, nil, nil, nil, "", err
+			return GetTasksByCategoryResult{nil, nil, nil, nil, ""}, err
 		}
 
 		if err := db.Where("due_date > ? AND due_date < ? AND status != ?",
-			time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC),
+			defaultDate,
 			time.Now(),
 			Done).
 			Find(&lateTasks).Error; err != nil {
-			return nil, nil, nil, nil, "", err
+			return GetTasksByCategoryResult{nil, nil, nil, nil, ""}, err
 		}
 	}
 
 	if err := baseQuery.Order("priority ASC, due_date ASC").Find(&priorityTasks).Error; err != nil {
-		return nil, nil, nil, nil, "", err
+		return GetTasksByCategoryResult{nil, nil, nil, nil, ""}, err
 	}
 	if err := baseNoDueDateQuery.Order("priority ASC").Find(&taskWithoutDueDate).Error; err != nil {
-		return nil, nil, nil, nil, "", err
+		return GetTasksByCategoryResult{nil, nil, nil, nil, ""}, err
 	}
-	return priorityTasks, taskWithoutDueDate, tasksDone, lateTasks, project, nil
-}
 
+	results := GetTasksByCategoryResult{priorityTasks, taskWithoutDueDate, tasksDone, lateTasks, project}
+
+	return results, nil
+}
 func FormatTimeSpent(minutes int) string {
 	if minutes >= NUMBER_OF_WORKING_MINUTES_PER_DAY {
 		days := minutes / NUMBER_OF_WORKING_MINUTES_PER_DAY
