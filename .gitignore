@@ -23,3 +23,4 @@ go.work
 # Dependency directories
 vendor/
 *.db
+log.txt

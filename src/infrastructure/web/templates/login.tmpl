@@ -7,6 +7,11 @@
     <link rel="stylesheet" type="text/css" href="/static/style.css">
 </head>
 <body>
+
+  {{ if .error }}
+  <div id="error-message">{{.error}}</div>
+  {{ end }}
+  
   <div class="login-container">
     <form action="/login" method="POST" class="login-form">
       <div class="form-group">

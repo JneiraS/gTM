@@ -1,9 +1,11 @@
 package useCases
 
 import (
+	"fmt"
 	"net/http"
 
 	as "github.com/JneiraS/AMS/src/application/services"
+	m "github.com/JneiraS/AMS/src/domain/models"
 	"github.com/JneiraS/AMS/src/domain/services"
 	"github.com/JneiraS/AMS/src/infrastructure/persistence"
 	"github.com/gin-gonic/gin"
@@ -11,7 +13,7 @@ import (
 )
 
 const (
-	LOGIN_PAGE = "login.html"
+	LOGIN_PAGE = "login.tmpl"
 )
 
 func LoginUserHandler(db *gorm.DB) gin.HandlerFunc {
@@ -35,6 +37,8 @@ func LoginUserHandler(db *gorm.DB) gin.HandlerFunc {
 		// Vérifier le mot de passe
 		if err := services.CheckPassword(user.Password, password); err != nil {
 			c.HTML(http.StatusUnauthorized, LOGIN_PAGE, gin.H{"error": "Mot de passe incorrect"})
+			// Logger tentative de connexion
+			m.Logger{}.LogInfo(fmt.Sprintf("User attempted login: %s", username))
 			return
 		}
 
@@ -48,6 +52,9 @@ func LoginUserHandler(db *gorm.DB) gin.HandlerFunc {
 		// ⚠️ Stocker le token dans un cookie sécurisé
 		c.SetCookie("token", token, 3600, "/", "", false, true)
 		c.SetCookie("username", user.Username, 3600, "/", "", false, true) // Expire après 1h
+
+		// Logger l'utilisateur
+		m.Logger{}.LogInfo(fmt.Sprintf("User logged in: %s", user.Username))
 
 		// Rediriger vers une page sécurisée
 		c.Redirect(http.StatusFound, "/")

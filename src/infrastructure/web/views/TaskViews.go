@@ -63,6 +63,10 @@ func SetupRouter(db *gorm.DB) {
 	router.POST("/subtask/:id", mw.AuthMiddleware(), uc.CreateSubtaskHandler(db))
 	router.POST("/subtask/:id/status-change/:id_sub", mw.AuthMiddleware(), uc.UpdateSubtaskStatusHandler(db))
 
+	router.NoRoute(func(c *gin.Context) {
+		c.HTML(http.StatusNotFound, "404.tmpl", gin.H{"title": "Page not found"})
+	})
+
 	router.Run(":7263")
 
 }
