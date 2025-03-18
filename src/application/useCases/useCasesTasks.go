@@ -1,13 +1,15 @@
 package useCases
 
 import (
+	"fmt"
 	"log"
+
 	"net/http"
 	"strconv"
 	"time"
 
 	as "github.com/JneiraS/AMS/src/application/services"
-	"github.com/JneiraS/AMS/src/domain/models"
+	m "github.com/JneiraS/AMS/src/domain/models"
 	"github.com/JneiraS/AMS/src/infrastructure/persistence"
 
 	"github.com/gin-gonic/gin"
@@ -32,7 +34,7 @@ func CreateTaskHandler(db *gorm.DB) gin.HandlerFunc {
 		user, _ := c.Cookie("username")
 
 		task := persistence.Task{
-			Task: models.Task{
+			Task: m.Task{
 				Title:       c.PostForm("title"),
 				Description: c.PostForm("description"),
 				DueDate:     dueDate,
@@ -45,6 +47,8 @@ func CreateTaskHandler(db *gorm.DB) gin.HandlerFunc {
 			},
 		}
 		persistence.CreateTask(db, task)
+		m.Logger{}.LogInfo(fmt.Sprintf("New task created by: %s", user))
+
 		if task.Project != "" {
 			c.Redirect(http.StatusFound, "/project/"+task.Project)
 		} else {
@@ -148,6 +152,8 @@ func UpdateTaskDescriptionHandler(db *gorm.DB) gin.HandlerFunc {
 
 		task.Description = update.Description
 		if err := db.Save(&task).Error; err != nil {
+			m.Logger{}.LogError(fmt.Sprintf("Failed to update task description for task ID: %d", id))
+
 			c.Status(http.StatusInternalServerError)
 			return
 		}
@@ -247,7 +253,7 @@ func CreateCommentHandler(db *gorm.DB) gin.HandlerFunc {
 		id, _ := strconv.Atoi(c.Param("id"))
 
 		comment := persistence.Comment{
-			Comment: models.Comment{
+			Comment: m.Comment{
 				Author: username,
 				Text:   c.PostForm("comment")},
 		}
@@ -265,7 +271,7 @@ func CreateSubtaskHandler(db *gorm.DB) gin.HandlerFunc {
 		id, _ := strconv.Atoi(c.Param("id"))
 
 		subtask := persistence.Subtask{
-			Subtask: models.Subtask{
+			Subtask: m.Subtask{
 				Title:  c.PostForm("title"),
 				Status: c.PostForm("status"),
 			},
